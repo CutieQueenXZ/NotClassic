@@ -1,6 +1,6 @@
 CC=gcc
 LIBS=-lGL -lcurl -lopenal -lpthread -lX11 -lm -ldl
-CFLAGS=-g -w -no-pie -rdynamic
+CFLAGS=-g -w -no-pie -rdynamic -pipe
 SOURCES=$(wildcard *.c)
 OBJECTS=$(patsubst %.c, %.o, $(SOURCES))
 COMMITSHA=$(shell git rev-parse HEAD | cut -c '1-7')
