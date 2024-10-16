@@ -147,7 +147,7 @@ TimeMS DateTime_CurrentUTC(void) {
 	return FileTime_TotalSecs(raw);
 }
 
-void DateTime_CurrentLocal(struct DateTime* t) {
+void DateTime_CurrentLocal(struct cc_datetime* t) {
 	SYSTEMTIME localTime;
 	GetLocalTime(&localTime);
 
@@ -943,21 +943,16 @@ void Platform_Free(void) {
 	HeapDestroy(heap);
 }
 
-cc_bool Platform_DescribeErrorExt(cc_result res, cc_string* dst, void* lib) {
+cc_bool Platform_DescribeError(cc_result res, cc_string* dst) {
 	WCHAR chars[NATIVE_STR_LEN];
 	DWORD flags = FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS;
-	if (lib) flags |= FORMAT_MESSAGE_FROM_HMODULE;
 
-	res = FormatMessageW(flags, lib, res, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), 
+	res = FormatMessageW(flags, NULL, res, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), 
 						 chars, NATIVE_STR_LEN, NULL);
 	if (!res) return false;
 
 	String_AppendUtf16(dst, chars, res * 2);
 	return true;
-}
-
-cc_bool Platform_DescribeError(cc_result res, cc_string* dst) {
-	return Platform_DescribeErrorExt(res, dst, NULL);
 }
 
 
