@@ -48,8 +48,8 @@
 
 	#define Z_1 $f0
 	#define Z_2 $f1
-	#define Z_3 $f3
-	#define Z_4 $f4
+	#define Z_3 $f2
+	#define Z_4 $f3
 
 	#define W_1 $f16
 	#define W_2 $f17
