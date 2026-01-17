@@ -65,7 +65,7 @@ Use at your own risk. Don’t be that guy.
 - **Desktop (Windows/Linux):** Supported
 - **Android:** Experimental (bc not tested)
   Python features may require **Termux + port forwarding**
-- **Root not strictly required**, but life is easier with it
+- **Android Root not strictly required**, but life is easier with it
 
 ---
 
