@@ -1,4 +1,4 @@
-# NotClassic B)
+# NotClassic
 
 A modified Classicube-based client focused on experimentation, QoL features,
 and client-side behavior.
@@ -12,6 +12,9 @@ and client-side behavior.
 ## Disclaimer
 This client is for educational and experimental purposes O N L Y.
 Some servers may restrict or disallow modified clients.
+
+## And i wanted to add somethin well...
+"STOOOPID" - Root
 
 ## License
 MIT
