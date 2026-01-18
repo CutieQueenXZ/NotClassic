@@ -1,5 +1,3 @@
-![logo]()
-
 # NotClassic -_- (SOON)
 
 
