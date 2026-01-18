@@ -1,4 +1,6 @@
-# NotClassic -_-
+![logo]()
+
+# NotClassic -_- (SOON)
 
 
 A modified Classicube-based client focused on experimentation, QoL features,
@@ -20,6 +22,13 @@ Use at your own risk. Don’t be that guy.
 
 ## And i wanted to add somethin well...
 "STOOOPID" - Root's response, just bored. :p
+
+## Camouflage Client Name to Classicube!
+
+Some servers think as cheat or unsupported client and then boom, one milliseconds kick, so... we got your back to add this option :D
+
+![Camouflageimg](https://raw.githubusercontent.com/CutieQueenXZ/NotClassic/refs/heads/main/Photos/Photo-of-Camouflage-option.png)
+
 
 ## Added / Changed Commands
 
