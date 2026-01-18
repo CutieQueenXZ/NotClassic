@@ -29,7 +29,7 @@ jobs:
             build/
 
   windows:
-    name: Windows build
+    name: Windows build (MinGW)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -50,7 +50,7 @@ jobs:
             *.exe
 
   android:
-    name: Android build
+    name: Android build (debug)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -73,7 +73,7 @@ jobs:
           path: android/app/build/outputs/apk/debug/*.apk
 
   web:
-    name: Web build
+    name: Web build (Emscripten)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -84,12 +84,11 @@ jobs:
           cd emsdk
           ./emsdk install latest
           ./emsdk activate latest
-          echo "source $PWD/emsdk_env.sh" >> $GITHUB_ENV
+          ./emsdk_env.sh > /tmp/emsdk_env
+          cat /tmp/emsdk_env >> $GITHUB_ENV
 
       - name: Build Web
-        run: |
-          source emsdk/emsdk_env.sh
-          make PLAT=web
+        run: make PLAT=web
 
       - name: Upload Web build
         uses: actions/upload-artifact@v4
