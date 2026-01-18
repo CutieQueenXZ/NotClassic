@@ -1,0 +1,264 @@
+ninja: Entering directory `/home/pc/NotClassic/android/app/.cxx/cmake/debug/x86_64'
+[1/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/GameVersion.c.o
+[2/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/IsometricDrawer.c.o
+[3/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/ExtMath.c.o
+[4/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/Utils.c.o
+[5/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/_ftsynth.c.o
+[6/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/_ftbitmap.c.o
+[7/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/Camera.c.o
+[8/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/Deflate.c.o
+[9/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/Game.c.o
+/home/pc/NotClassic/src/Game.c:152:19: warning: implicit conversion from 'int' to 'short' changes value from 50000 to -15536 [-Wconstant-conversion]
+    16384, 32767, 50000
+                  ^~~~~
+/home/pc/NotClassic/src/Game.c:344:1: warning: control reaches end of non-void function [-Wreturn-type]
+}
+^
+2 warnings generated.
+[10/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/String.c.o
+[11/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/Server.c.o
+[12/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/LWidgets.c.o
+[13/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/Options.c.o
+[14/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/Drawer2D.c.o
+[15/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/Drawer.c.o
+[16/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/Graphics_GL2.c.o
+[17/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/Builder.c.o
+[18/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/SelOutlineRenderer.c.o
+[19/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/_ftglyph.c.o
+[20/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/World.c.o
+[21/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/Inventory.c.o
+[22/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/Vorbis.c.o
+[23/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/Entity.c.o
+[24/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/HeldBlockRenderer.c.o
+[25/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/Vectors.c.o
+[26/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/Protocol.c.o
+[27/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/Stream.c.o
+[28/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/LWeb.c.o
+[29/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/PackedCol.c.o
+[30/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/Launcher.c.o
+[31/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/_cff.c.o
+[32/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/LScreens.c.o
+[33/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/_ftbase.c.o
+[34/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/Block.c.o
+[35/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/Lighting.c.o
+[36/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/Model.c.o
+[37/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/Audio.c.o
+[38/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/Platform_Posix.c.o
+[39/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/Bitmap.c.o
+[40/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/Resources.c.o
+[41/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/_ftinit.c.o
+[42/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/Http_Worker.c.o
+[43/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/MapRenderer.c.o
+[44/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/Event.c.o
+[45/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/Formats.c.o
+[46/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/EntityComponents.c.o
+[47/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/Logger.c.o
+[48/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/Screens.c.o
+[49/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/_autofit.c.o
+[50/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/_pshinter.c.o
+[51/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/TexturePack.c.o
+[52/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/Chat.c.o
+[53/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/AxisLinesRenderer.c.o
+[54/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/Picking.c.o
+[55/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/BlockPhysics.c.o
+[56/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/Gui.c.o
+[57/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/_smooth.c.o
+[58/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/_truetype.c.o
+[59/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/Animations.c.o
+[60/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/Input.c.o
+[61/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/SelectionBox.c.o
+[62/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/Generator.c.o
+[63/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/Physics.c.o
+[64/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/Particle.c.o
+[65/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/_type1.c.o
+[66/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/Widgets.c.o
+[67/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/_sfnt.c.o
+[68/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/_psmodule.c.o
+[69/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/LBackend_Android.c.o
+[70/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/Queue.c.o
+[71/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/Menus.c.o
+[72/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/Audio_SLES.c.o
+[73/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/EnvRenderer.c.o
+[74/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/Gemini.c.o
+/home/pc/NotClassic/src/Gemini.c:35:34: warning: passing 'char *const' to parameter of type 'const cc_uint8 *' (aka 'const unsigned char *') converts between pointers to integer types with different sign [-Wpointer-sign]
+    Socket_WriteAll(gemini_sock, msg->buffer, msg->length);
+                                 ^~~~~~~~~~~
+/home/pc/NotClassic/src/Platform.h:398:61: note: passing argument to parameter 'data' here
+cc_result Socket_WriteAll(cc_socket socket, const cc_uint8* data, cc_uint32 count);
+                                                            ^
+/home/pc/NotClassic/src/Gemini.c:36:34: warning: passing 'char [2]' to parameter of type 'const cc_uint8 *' (aka 'const unsigned char *') converts between pointers to integer types with different sign [-Wpointer-sign]
+    Socket_WriteAll(gemini_sock, "\n", 1);
+                                 ^~~~
+/home/pc/NotClassic/src/Platform.h:398:61: note: passing argument to parameter 'data' here
+cc_result Socket_WriteAll(cc_socket socket, const cc_uint8* data, cc_uint32 count);
+                                                            ^
+/home/pc/NotClassic/src/Gemini.c:46:34: warning: passing 'char [512]' to parameter of type 'cc_uint8 *' (aka 'unsigned char *') converts between pointers to integer types with different sign [-Wpointer-sign]
+    if (Socket_Read(gemini_sock, buf, sizeof(buf)-1, &read) != 0 || read == 0)
+                                 ^~~
+/home/pc/NotClassic/src/Platform.h:392:46: note: passing argument to parameter 'data' here
+cc_result Socket_Read(cc_socket s, cc_uint8* data, cc_uint32 count, cc_uint32* modified);
+                                             ^
+3 warnings generated.
+[75/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/EntityRenderers.c.o
+[76/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/SystemFonts.c.o
+[77/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/ChatGPT.c.o
+/home/pc/NotClassic/src/ChatGPT.c:35:31: warning: passing 'char *const' to parameter of type 'const cc_uint8 *' (aka 'const unsigned char *') converts between pointers to integer types with different sign [-Wpointer-sign]
+    Socket_WriteAll(gpt_sock, msg->buffer, msg->length);
+                              ^~~~~~~~~~~
+/home/pc/NotClassic/src/Platform.h:398:61: note: passing argument to parameter 'data' here
+cc_result Socket_WriteAll(cc_socket socket, const cc_uint8* data, cc_uint32 count);
+                                                            ^
+/home/pc/NotClassic/src/ChatGPT.c:36:31: warning: passing 'char [2]' to parameter of type 'const cc_uint8 *' (aka 'const unsigned char *') converts between pointers to integer types with different sign [-Wpointer-sign]
+    Socket_WriteAll(gpt_sock, "\n", 1);
+                              ^~~~
+/home/pc/NotClassic/src/Platform.h:398:61: note: passing argument to parameter 'data' here
+cc_result Socket_WriteAll(cc_socket socket, const cc_uint8* data, cc_uint32 count);
+                                                            ^
+/home/pc/NotClassic/src/ChatGPT.c:46:31: warning: passing 'char [512]' to parameter of type 'cc_uint8 *' (aka 'unsigned char *') converts between pointers to integer types with different sign [-Wpointer-sign]
+    if (Socket_Read(gpt_sock, buf, sizeof(buf) - 1, &read) != 0 || read == 0)
+                              ^~~
+/home/pc/NotClassic/src/Platform.h:392:46: note: passing argument to parameter 'data' here
+cc_result Socket_Read(cc_socket s, cc_uint8* data, cc_uint32 count, cc_uint32* modified);
+                                             ^
+3 warnings generated.
+[78/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/Certs.c.o
+[79/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/LBackend.c.o
+[80/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/SSL.c.o
+[81/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/ChatMacros.c.o
+[82/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/UwU.c.o
+[83/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/TouchUI.c.o
+[84/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/FancyLighting.c.o
+[85/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/Lolcat.c.o
+[86/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/InputHandler.c.o
+[87/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/BStream.c.o
+[88/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/aes_big_cbcdec.c.o
+[89/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/ssl_engine_default_ec.c.o
+[90/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/ssl_engine_default_aescbc.c.o
+[91/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/aes_big_cbcenc.c.o
+[92/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/aes_big_ctr.c.o
+[93/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/android/Platform_Android.c.o
+[94/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/aesctr_drbg.c.o
+[95/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/aes_common.c.o
+[96/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/aes_big_ctrcbc.c.o
+[97/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/aes_big_dec.c.o
+[98/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/aes_big_enc.c.o
+[99/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/ssl_engine.c.o
+[100/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/MenuOptions.c.o
+[101/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/chacha20_ct.c.o
+[102/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/android/Window_Android.c.o
+[103/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/asn1enc.c.o
+[104/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/ccopy.c.o
+[105/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/dec32be.c.o
+[106/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/_psaux.c.o
+[107/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/dec64be.c.o
+[108/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/dec64le.c.o
+[109/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/dig_oid.c.o
+[110/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/ec_c25519_i31.c.o
+[111/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/dec32le.c.o
+[112/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/ccm.c.o
+[113/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/dig_size.c.o
+[114/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/ec_all_m31.c.o
+[115/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/ec_c25519_m64.c.o
+[116/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/ec_c25519_m62.c.o
+[117/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/Commands.c.o
+/home/pc/NotClassic/src/Commands.c:809:13: warning: enumeration value 'DC_IDLE' not handled in switch [-Wswitch]
+    switch (dc_state) {
+            ^
+/home/pc/NotClassic/src/Commands.c:922:13: warning: enumeration value 'LC_IDLE' not handled in switch [-Wswitch]
+    switch (lc_state) {
+            ^
+2 warnings generated.
+[118/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/ec_c25519_m31.c.o
+[119/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/ec_curve25519.c.o
+[120/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/ecdsa_i31_bits.c.o
+[121/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/ec_default.c.o
+[122/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/ecdsa_atr.c.o
+[123/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/ecdsa_default_vrfy_asn1.c.o
+[124/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/ecdsa_default_vrfy_raw.c.o
+[125/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/ecdsa_i31_vrfy_asn1.c.o
+[126/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/ecdsa_i31_vrfy_raw.c.o
+[127/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/ec_secp384r1.c.o
+[128/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/ec_secp256r1.c.o
+[129/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/aes_x86ni_cbcdec.c.o
+[130/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/ec_secp521r1.c.o
+[131/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/ec_p256_m62.c.o
+[132/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/ghash_ctmul64.c.o
+[133/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/ec_p256_m31.c.o
+[134/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/ec_p256_m64.c.o
+[135/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/ec_prime_i31.c.o
+[136/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/enc32le.c.o
+[137/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/enc64le.c.o
+[138/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/aes_x86ni.c.o
+[139/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/chacha20_sse2.c.o
+[140/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/enc32be.c.o
+[141/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/aes_x86ni_ctr.c.o
+[142/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/enc64be.c.o
+[143/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/aes_x86ni_cbcenc.c.o
+[144/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/gcm.c.o
+[145/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/aes_x86ni_ctrcbc.c.o
+[146/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/ghash_ctmul.c.o
+[147/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/hmac_ct.c.o
+[148/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/i31_add.c.o
+[149/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/hmac_drbg.c.o
+[150/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/i31_modpow2.c.o
+[151/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/i31_decode.c.o
+[152/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/i31_decred.c.o
+[153/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/i31_decmod.c.o
+[154/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/i31_encode.c.o
+[155/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/hmac.c.o
+[156/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/i31_bitlen.c.o
+[157/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/i31_fmont.c.o
+[158/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/i31_modpow.c.o
+[159/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/i31_iszero.c.o
+[160/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/i31_rshift.c.o
+[161/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/i31_sub.c.o
+[162/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/i31_montmul.c.o
+[163/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/i31_ninv31.c.o
+[164/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/i31_mulacc.c.o
+[165/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/i62_modpow2.c.o
+[166/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/i31_reduce.c.o
+[167/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/i31_muladd.c.o
+[168/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/i31_moddiv.c.o
+[169/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/md5.c.o
+[170/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/poly1305_ctmul.c.o
+[171/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/i32_div32.c.o
+[172/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/prf.c.o
+[173/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/poly1305_ctmulq.c.o
+[174/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/i31_tmont.c.o
+[175/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/md5sha1.c.o
+[176/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/multihash.c.o
+[177/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/rsa_default_pub.c.o
+[178/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/rsa_default_priv.c.o
+[179/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/prf_sha256.c.o
+[180/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/prf_md5sha1.c.o
+[181/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/prf_sha384.c.o
+[182/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/rsa_default_pkcs1_vrfy.c.o
+[183/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/rsa_i31_pkcs1_vrfy.c.o
+[184/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/rsa_i62_pkcs1_vrfy.c.o
+[185/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/rsa_i31_priv.c.o
+[186/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/rsa_i31_pub.c.o
+[187/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/rsa_i62_priv.c.o
+[188/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/rsa_pkcs1_sig_unpad.c.o
+[189/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/rsa_i62_pub.c.o
+[190/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/ssl_client_full.c.o
+[191/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/sha1.c.o
+[192/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/sha2big.c.o
+[193/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/sha2small.c.o
+[194/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/ssl_client.c.o
+[195/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/ssl_engine_default_aesgcm.c.o
+[196/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/ssl_engine_default_aesccm.c.o
+[197/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/ssl_engine_default_chapol.c.o
+[198/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/ssl_client_default_rsapub.c.o
+[199/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/ssl_engine_default_ecdsa.c.o
+[200/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/ssl_engine_default_rsavrfy.c.o
+[201/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/ssl_hashes.c.o
+[202/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/ssl_io.c.o
+[203/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/ssl_rec_ccm.c.o
+[204/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/x509_minimal_full.c.o
+[205/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/ssl_rec_cbc.c.o
+[206/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/ssl_rec_gcm.c.o
+[207/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/ssl_rec_chapol.c.o
+[208/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/ssl_hs_client.c.o
+[209/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/x509_minimal.c.o
+[210/211] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/third_party/bearssl/ghash_pclmul.c.o
+[211/211] Linking C shared library ../../../../build/intermediates/cmake/debug/obj/x86_64/libclassicube.so

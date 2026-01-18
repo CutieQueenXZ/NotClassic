@@ -1,0 +1,46 @@
+ninja: Entering directory `/home/pc/NotClassic/android/app/.cxx/cmake/debug/armeabi-v7a'
+[1/7] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/UwU.c.o
+[2/7] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/ChatMacros.c.o
+[3/7] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/Gemini.c.o
+/home/pc/NotClassic/src/Gemini.c:35:34: warning: passing 'char *const' to parameter of type 'const cc_uint8 *' (aka 'const unsigned char *') converts between pointers to integer types with different sign [-Wpointer-sign]
+    Socket_WriteAll(gemini_sock, msg->buffer, msg->length);
+                                 ^~~~~~~~~~~
+/home/pc/NotClassic/src/Platform.h:398:61: note: passing argument to parameter 'data' here
+cc_result Socket_WriteAll(cc_socket socket, const cc_uint8* data, cc_uint32 count);
+                                                            ^
+/home/pc/NotClassic/src/Gemini.c:36:34: warning: passing 'char [2]' to parameter of type 'const cc_uint8 *' (aka 'const unsigned char *') converts between pointers to integer types with different sign [-Wpointer-sign]
+    Socket_WriteAll(gemini_sock, "\n", 1);
+                                 ^~~~
+/home/pc/NotClassic/src/Platform.h:398:61: note: passing argument to parameter 'data' here
+cc_result Socket_WriteAll(cc_socket socket, const cc_uint8* data, cc_uint32 count);
+                                                            ^
+/home/pc/NotClassic/src/Gemini.c:46:34: warning: passing 'char [512]' to parameter of type 'cc_uint8 *' (aka 'unsigned char *') converts between pointers to integer types with different sign [-Wpointer-sign]
+    if (Socket_Read(gemini_sock, buf, sizeof(buf)-1, &read) != 0 || read == 0)
+                                 ^~~
+/home/pc/NotClassic/src/Platform.h:392:46: note: passing argument to parameter 'data' here
+cc_result Socket_Read(cc_socket s, cc_uint8* data, cc_uint32 count, cc_uint32* modified);
+                                             ^
+3 warnings generated.
+[4/7] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/ChatGPT.c.o
+/home/pc/NotClassic/src/ChatGPT.c:35:31: warning: passing 'char *const' to parameter of type 'const cc_uint8 *' (aka 'const unsigned char *') converts between pointers to integer types with different sign [-Wpointer-sign]
+    Socket_WriteAll(gpt_sock, msg->buffer, msg->length);
+                              ^~~~~~~~~~~
+/home/pc/NotClassic/src/Platform.h:398:61: note: passing argument to parameter 'data' here
+cc_result Socket_WriteAll(cc_socket socket, const cc_uint8* data, cc_uint32 count);
+                                                            ^
+/home/pc/NotClassic/src/ChatGPT.c:36:31: warning: passing 'char [2]' to parameter of type 'const cc_uint8 *' (aka 'const unsigned char *') converts between pointers to integer types with different sign [-Wpointer-sign]
+    Socket_WriteAll(gpt_sock, "\n", 1);
+                              ^~~~
+/home/pc/NotClassic/src/Platform.h:398:61: note: passing argument to parameter 'data' here
+cc_result Socket_WriteAll(cc_socket socket, const cc_uint8* data, cc_uint32 count);
+                                                            ^
+/home/pc/NotClassic/src/ChatGPT.c:46:31: warning: passing 'char [512]' to parameter of type 'cc_uint8 *' (aka 'unsigned char *') converts between pointers to integer types with different sign [-Wpointer-sign]
+    if (Socket_Read(gpt_sock, buf, sizeof(buf) - 1, &read) != 0 || read == 0)
+                              ^~~
+/home/pc/NotClassic/src/Platform.h:392:46: note: passing argument to parameter 'data' here
+cc_result Socket_Read(cc_socket s, cc_uint8* data, cc_uint32 count, cc_uint32* modified);
+                                             ^
+3 warnings generated.
+[5/7] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/Lolcat.c.o
+[6/7] Building C object CMakeFiles/classicube.dir/home/pc/NotClassic/src/BStream.c.o
+[7/7] Linking C shared library ../../../../build/intermediates/cmake/debug/obj/armeabi-v7a/libclassicube.so

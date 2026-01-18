@@ -1,0 +1,54 @@
+# Build output
+build/
+bin/
+obj/
+*.o
+*.obj
+*.exe
+*.apk
+*.dll
+*.so
+
+# Logs & runtime data
+logs/
+*.log
+crash.log
+client.log
+options.txt
+
+# Cache
+texturecache/
+fontscache.txt
+screenshots/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Python secrets
+__pycache__/
+*.pyc
+.env
+Python1/
+
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+*.iml
+
+# Android signing keys
+*.keystore
+*.jks
+*.keystore.jks
+key.properties
+
+!android/app/src/main/java/com/classicube
+
+CMakeFiles/
+CMakeCache.txt
+*.d
+
