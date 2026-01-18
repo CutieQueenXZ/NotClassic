@@ -70,7 +70,7 @@ Some servers think as cheat or unsupported client and then boom, one millisecond
 
 ## Platform Notes
 - **Desktop (Windows/Linux):** Supported
-- **Android:** Experimental (bc not tested)
+- **Android:** Experimental (because not tested, and you can change package name yourself with apk editor)
   Python features may require **Termux + port forwarding**
 - **Android Root not strictly required**, but life is easier with it
 
