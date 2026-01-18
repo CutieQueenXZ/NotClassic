@@ -57,7 +57,7 @@ jobs:
           uses: actions/setup-java@v4
           with:
             distribution: 'temurin'
-            java-version: '17' # Upgraded to 17 to keep the vibes stable
+            java-version: '8' # Downgrade to 8
   
         - name: Install Android SDK
           uses: android-actions/setup-android@v3
