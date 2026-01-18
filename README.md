@@ -1,4 +1,4 @@
-# NotClassic -_- (SOON)
+# NotClassic -_-
 
 
 A modified Classicube-based client focused on experimentation, QoL features,
