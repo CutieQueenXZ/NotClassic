@@ -1,0 +1,101 @@
+name: NotClassic Builds
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  linux:
+    name: Linux build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install deps
+        run: |
+          sudo apt update
+          sudo apt install -y build-essential libsdl2-dev
+
+      - name: Build
+        run: make PLAT=linux
+
+      - name: Upload Linux build
+        uses: actions/upload-artifact@v4
+        with:
+          name: NotClassic-linux
+          path: |
+            NotClassic*
+            build/
+
+  windows:
+    name: Windows build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install MinGW
+        run: |
+          sudo apt update
+          sudo apt install -y mingw-w64
+
+      - name: Build
+        run: make PLAT=windows
+
+      - name: Upload Windows build
+        uses: actions/upload-artifact@v4
+        with:
+          name: NotClassic-windows
+          path: |
+            *.exe
+
+  android:
+    name: Android build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Build APK
+        run: |
+          cd android
+          ./gradlew assembleDebug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: NotClassic-android
+          path: android/app/build/outputs/apk/debug/*.apk
+
+  web:
+    name: Web build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Emscripten
+        run: |
+          git clone https://github.com/emscripten-core/emsdk.git
+          cd emsdk
+          ./emsdk install latest
+          ./emsdk activate latest
+          echo "source $PWD/emsdk_env.sh" >> $GITHUB_ENV
+
+      - name: Build Web
+        run: |
+          source emsdk/emsdk_env.sh
+          make PLAT=web
+
+      - name: Upload Web build
+        uses: actions/upload-artifact@v4
+        with:
+          name: NotClassic-web
+          path: |
+            *.html
+            *.js
+            *.wasm
