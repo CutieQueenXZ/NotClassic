@@ -3,87 +3,92 @@ name: NotClassic Linux
 on:
   push:
     branches: [ main ]
+  pull_request:
   workflow_dispatch:
 
 jobs:
   linux-32:
     name: Linux 32-bit (OpenGL + ModernGL)
     runs-on: ubuntu-latest
-    container: ubuntu:20.04
+    container:
+      image: ubuntu:20.04
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install 32-bit deps
-        shell: bash
+      - name: Install base deps
         run: |
           apt-get update
-          apt-get install -y \
-            gcc-multilib \
-            libc6-dev-i386 \
-            libx11-dev:i386 \
-            libxi-dev:i386 \
-            libxcb1-dev:i386 \
-            libx11-xcb-dev:i386 \
-            libgl1-mesa-dev:i386 \
-            wget unzip
+          apt-get install -y gcc wget unzip
 
       - name: Fetch 32-bit libs
         run: |
           wget https://github.com/ClassiCube/rpi-compiling-stuff/raw/main/linux32.zip
           unzip linux32.zip
 
-      - name: Build 32-bit
-        shell: bash
+      - name: Build 32-bit OpenGL
         run: |
-          LATEST_FLAG="-DCC_COMMIT_SHA=\"$(echo $GITHUB_SHA | cut -c1-9)\""
-          SRCS="src/*.c third_party/bearssl/*.c"
-          FLAGS="-O1 -s -fno-stack-protector -fno-math-errno -Werror -fvisibility=hidden"
-          NIX32="-m32 -no-pie -fno-pie -L ./lib"
-          LIBS="-lX11 -lXi -lxcb -lGL -lpthread -lm -ldl"
+          gcc src/*.c third_party/bearssl/*.c \
+            -m32 -O2 -s -fno-math-errno -fno-stack-protector \
+            -DCC_GFX_BACKEND=CC_GFX_BACKEND_GL1 \
+            -L./lib -lX11 -lXi -lGL -lpthread -lm -ldl \
+            -o NotClassic-Linux32-OpenGL
 
-          gcc $SRCS $FLAGS $NIX32 $LATEST_FLAG -o NotClassic-Linux32-OpenGL $LIBS
-          gcc $SRCS $FLAGS $NIX32 $LATEST_FLAG -DCC_GFX_BACKEND=CC_GFX_BACKEND_GL2 \
-              -o NotClassic-Linux32-ModernGL $LIBS
+      - name: Build 32-bit ModernGL
+        run: |
+          gcc src/*.c third_party/bearssl/*.c \
+            -m32 -O2 -s -fno-math-errno -fno-stack-protector \
+            -DCC_GFX_BACKEND=CC_GFX_BACKEND_GL2 \
+            -L./lib -lX11 -lXi -lGL -lpthread -lm -ldl \
+            -o NotClassic-Linux32-ModernGL
 
-      - uses: actions/upload-artifact@v4
+      - name: Upload Linux 32 artifacts
+        uses: actions/upload-artifact@v4
         with:
           name: NotClassic-Linux32
-          path: NotClassic-Linux32-*
-
+          path: |
+            NotClassic-Linux32-OpenGL
+            NotClassic-Linux32-ModernGL
 
   linux-64:
     name: Linux 64-bit (OpenGL + ModernGL)
     runs-on: ubuntu-latest
-    container: ubuntu:20.04
+    container:
+      image: ubuntu:20.04
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install deps
+      - name: Install base deps
         run: |
           apt-get update
-          apt-get install -y gcc libx11-dev libxi-dev libxcb1-dev libgl1-mesa-dev wget unzip
+          apt-get install -y gcc wget unzip
 
       - name: Fetch 64-bit libs
         run: |
           wget https://github.com/ClassiCube/rpi-compiling-stuff/raw/main/linux64.zip
           unzip linux64.zip
 
-      - name: Build 64-bit
-        shell: bash
+      - name: Build 64-bit OpenGL
         run: |
-          LATEST_FLAG="-DCC_COMMIT_SHA=\"$(echo $GITHUB_SHA | cut -c1-9)\""
-          SRCS="src/*.c third_party/bearssl/*.c"
-          FLAGS="-O1 -s -fno-stack-protector -fno-math-errno -Werror -fvisibility=hidden"
-          NIX64="-m64 -no-pie -fno-pie -L ./lib"
-          LIBS="-lX11 -lXi -lxcb -lGL -lpthread -lm -ldl"
+          gcc src/*.c third_party/bearssl/*.c \
+            -m64 -O2 -s -fno-math-errno -fno-stack-protector \
+            -DCC_GFX_BACKEND=CC_GFX_BACKEND_GL1 \
+            -L./lib -lX11 -lXi -lGL -lpthread -lm -ldl \
+            -o NotClassic-Linux64-OpenGL
 
-          gcc $SRCS $FLAGS $NIX64 $LATEST_FLAG -o NotClassic-Linux64-OpenGL $LIBS
-          gcc $SRCS $FLAGS $NIX64 $LATEST_FLAG -DCC_GFX_BACKEND=CC_GFX_BACKEND_GL2 \
-              -o NotClassic-Linux64-ModernGL $LIBS
+      - name: Build 64-bit ModernGL
+        run: |
+          gcc src/*.c third_party/bearssl/*.c \
+            -m64 -O2 -s -fno-math-errno -fno-stack-protector \
+            -DCC_GFX_BACKEND=CC_GFX_BACKEND_GL2 \
+            -L./lib -lX11 -lXi -lGL -lpthread -lm -ldl \
+            -o NotClassic-Linux64-ModernGL
 
-      - uses: actions/upload-artifact@v4
+      - name: Upload Linux 64 artifacts
+        uses: actions/upload-artifact@v4
         with:
           name: NotClassic-Linux64
-          path: NotClassic-Linux64-*
+          path: |
+            NotClassic-Linux64-OpenGL
+            NotClassic-Linux64-ModernGL
