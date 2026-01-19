@@ -15,40 +15,54 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install build tools
+      - name: Enable i386
+        run: |
+          dpkg --add-architecture i386
+          apt-get update
+
+      - name: Install build + OpenGL deps (32-bit)
         run: |
           apt-get update
-          apt-get install -y gcc-multilib wget unzip
+          apt-get install -y \
+            gcc-multilib g++-multilib wget unzip \
+            libc6-dev:i386 \
+            libx11-dev:i386 \
+            libxi-dev:i386 \
+            libxcb1-dev:i386 \
+            libgl1-mesa-dev:i386
 
-      - name: Fetch 32-bit libraries
+      - name: Fetch 32-bit libs
         run: |
           wget https://github.com/ClassiCube/rpi-compiling-stuff/raw/main/linux32.zip
           unzip linux32.zip
 
       - name: Build 32-bit OpenGL
         run: |
-          COMMIT_FLAG="-DCC_COMMIT_SHA=\"${GITHUB_SHA::9}\""
+          COMMIT_SHA_SHORT=$(echo "$GITHUB_SHA" | cut -c1-9)
           gcc src/*.c third_party/bearssl/*.c \
             -m32 -O2 -s -no-pie -fno-pie \
-            -L./lib -lX11 -lXi -lGL -lm -ldl -lpthread \
-            $COMMIT_FLAG \
+            -fno-stack-protector -fno-math-errno -rdynamic \
+            -Wl,--unresolved-symbols=ignore-in-shared-libs \
+            -L./lib -lX11 -lXi -lxcb -lGL -lpthread -lm -ldl \
+            -DCC_COMMIT_SHA=\"$COMMIT_SHA_SHORT\" \
             -o NotClassic-Linux32-OpenGL
 
       - name: Build 32-bit ModernGL
         run: |
-          COMMIT_FLAG="-DCC_COMMIT_SHA=\"${GITHUB_SHA::9}\""
+          COMMIT_SHA_SHORT=$(echo "$GITHUB_SHA" | cut -c1-9)
           gcc src/*.c third_party/bearssl/*.c \
             -m32 -O2 -s -no-pie -fno-pie \
             -DCC_GFX_BACKEND=CC_GFX_BACKEND_GL2 \
-            -L./lib -lX11 -lXi -lGL -lm -ldl -lpthread \
-            $COMMIT_FLAG \
+            -fno-stack-protector -fno-math-errno -rdynamic \
+            -Wl,--unresolved-symbols=ignore-in-shared-libs \
+            -L./lib -lX11 -lXi -lxcb -lGL -lpthread -lm -ldl \
+            -DCC_COMMIT_SHA=\"$COMMIT_SHA_SHORT\" \
             -o NotClassic-Linux32-ModernGL
 
       - uses: actions/upload-artifact@v4
         with:
           name: NotClassic-Linux32
-          path: |
-            NotClassic-Linux32-*
+          path: NotClassic-Linux32-*
 
 
   linux-64:
@@ -60,37 +74,40 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install build tools
+      - name: Install build deps
         run: |
           apt-get update
           apt-get install -y gcc wget unzip
 
-      - name: Fetch 64-bit libraries
+      - name: Fetch 64-bit libs
         run: |
           wget https://github.com/ClassiCube/rpi-compiling-stuff/raw/main/linux64.zip
           unzip linux64.zip
 
       - name: Build 64-bit OpenGL
         run: |
-          COMMIT_FLAG="-DCC_COMMIT_SHA=\"${GITHUB_SHA::9}\""
+          COMMIT_SHA_SHORT=$(echo "$GITHUB_SHA" | cut -c1-9)
           gcc src/*.c third_party/bearssl/*.c \
             -m64 -O2 -s -no-pie -fno-pie \
-            -L./lib -lX11 -lXi -lGL -lm -ldl -lpthread \
-            $COMMIT_FLAG \
+            -fno-stack-protector -fno-math-errno -rdynamic \
+            -Wl,--unresolved-symbols=ignore-in-shared-libs \
+            -L./lib -lX11 -lXi -lxcb -lGL -lpthread -lm -ldl \
+            -DCC_COMMIT_SHA=\"$COMMIT_SHA_SHORT\" \
             -o NotClassic-Linux64-OpenGL
 
       - name: Build 64-bit ModernGL
         run: |
-          COMMIT_FLAG="-DCC_COMMIT_SHA=\"${GITHUB_SHA::9}\""
+          COMMIT_SHA_SHORT=$(echo "$GITHUB_SHA" | cut -c1-9)
           gcc src/*.c third_party/bearssl/*.c \
             -m64 -O2 -s -no-pie -fno-pie \
             -DCC_GFX_BACKEND=CC_GFX_BACKEND_GL2 \
-            -L./lib -lX11 -lXi -lGL -lm -ldl -lpthread \
-            $COMMIT_FLAG \
+            -fno-stack-protector -fno-math-errno -rdynamic \
+            -Wl,--unresolved-symbols=ignore-in-shared-libs \
+            -L./lib -lX11 -lXi -lxcb -lGL -lpthread -lm -ldl \
+            -DCC_COMMIT_SHA=\"$COMMIT_SHA_SHORT\" \
             -o NotClassic-Linux64-ModernGL
 
       - uses: actions/upload-artifact@v4
         with:
           name: NotClassic-Linux64
-          path: |
-            NotClassic-Linux64-*
+          path: NotClassic-Linux64-*
