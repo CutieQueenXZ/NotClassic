@@ -1,5 +1,4 @@
 name: NotClassic Android
-# trigger via either push to selected branches or on manual run
 on:
   push:
     branches:
@@ -12,74 +11,40 @@ concurrency:
 
 jobs:
   build:
-    timeout-minutes: 10
+    name: Android build (debug)
     runs-on: ubuntu-latest
-    container:
-      image: ghcr.io/saschpe/android-ndk:34-jdk17.0.8_7-ndk25.2.9519653-cmake3.22.1
     steps:
       - uses: actions/checkout@v4
 
-      - name: Retrieve dependencies
-        shell: bash
-        run: |
-          mkdir build-tools
-          wget https://github.com/ClassiCube/rpi-compiling-stuff/raw/main/build-tools.zip
-          unzip build-tools.zip -d build-tools
-          chmod +x build-tools/aapt
-          chmod +x build-tools/dx
-          chmod +x build-tools/zipalign
-
-      - name: Compile android builds
-        shell: bash
-        id: compile
-        env: 
-          COMMON_FLAGS: "-O1 -s -fno-stack-protector -fno-math-errno -Qn -Werror"
-          DROID_FLAGS: "-fPIC -shared -fvisibility=hidden -rdynamic -funwind-tables"
-          LIBS: "-lGLESv2 -lEGL -lm -llog"
-          SRCS: "src/*.c src/android/*.c third_party/bearssl/*.c"
-        run: |
-          LATEST_FLAG=-DCC_COMMIT_SHA=\"${GITHUB_SHA::9}\"
-          
-          DROID_FLAGS="-fPIC -shared -s -O1 -fvisibility=hidden -rdynamic -funwind-tables"
-          
-          ROOT_DIR=$PWD
-          NDK_ROOT="/opt/android-sdk-linux/ndk/25.2.9519653/toolchains/llvm/prebuilt/linux-x86_64/bin"
-          TOOLS_ROOT=$ROOT_DIR/build-tools
-          SDK_ROOT="/opt/android-sdk-linux/platforms/android-34"
-
-          $NDK_ROOT/armv7a-linux-androideabi19-clang ${{ env.SRCS }} $COMMON_FLAGS $DROID_FLAGS -march=armv5 -rtlib=libgcc -L $ROOT_DIR/build-tools/runtime ${{ env.LIBS }} $LATEST_FLAG -o cc-droid-arm_16
-          $NDK_ROOT/armv7a-linux-androideabi19-clang ${{ env.SRCS }} $COMMON_FLAGS $DROID_FLAGS -mfpu=vfp3-d16 ${{ env.LIBS }} $LATEST_FLAG -o cc-droid-arm_32
-          $NDK_ROOT/aarch64-linux-android21-clang ${{ env.SRCS }} $COMMON_FLAGS $DROID_FLAGS ${{ env.LIBS }} $LATEST_FLAG -o cc-droid-arm_64
-          $NDK_ROOT/i686-linux-android21-clang ${{ env.SRCS }} $COMMON_FLAGS $DROID_FLAGS ${{ env.LIBS }} $LATEST_FLAG -o cc-droid-x86_32
-          $NDK_ROOT/x86_64-linux-android21-clang ${{ env.SRCS }} $COMMON_FLAGS $DROID_FLAGS ${{ env.LIBS }} $LATEST_FLAG -o cc-droid-x86_64
-          
-          cd $ROOT_DIR/android/app/src/main
-          mkdir lib lib/armeabi lib/armeabi-v7a lib/arm64-v8a lib/x86 lib/x86_64
-          cp $ROOT_DIR/cc-droid-arm_16 lib/armeabi/libclassicube.so
-          cp $ROOT_DIR/cc-droid-arm_32 lib/armeabi-v7a/libclassicube.so
-          cp $ROOT_DIR/cc-droid-arm_64 lib/arm64-v8a/libclassicube.so
-          cp $ROOT_DIR/cc-droid-x86_32 lib/x86/libclassicube.so
-          cp $ROOT_DIR/cc-droid-x86_64 lib/x86_64/libclassicube.so
-          
-          cd $ROOT_DIR/android/app/src/main/java/com/classicube
-          javac *.java -d $ROOT_DIR/android/app/src/main/obj -classpath $SDK_ROOT/android.jar --release 8
-          
-          cd $ROOT_DIR/android/app/src/main
-          echo -n "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > debug.keystore
-          
-          $TOOLS_ROOT/dx --dex --output=classes.dex ./obj
-          $TOOLS_ROOT/aapt package -f -M AndroidManifest.xml -S res -F cc-unsigned.apk -I $SDK_ROOT/android.jar
-          $TOOLS_ROOT/aapt add -f cc-unsigned.apk classes.dex lib/armeabi/libclassicube.so lib/armeabi-v7a/libclassicube.so lib/arm64-v8a/libclassicube.so lib/x86/libclassicube.so lib/x86_64/libclassicube.so
-          
-          $TOOLS_ROOT/zipalign -f 4 cc-unsigned.apk cc-signed.apk
-          $TOOLS_ROOT/apksigner sign --ks debug.keystore --ks-pass pass:android cc-signed.apk
-          cp cc-signed.apk $ROOT_DIR/src/NotClassic-Android.apk
-
-          #$TOOLS_ROOT/zipalign -f 4 cc-signed.apk $ROOT_DIR/src/cc.apk
-          
-          
-      - uses: ./.github/actions/upload_build
-        if: ${{ always() && steps.compile.outcome == 'success' }}
+      - name: Set up JDK 17 (for SDK tools)
+        uses: actions/setup-java@v4
         with:
-          SOURCE_FILE: 'src/NotClassic-Android.apk'
-          DEST_NAME: 'NotClassic-Android.apk'
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Install Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install required NDK
+        run: |
+          sdkmanager "ndk;20.0.5594570"
+          echo "ANDROID_NDK_HOME=$ANDROID_SDK_ROOT/ndk/20.0.5594570" >> $GITHUB_ENV
+
+      - name: Set up JDK 8 (for the legacy Gradle build)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '8'
+
+      - name: Build APK (Debug)
+        run: |
+          cd android
+          chmod +x gradlew
+          # Force it to use the NDK we just downloaded
+          ./gradlew assembleDebug -Pandroid.ndkPath=$ANDROID_SDK_ROOT/ndk/20.0.5594570
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: NotClassic-android
+          path: android/app/build/outputs/apk/debug/*.apk
