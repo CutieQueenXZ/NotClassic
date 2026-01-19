@@ -3,7 +3,6 @@ name: NotClassic Linux
 on:
   push:
     branches: [ main ]
-  pull_request:
   workflow_dispatch:
 
 jobs:
@@ -16,39 +15,41 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install base deps
+      - name: Install build tools
         run: |
           apt-get update
-          apt-get install -y gcc wget unzip
+          apt-get install -y gcc-multilib wget unzip
 
-      - name: Fetch 32-bit libs
+      - name: Fetch 32-bit libraries
         run: |
           wget https://github.com/ClassiCube/rpi-compiling-stuff/raw/main/linux32.zip
           unzip linux32.zip
 
       - name: Build 32-bit OpenGL
         run: |
+          COMMIT_FLAG="-DCC_COMMIT_SHA=\"${GITHUB_SHA::9}\""
           gcc src/*.c third_party/bearssl/*.c \
-            -m32 -O2 -s -fno-math-errno -fno-stack-protector \
-            -DCC_GFX_BACKEND=CC_GFX_BACKEND_GL1 \
-            -L./lib -lX11 -lXi -lGL -lpthread -lm -ldl \
+            -m32 -O2 -s -no-pie -fno-pie \
+            -L./lib -lX11 -lXi -lGL -lm -ldl -lpthread \
+            $COMMIT_FLAG \
             -o NotClassic-Linux32-OpenGL
 
       - name: Build 32-bit ModernGL
         run: |
+          COMMIT_FLAG="-DCC_COMMIT_SHA=\"${GITHUB_SHA::9}\""
           gcc src/*.c third_party/bearssl/*.c \
-            -m32 -O2 -s -fno-math-errno -fno-stack-protector \
+            -m32 -O2 -s -no-pie -fno-pie \
             -DCC_GFX_BACKEND=CC_GFX_BACKEND_GL2 \
-            -L./lib -lX11 -lXi -lGL -lpthread -lm -ldl \
+            -L./lib -lX11 -lXi -lGL -lm -ldl -lpthread \
+            $COMMIT_FLAG \
             -o NotClassic-Linux32-ModernGL
 
-      - name: Upload Linux 32 artifacts
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
           name: NotClassic-Linux32
           path: |
-            NotClassic-Linux32-OpenGL
-            NotClassic-Linux32-ModernGL
+            NotClassic-Linux32-*
+
 
   linux-64:
     name: Linux 64-bit (OpenGL + ModernGL)
@@ -59,36 +60,37 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install base deps
+      - name: Install build tools
         run: |
           apt-get update
           apt-get install -y gcc wget unzip
 
-      - name: Fetch 64-bit libs
+      - name: Fetch 64-bit libraries
         run: |
           wget https://github.com/ClassiCube/rpi-compiling-stuff/raw/main/linux64.zip
           unzip linux64.zip
 
       - name: Build 64-bit OpenGL
         run: |
+          COMMIT_FLAG="-DCC_COMMIT_SHA=\"${GITHUB_SHA::9}\""
           gcc src/*.c third_party/bearssl/*.c \
-            -m64 -O2 -s -fno-math-errno -fno-stack-protector \
-            -DCC_GFX_BACKEND=CC_GFX_BACKEND_GL1 \
-            -L./lib -lX11 -lXi -lGL -lpthread -lm -ldl \
+            -m64 -O2 -s -no-pie -fno-pie \
+            -L./lib -lX11 -lXi -lGL -lm -ldl -lpthread \
+            $COMMIT_FLAG \
             -o NotClassic-Linux64-OpenGL
 
       - name: Build 64-bit ModernGL
         run: |
+          COMMIT_FLAG="-DCC_COMMIT_SHA=\"${GITHUB_SHA::9}\""
           gcc src/*.c third_party/bearssl/*.c \
-            -m64 -O2 -s -fno-math-errno -fno-stack-protector \
+            -m64 -O2 -s -no-pie -fno-pie \
             -DCC_GFX_BACKEND=CC_GFX_BACKEND_GL2 \
-            -L./lib -lX11 -lXi -lGL -lpthread -lm -ldl \
+            -L./lib -lX11 -lXi -lGL -lm -ldl -lpthread \
+            $COMMIT_FLAG \
             -o NotClassic-Linux64-ModernGL
 
-      - name: Upload Linux 64 artifacts
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
           name: NotClassic-Linux64
           path: |
-            NotClassic-Linux64-OpenGL
-            NotClassic-Linux64-ModernGL
+            NotClassic-Linux64-*
