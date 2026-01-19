@@ -1,0 +1,32 @@
+name: NotClassic – Linux
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  linux:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y build-essential libsdl2-dev libx11-dev libgl1-mesa-dev
+
+      - name: Build
+        run: |
+          make PLAT=linux
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: NotClassic-Linux
+          path: |
+            NotClassic*
+            build/
