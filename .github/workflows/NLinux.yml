@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: ${{ github.ref }}-linux
+  group: linux-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -21,29 +21,40 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Install build deps
+        shell: bash
         run: |
           apt-get update
-          apt-get install -y gcc-multilib wget unzip make
+          apt-get install -y gcc-multilib wget unzip
 
       - name: Fetch 32-bit libs
+        shell: bash
         run: |
           wget https://github.com/ClassiCube/rpi-compiling-stuff/raw/main/linux32.zip
           unzip linux32.zip
 
       - name: Build Linux 32-bit
-        env:
-          SRCS: "src/*.c third_party/bearssl/*.c"
-          LIBS: "-lX11 -lXi -lpthread -lGL -lm -ldl"
-          FLAGS: "-O2 -s -fno-stack-protector -fno-math-errno -Werror"
-          LDFLAGS: "-m32 -L ./lib -no-pie"
+        shell: bash
         run: |
-          COMMIT="-DCC_COMMIT_SHA=\"${GITHUB_SHA::9}\""
+          COMMIT="-DCC_COMMIT_SHA=\"${GITHUB_SHA:0:9}\""
 
-          gcc $SRCS $FLAGS $LDFLAGS $COMMIT -o NotClassic-Linux32-OpenGL $LIBS
-          gcc $SRCS $FLAGS $LDFLAGS $COMMIT -DCC_GFX_BACKEND=CC_GFX_BACKEND_GL2 \
-            -o NotClassic-Linux32-ModernGL $LIBS
+          gcc src/*.c third_party/bearssl/*.c \
+            -O1 -s -m32 -fno-pie -no-pie \
+            -fno-stack-protector -fno-math-errno \
+            -L./lib -Wl,--unresolved-symbols=ignore-in-shared-libs \
+            -lX11 -lXi -lpthread -lGL -lm -ldl \
+            $COMMIT \
+            -o NotClassic-Linux32-OpenGL
 
-      - name: Upload Linux 32-bit artifacts
+          gcc src/*.c third_party/bearssl/*.c \
+            -O1 -s -m32 -fno-pie -no-pie \
+            -DCC_GFX_BACKEND=CC_GFX_BACKEND_GL2 \
+            -fno-stack-protector -fno-math-errno \
+            -L./lib -Wl,--unresolved-symbols=ignore-in-shared-libs \
+            -lX11 -lXi -lpthread -lGL -lm -ldl \
+            $COMMIT \
+            -o NotClassic-Linux32-ModernGL
+
+      - name: Upload Linux 32-bit
         uses: actions/upload-artifact@v4
         with:
           name: NotClassic-Linux32
@@ -61,29 +72,40 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Install build deps
+        shell: bash
         run: |
           apt-get update
-          apt-get install -y gcc wget unzip make
+          apt-get install -y gcc wget unzip
 
       - name: Fetch 64-bit libs
+        shell: bash
         run: |
           wget https://github.com/ClassiCube/rpi-compiling-stuff/raw/main/linux64.zip
           unzip linux64.zip
 
       - name: Build Linux 64-bit
-        env:
-          SRCS: "src/*.c third_party/bearssl/*.c"
-          LIBS: "-lX11 -lXi -lpthread -lGL -lm -ldl"
-          FLAGS: "-O2 -s -fno-stack-protector -fno-math-errno -Werror"
-          LDFLAGS: "-m64 -L ./lib -no-pie"
+        shell: bash
         run: |
-          COMMIT="-DCC_COMMIT_SHA=\"${GITHUB_SHA::9}\""
+          COMMIT="-DCC_COMMIT_SHA=\"${GITHUB_SHA:0:9}\""
 
-          gcc $SRCS $FLAGS $LDFLAGS $COMMIT -o NotClassic-Linux64-OpenGL $LIBS
-          gcc $SRCS $FLAGS $LDFLAGS $COMMIT -DCC_GFX_BACKEND=CC_GFX_BACKEND_GL2 \
-            -o NotClassic-Linux64-ModernGL $LIBS
+          gcc src/*.c third_party/bearssl/*.c \
+            -O1 -s -m64 -fno-pie -no-pie \
+            -fno-stack-protector -fno-math-errno \
+            -L./lib -Wl,--unresolved-symbols=ignore-in-shared-libs \
+            -lX11 -lXi -lpthread -lGL -lm -ldl \
+            $COMMIT \
+            -o NotClassic-Linux64-OpenGL
 
-      - name: Upload Linux 64-bit artifacts
+          gcc src/*.c third_party/bearssl/*.c \
+            -O1 -s -m64 -fno-pie -no-pie \
+            -DCC_GFX_BACKEND=CC_GFX_BACKEND_GL2 \
+            -fno-stack-protector -fno-math-errno \
+            -L./lib -Wl,--unresolved-symbols=ignore-in-shared-libs \
+            -lX11 -lXi -lpthread -lGL -lm -ldl \
+            $COMMIT \
+            -o NotClassic-Linux64-ModernGL
+
+      - name: Upload Linux 64-bit
         uses: actions/upload-artifact@v4
         with:
           name: NotClassic-Linux64
