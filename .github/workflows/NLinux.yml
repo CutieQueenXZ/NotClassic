@@ -6,13 +6,9 @@ on:
   pull_request:
   workflow_dispatch:
 
-concurrency:
-  group: linux-${{ github.ref }}
-  cancel-in-progress: true
-
 jobs:
   linux-32:
-    name: Linux 32-bit
+    name: Linux 32-bit (OpenGL + ModernGL)
     runs-on: ubuntu-latest
     container:
       image: ubuntu:20.04
@@ -24,7 +20,11 @@ jobs:
         shell: bash
         run: |
           apt-get update
-          apt-get install -y gcc-multilib wget unzip
+          apt-get install -y \
+            gcc-multilib \
+            wget unzip \
+            libx11-dev libxi-dev \
+            libgl1-mesa-dev
 
       - name: Fetch 32-bit libs
         shell: bash
@@ -35,26 +35,25 @@ jobs:
       - name: Build Linux 32-bit
         shell: bash
         run: |
-          COMMIT="-DCC_COMMIT_SHA=\"${GITHUB_SHA:0:9}\""
+          COMMIT_SHA="${GITHUB_SHA::9}"
+          FLAGS="-O1 -s -fno-stack-protector -fno-math-errno -Werror -rdynamic"
+          LIBS="-lX11 -lXi -lpthread -lGL -lm -ldl"
+          NIX32="-m32 -no-pie -fno-pie -L ./lib"
 
           gcc src/*.c third_party/bearssl/*.c \
-            -O1 -s -m32 -fno-pie -no-pie \
-            -fno-stack-protector -fno-math-errno \
-            -L./lib -Wl,--unresolved-symbols=ignore-in-shared-libs \
-            -lX11 -lXi -lpthread -lGL -lm -ldl \
-            $COMMIT \
-            -o NotClassic-Linux32-OpenGL
+            $FLAGS $NIX32 \
+            -DCC_COMMIT_SHA=\"${COMMIT_SHA}\" \
+            -o NotClassic-Linux32-OpenGL \
+            $LIBS
 
           gcc src/*.c third_party/bearssl/*.c \
-            -O1 -s -m32 -fno-pie -no-pie \
+            $FLAGS $NIX32 \
+            -DCC_COMMIT_SHA=\"${COMMIT_SHA}\" \
             -DCC_GFX_BACKEND=CC_GFX_BACKEND_GL2 \
-            -fno-stack-protector -fno-math-errno \
-            -L./lib -Wl,--unresolved-symbols=ignore-in-shared-libs \
-            -lX11 -lXi -lpthread -lGL -lm -ldl \
-            $COMMIT \
-            -o NotClassic-Linux32-ModernGL
+            -o NotClassic-Linux32-ModernGL \
+            $LIBS
 
-      - name: Upload Linux 32-bit
+      - name: Upload Linux 32-bit artifacts
         uses: actions/upload-artifact@v4
         with:
           name: NotClassic-Linux32
@@ -63,7 +62,7 @@ jobs:
             NotClassic-Linux32-ModernGL
 
   linux-64:
-    name: Linux 64-bit
+    name: Linux 64-bit (OpenGL + ModernGL)
     runs-on: ubuntu-latest
     container:
       image: ubuntu:20.04
@@ -75,7 +74,11 @@ jobs:
         shell: bash
         run: |
           apt-get update
-          apt-get install -y gcc wget unzip
+          apt-get install -y \
+            gcc \
+            wget unzip \
+            libx11-dev libxi-dev \
+            libgl1-mesa-dev
 
       - name: Fetch 64-bit libs
         shell: bash
@@ -86,26 +89,25 @@ jobs:
       - name: Build Linux 64-bit
         shell: bash
         run: |
-          COMMIT="-DCC_COMMIT_SHA=\"${GITHUB_SHA:0:9}\""
+          COMMIT_SHA="${GITHUB_SHA::9}"
+          FLAGS="-O1 -s -fno-stack-protector -fno-math-errno -Werror -rdynamic"
+          LIBS="-lX11 -lXi -lpthread -lGL -lm -ldl"
+          NIX64="-m64 -no-pie -fno-pie -L ./lib"
 
           gcc src/*.c third_party/bearssl/*.c \
-            -O1 -s -m64 -fno-pie -no-pie \
-            -fno-stack-protector -fno-math-errno \
-            -L./lib -Wl,--unresolved-symbols=ignore-in-shared-libs \
-            -lX11 -lXi -lpthread -lGL -lm -ldl \
-            $COMMIT \
-            -o NotClassic-Linux64-OpenGL
+            $FLAGS $NIX64 \
+            -DCC_COMMIT_SHA=\"${COMMIT_SHA}\" \
+            -o NotClassic-Linux64-OpenGL \
+            $LIBS
 
           gcc src/*.c third_party/bearssl/*.c \
-            -O1 -s -m64 -fno-pie -no-pie \
+            $FLAGS $NIX64 \
+            -DCC_COMMIT_SHA=\"${COMMIT_SHA}\" \
             -DCC_GFX_BACKEND=CC_GFX_BACKEND_GL2 \
-            -fno-stack-protector -fno-math-errno \
-            -L./lib -Wl,--unresolved-symbols=ignore-in-shared-libs \
-            -lX11 -lXi -lpthread -lGL -lm -ldl \
-            $COMMIT \
-            -o NotClassic-Linux64-ModernGL
+            -o NotClassic-Linux64-ModernGL \
+            $LIBS
 
-      - name: Upload Linux 64-bit
+      - name: Upload Linux 64-bit artifacts
         uses: actions/upload-artifact@v4
         with:
           name: NotClassic-Linux64
