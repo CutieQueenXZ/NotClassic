@@ -70,6 +70,7 @@ Some servers think as cheat or unsupported client and then boom, one millisecond
   `/client autoclick left|right|off [delay]`
 - **ntp** – Player teleport (may error on partial names)
 - **fullbright** – Environment-based fullbright
+- **NoSetBack** - ignores the teleport request from servers. (Credits from Peeguah/Velocity)
 
 ---
 
