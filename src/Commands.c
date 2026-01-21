@@ -776,9 +776,9 @@ static enum { DC_IDLE, DC_TP, DC_WAIT, DC_PLACE, DC_PAUSE } dc_state;
 
 static cc_uint64 dc_lastTime;
 
-#define DC_BURST_SIZE      3
+#define DC_BURST_SIZE      12
 #define DC_BURST_DELAY_US  990000
-#define DC_TP_WAIT_US      900000
+#define DC_TP_WAIT_US      9000
 
 static void DC_TeleportToCurrent(void) {
     struct Entity* e = &Entities.CurPlayer->Base;
@@ -2056,6 +2056,28 @@ static struct ChatCommand N8BallCommand = {
 };
 
 /*########################################################################################################################*
+*------------------------------------------------------NoSetBack-----------------------------------------------------------*
+*#########################################################################################################################*/
+
+/*credits from velocity btw... AHHHHHHHHHHHHHHHHHHHHHHH-*/
+
+cc_bool NoSetBack_enabled = false;
+
+static void NoSetBackCommand_Execute(const cc_string* args, int argsCount) {
+    NoSetBack_enabled = !NoSetBack_enabled;
+    Chat_AddRaw(NoSetBack_enabled ? "&aNoSetBack enabled" : "&cNoSetBack disabled");
+}
+
+static struct ChatCommand NoSetBackCommand = {
+    "NoSetBack", NoSetBackCommand_Execute, 0,
+    {
+        "&a/client NoSetBack.",
+        "&ePrevents the server from teleporting you. - credits from velocity",
+    }
+};
+
+
+/*########################################################################################################################*
 *------------------------------------------------------BlockEditCommand----------------------------------------------------*
 *#########################################################################################################################*/
 static cc_bool BlockEditCommand_GetInt(const cc_string* str, const char* name, int* value, int min, int max) {
@@ -2283,6 +2305,7 @@ static void OnInit(void) {
     Commands_Register(&FullBrightCommand);
     Commands_Register(&MacroCommand);
     Commands_Register(&HaxCommand);
+    Commands_Register(&NoSetBackCommand);
 }
 
 static void OnFree(void) {

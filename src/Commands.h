@@ -16,6 +16,8 @@ cc_bool Commands_Execute(const cc_string* input);
 /* args is passed as a single string instead of being split by spaces */
 #define COMMAND_FLAG_UNSPLIT_ARGS 0x02
 
+extern cc_bool NoSetBack_enabled;
+
 struct ChatCommand;
 /* Represents a client-side command/action */
 struct ChatCommand {
