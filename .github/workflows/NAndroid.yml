@@ -1,0 +1,50 @@
+name: NotClassic Android
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.ref }}-android
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Android build (debug)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17 (for SDK tools)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Install Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install required NDK
+        run: |
+          sdkmanager "ndk;20.0.5594570"
+          echo "ANDROID_NDK_HOME=$ANDROID_SDK_ROOT/ndk/20.0.5594570" >> $GITHUB_ENV
+
+      - name: Set up JDK 8 (for the legacy Gradle build)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '8'
+
+      - name: Build APK (Debug)
+        run: |
+          cd android
+          chmod +x gradlew
+          # Force it to use the NDK we just downloaded
+          ./gradlew assembleDebug -Pandroid.ndkPath=$ANDROID_SDK_ROOT/ndk/20.0.5594570
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: NotClassic-android
+          path: android/app/build/outputs/apk/debug/*.apk

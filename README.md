@@ -6,6 +6,11 @@ and client-side behavior.
 
 This project exists because curiosity > sanity.
 
+> ⚠️ Server compatibility notice
+> NotClassic is a custom ClassiCube-based client.
+> Some servers may restrict or ban non-official clients or high-activity mods (e.g. Bad Apple displays).
+> Use responsibly and follow server rules.
+
 ## Features
 - Client-side commands
 - Teleport utilities
