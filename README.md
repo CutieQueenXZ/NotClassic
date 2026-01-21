@@ -1,15 +1,45 @@
-# NotClassic -_-
+<p align="center">
+  <img src="https://raw.githubusercontent.com/CutieQueenXZ/NotClassic/refs/heads/main/NCicon.png" width="150" alt="logo">
+</p>
 
+<div align="center">
+  <h1>NotClassic</h1>
+</div>
 
-A modified Classicube-based client focused on experimentation, QoL features,
-and client-side behavior.
+<p align="center">A modified Classicube-based client focused on experimentation, QoL features,
+and client-side behavior.</p>
 
-This project exists because curiosity > sanity.
+<p align="center">This project exists because curiosity > sanity.</p>
+
+<div align="center">
+
+## Warn
 
 > ⚠️ Server compatibility notice
+
 > NotClassic is a custom ClassiCube-based client.
+
 > Some servers may restrict or ban non-official clients or high-activity mods (e.g. Bad Apple displays).
+
 > Use responsibly and follow server rules.
+
+</div>
+
+<div align="center">
+
+## Disclaimer
+
+This client is for **educational and experimental purposes ONLY**.  
+Some servers may restrict or disallow modified clients.  
+Use at your own risk. Don’t be that guy.
+
+</div>
+
+<div align="center">
+  <h1>And i wanted to add somethin well...</h1>
+</div>
+
+<p align="center">"STOOOPID" - Root's response, just bored. :p</p>
 
 ## Features
 - Client-side commands
@@ -17,14 +47,6 @@ This project exists because curiosity > sanity.
 - UI & environment tweaks
 - Client-only hacks (no server modification)
 - Python-powered chat & block streaming
-
-## Disclaimer
-This client is for **educational and experimental purposes ONLY**.  
-Some servers may restrict or disallow modified clients.  
-Use at your own risk. Don’t be that guy.
-
-## And i wanted to add somethin well...
-"STOOOPID" - Root's response, just bored. :p
 
 ## Camouflage Client Name to Classicube!
 
