@@ -1,0 +1,89 @@
+name: NotClassic Builds
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  linux:
+    name: Linux build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install deps
+        run: |
+          sudo apt update
+          sudo apt install -y build-essential libsdl2-dev
+
+      - name: Build Linux
+        run: make PLAT=linux
+
+      - name: Upload Linux build
+        uses: actions/upload-artifact@v4
+        with:
+          name: NotClassic-linux
+          path: |
+            NotClassic*
+            build/
+
+  windows:
+    name: Windows build (MinGW)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install MinGW
+        run: sudo apt-get update && sudo apt-get install binutils-mingw-w64 g++-mingw-w64
+
+      - name: Build Windows
+        run: make CC=x86_64-w64-mingw32-gcc PLAT=mingw
+
+      - name: Upload Windows build
+        uses: actions/upload-artifact@v4
+        with:
+          name: NotClassic-windows
+          path: |
+            *.exe
+
+  android:
+      name: Android build (debug)
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v4
+  
+        # Step 1: Use JDK 17 just to handle the SDK/NDK installation
+        - name: Set up JDK 17 (for SDK tools)
+          uses: actions/setup-java@v4
+          with:
+            distribution: 'temurin'
+            java-version: '17'
+  
+        - name: Install Android SDK
+          uses: android-actions/setup-android@v3
+  
+        - name: Install required NDK
+          run: |
+            sdkmanager "ndk;20.0.5594570"
+            echo "ANDROID_NDK_HOME=$ANDROID_SDK_ROOT/ndk/20.0.5594570" >> $GITHUB_ENV
+  
+        # Step 2: Switch the vibe to JDK 8 for the actual compilation
+        - name: Set up JDK 8 (for the legacy Gradle build)
+          uses: actions/setup-java@v4
+          with:
+            distribution: 'temurin'
+            java-version: '8'
+  
+        - name: Build APK (Debug)
+          run: |
+            cd android
+            chmod +x gradlew
+            # Force it to use the NDK we just downloaded
+            ./gradlew assembleDebug -Pandroid.ndkPath=$ANDROID_SDK_ROOT/ndk/20.0.5594570
+  
+        - name: Upload APK
+          uses: actions/upload-artifact@v4
+          with:
+            name: NotClassic-android
+            path: android/app/build/outputs/apk/debug/*.apk
