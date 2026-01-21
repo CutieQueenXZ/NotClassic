@@ -34,7 +34,7 @@ Some servers think as cheat or unsupported client and then boom, one millisecond
 - **Cuboid** – Safe, but may trigger "you can’t build that far away"
 - **OCuboid** – Old-school cuboid, client-only, heavy on weak devices
 - **SCuboid** – Cuboid without teleporting
-- **LCuboid** – No distance limit, but slow as hell
+- **LCuboid** – Sometimes does "you can’t build that far away", but slow as hell
 - **DCuboid** – Dev-only, unfinished (don’t ask)
 
 ### Fun / Chat

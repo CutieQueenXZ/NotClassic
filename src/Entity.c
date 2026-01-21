@@ -943,16 +943,34 @@ static cc_bool LocalPlayer_HandleSetSpawn(int key, struct InputDevice* device) {
 }
 
 static cc_bool LocalPlayer_HandleFly(int key, struct InputDevice* device) {
-    struct LocalPlayer* p = &LocalPlayer_Instances[device->mappedIndex];
-    HacksComp_SetFlying(&p->Hacks, !p->Hacks.Flying);
-    return true;
+	struct LocalPlayer* p = &LocalPlayer_Instances[device->mappedIndex];
+	if (Gui.InputGrab) return false;
+
+	if (p->Hacks.CanFly && p->Hacks.Enabled) {
+		HacksComp_SetFlying(&p->Hacks, !p->Hacks.Flying);
+		return true;
+	} else if (!p->_warnedFly) {
+		p->_warnedFly = true;
+		if (hackPermMsgs) Chat_AddRaw("&cFlying is currently disabled");
+	}
+	return false;
 }
 
 static cc_bool LocalPlayer_HandleNoclip(int key, struct InputDevice* device) {
-    struct LocalPlayer* p = &LocalPlayer_Instances[device->mappedIndex];
-    if (p->Hacks.Noclip) p->Base.Velocity.y = 0;
-    HacksComp_SetNoclip(&p->Hacks, !p->Hacks.Noclip);
-    return true;
+	struct LocalPlayer* p = &LocalPlayer_Instances[device->mappedIndex];
+	p->Hacks._noclipping = true;
+	if (Gui.InputGrab) return false;
+
+	if (p->Hacks.CanNoclip && p->Hacks.Enabled) {
+		if (p->Hacks.WOMStyleHacks) return true; /* don't handle this here */
+		if (p->Hacks.Noclip) p->Base.Velocity.y = 0;
+		HacksComp_SetNoclip(&p->Hacks, !p->Hacks.Noclip);
+		return true;
+	} else if (!p->_warnedNoclip) {
+		p->_warnedNoclip = true;
+		if (hackPermMsgs) Chat_AddRaw("&cNoclip is currently disabled");
+	}
+	return false;
 }
 
 static cc_bool LocalPlayer_HandleJump(int key, struct InputDevice* device) {
@@ -975,7 +993,6 @@ static cc_bool LocalPlayer_HandleJump(int key, struct InputDevice* device) {
 	}
 	return false;
 }
-
 
 static cc_bool LocalPlayer_TriggerHalfSpeed(int key, struct InputDevice* device) {
 	struct HacksComp* hacks = &LocalPlayer_Instances[device->mappedIndex].Hacks;

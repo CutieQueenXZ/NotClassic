@@ -1,6 +1,6 @@
 #include "Hacks.h"
 
-cc_bool ClientHax_Enabled = true;
+cc_bool ClientHax_Enabled = false;
 
 void Hacks_ApplyClient(struct HacksComp* h) {
     if (!h) return;
