@@ -10,25 +10,25 @@ Copyright 2014-2025 ClassiCube | Licensed under BSD-3
 #define GAME_API_VER 1
 
 #if defined(CC_BUILD_ANDROID)
-    #define GAME_APP_NAME  "NotClassic 1.0"
+    #define GAME_APP_NAME  "NotClassic 1.1"
     #define GAME_APP_TITLE "NotClassic"
-    #define GAME_APP_ALT   "NotClassic 1.0"
+    #define GAME_APP_ALT   "NotClassic 1.1"
 
 #elif defined(CC_BUILD_WIN)
-    #define GAME_APP_NAME  "NotClassic 1.0 Windows"
+    #define GAME_APP_NAME  "NotClassic 1.1 Windows"
     #define GAME_APP_TITLE "NotClassic Windows"
 
 #elif defined(CC_BUILD_LINUX)
-    #define GAME_APP_NAME  "NotClassic 1.0 Linux"
+    #define GAME_APP_NAME  "NotClassic 1.1 Linux"
     #define GAME_APP_TITLE "NotClassic Linux"
 
 #elif defined(CC_BUILD_WEB)
-    #define GAME_APP_NAME  "NotClassic 1.0 Web"
+    #define GAME_APP_NAME  "NotClassic 1.1 Web"
     #define GAME_APP_TITLE "NotClassic Web"
     #define GAME_APP_ALT   "NotClassic Web Mobile"
 
 #else
-    #define GAME_APP_NAME  "NotClassic 1.0"
+    #define GAME_APP_NAME  "NotClassic 1.1"
     #define GAME_APP_TITLE "NotClassic"
 #endif
 
@@ -90,4 +90,5 @@ enum SKIN_TYPE { SKIN_64x32, SKIN_64x64, SKIN_64x64_SLIM, SKIN_INVALID = 0xF0 };
 
 #define DEFAULT_USERNAME "Singleplayer"
 #endif
+
 
