@@ -70,6 +70,8 @@ struct RayTracer;
 struct IGameComponent;
 extern struct IGameComponent Protocol_Component;
 
+extern cc_bool Env_IgnoreServer;
+
 void Protocol_Tick(void);
 
 extern cc_bool cpe_needD3Fix;

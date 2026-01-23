@@ -48,6 +48,8 @@ static cc_uint64 map_receiveBeg;
 static struct Stream map_part;
 static int map_volume;
 
+cc_bool Env_IgnoreServer = false;
+
 /*########################################################################################################################*
 *-----------------------------------------------------CPE extensions------------------------------------------------------*
 *#########################################################################################################################*/
@@ -996,7 +998,7 @@ static void CPE_ExtInfo(cc_uint8* data) {
 	static const cc_string d3Server = String_FromConst("D3 server");
 	cc_string appName = UNSAFE_GetString(data);
 	cpe_needD3Fix     = String_CaselessStarts(&appName, &d3Server);
-	Chat_Add1("Server software: %s", &appName);
+	Chat_Add1("Server software: %s BOIIIIIII", &appName);
 
 	/* Workaround for old MCGalaxy that send ExtEntry sync but ExtInfo async. */
 	/* Means ExtEntry may sometimes arrive before ExtInfo, so use += instead of = */
@@ -1190,10 +1192,13 @@ static void CPE_SetEnvCol(cc_uint8* data) {
 	cc_bool invalid;
 	
 	variable = data[0];
+
 	invalid  = data[1] || data[3] || data[5];
 	/* R,G,B are actually 16 bit unsigned integers */
 	/* Above > 255 is 'invalid' (this is used by servers) */
 	c = PackedCol_Make(data[2], data[4], data[6], 255);
+	
+	if (Env_IgnoreServer) return;
 
 	if (variable == 0) {
 		Env_SetSkyCol(invalid        ? ENV_DEFAULT_SKY_COLOR      : c);
@@ -1235,6 +1240,7 @@ static void CPE_ChangeModel(cc_uint8* data) {
 static void CPE_EnvSetMapAppearance(cc_uint8* data) {
 	cc_string url = UNSAFE_GetString(data);
 	int maxViewDist;
+	if (Env_IgnoreServer) return;
 	CPE_ApplyTexturePack(&url);
 
 	Env_SetSidesBlock(data[64]);
