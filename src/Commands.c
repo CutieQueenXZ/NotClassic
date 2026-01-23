@@ -2618,6 +2618,7 @@ static void OnInit(void) {
     Commands_Register(&NoSetBackCommand);
     Commands_Register(&TranslateCommand);
     Commands_Register(&IgnoreEnvCommand);
+    Commands_Register(&CrashCommand);
 }
 
 static void OnFree(void) {
