@@ -14,7 +14,6 @@
 #include "UwU.h"
 #include "ChatMacros.h"
 
- 
 static char status[10][STRING_SIZE];
 static char bottom[3][STRING_SIZE];
 static char client[2][STRING_SIZE];
@@ -210,8 +209,9 @@ void Chat_AddRaw(const char* raw) {
 void Chat_Add(const cc_string* text) { Chat_AddOf(text, MSG_TYPE_NORMAL); }
 
 void Chat_AddOf(const cc_string* text, int msgType) {
-	cc_string str;
-	if (msgType == MSG_TYPE_NORMAL) {
+    cc_string str;
+
+    if (msgType == MSG_TYPE_NORMAL) {
 		/* Check for chat overflow (see issue #837) */
 		/* This happens because Offset/Length are packed into a single 32 bit value, */
 		/*  with 9 bits used for length. Hence if offset exceeds 2^23 (8388608), it */

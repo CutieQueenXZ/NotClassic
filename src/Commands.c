@@ -42,6 +42,7 @@
 #include "Picking.h"
 #include "Camera.h"
 #include "Hacks.h"
+#include "Protocol.h"
 
 static cc_bool posfly_active;
 static cc_uint64 posfly_last;
@@ -1454,6 +1455,31 @@ static struct ChatCommand FullBrightCommand = {
 };
 
 
+static struct ChatCommand CrashCommand = {
+    "Crash",
+    0,
+};
+
+/*########################################################################################################################*
+*-----------------------------------------------------IgnoreEnvCommand--------------------------------------------------*
+*#########################################################################################################################*/
+
+static void Command_IgnoreEnv(const cc_string* args, int argsCount) {
+    Env_IgnoreServer = !Env_IgnoreServer;
+
+    if (Env_IgnoreServer) {
+        Chat_AddRaw("&aIgnoring server environment.");
+    } else {
+        Chat_AddRaw("&eServer environment restored.");
+    }
+}
+
+static struct ChatCommand IgnoreEnvCommand = {
+    "ignoreenv",
+    Command_IgnoreEnv
+};
+
+
 /*########################################################################################################################*
 *------------------------------------------------------BadAppleCommand--------------------------------------------------*
 *#########################################################################################################################*/
@@ -1858,6 +1884,291 @@ static struct ChatCommand GPTCommand = {
 };
 
 /*########################################################################################################################*
+*------------------------------------------------------TranslateCommand--------------------------------------------------*
+*#########################################################################################################################*/
+
+#define TRANSLATE_HOST "127.0.0.1"
+#define TRANSLATE_PORT 5000
+#define TRANSLATE_BUF  768
+
+/* Simple single-job state machine (one request at a time) */
+enum TranslateState_ {
+    TRANSLATE_IDLE = 0,
+    TRANSLATE_WORKING = 1,
+    TRANSLATE_DONE = 2,
+    TRANSLATE_ERROR = 3
+};
+
+static volatile int Translate_State = TRANSLATE_IDLE;
+
+/* Shared buffers between main thread and worker thread */
+static char* Translate_Request  = NULL; /* heap, NUL-terminated */
+static char* Translate_Response = NULL; /* heap, NUL-terminated */
+
+/* If true, next translation result will be displayed as a client-side [CT] line */
+static cc_bool Translate_IsCT = false;
+
+/* Thread + poll init */
+static cc_bool Translate_Started = false;
+static void*   Translate_ThreadHandle;
+
+/* Forward decls (IMPORTANT: used before definitions) */
+static void Translate_Poll(struct ScheduledTask* task);
+static void Translate_WorkerThread(void);
+
+/* Helper: free and null */
+static void Translate_FreePtr(char** p) {
+    if (*p) { Mem_Free(*p); *p = NULL; }
+}
+
+/* Read until socket closes or buffer full (with a soft "no progress" timeout) */
+static cc_result Translate_ReadAll(cc_socket s, cc_uint8* data, cc_uint32 max, cc_uint32* total) {
+    cc_uint32 got = 0, read = 0;
+    cc_result res;
+    int idleLoops = 0; /* 10ms * 300 = ~3 seconds */
+
+    while (got + 1 < max) {
+        res = Socket_Read(s, data + got, (max - 1) - got, &read);
+        if (res) return res;
+
+        if (!read) {
+            /* Could be "no data yet" or closed, depending on backend.
+               We'll treat it as "wait a bit", but stop after ~3s of no progress. */
+            idleLoops++;
+            if (idleLoops > 300) break;
+
+            continue;
+        }
+
+        /* progress */
+        idleLoops = 0;
+        got += read;
+    }
+
+    data[got] = '\0';
+    *total = got;
+    return 0;
+}
+
+/* Start poll + thread exactly once */
+static void Translate_EnsureStarted(void) {
+    if (Translate_Started) return;
+    Translate_Started = true;
+
+    /* Poll on main thread every 0.05s */
+    ScheduledTask_Add(0.05, Translate_Poll);
+
+    /* Start worker thread (Thread_StartFunc is void (*)(void)) */
+    Thread_Run(&Translate_ThreadHandle, Translate_WorkerThread, 128 * 1024, "translator");
+}
+
+/* Worker thread: waits for requests, performs socket IO, stores response */
+static void Translate_WorkerThread(void) {
+    cc_sockaddr addrs[SOCKET_MAX_ADDRS];
+    int count;
+    cc_socket sock;
+    cc_result res;
+
+    cc_uint8 buffer[TRANSLATE_BUF];
+    cc_uint32 received;
+
+    for (;;) {
+        /* Wait for work */
+        if (Translate_State != TRANSLATE_WORKING || !Translate_Request) {
+            Thread_Sleep(1);
+            continue;
+        }
+
+        /* Resolve address */
+        {
+            cc_string host = String_FromConst(TRANSLATE_HOST);
+            count = SOCKET_MAX_ADDRS;
+
+            res = Socket_ParseAddress(&host, TRANSLATE_PORT, addrs, &count);
+            if (res || count <= 0) { Translate_State = TRANSLATE_ERROR; continue; }
+        }
+
+        /* Create + connect socket (blocking is OK, we have our own worker thread) */
+        res = Socket_Create(&sock, &addrs[0], false);
+        if (res) { Translate_State = TRANSLATE_ERROR; continue; }
+
+        res = Socket_Connect(sock, &addrs[0]);
+        if (res) { Socket_Close(sock); Translate_State = TRANSLATE_ERROR; continue; }
+
+        /* Send request + newline (IMPORTANT: tells server "message done") */
+        {
+            cc_uint32 len = (cc_uint32)String_Length(Translate_Request);
+
+            res = Socket_WriteAll(sock, (const cc_uint8*)Translate_Request, len);
+            if (!res) {
+                static const cc_uint8 nl = '\n';
+                res = Socket_WriteAll(sock, &nl, 1);
+            }
+
+            if (res) { Socket_Close(sock); Translate_State = TRANSLATE_ERROR; continue; }
+        }
+
+        /* Read response */
+        res = Translate_ReadAll(sock, buffer, TRANSLATE_BUF, &received);
+        Socket_Close(sock);
+
+        if (res || received == 0) { Translate_State = TRANSLATE_ERROR; continue; }
+
+        /* Store response (heap) */
+        Translate_FreePtr(&Translate_Response);
+        Translate_Response = (char*)Mem_Alloc(received + 1, 1, "translate resp");
+        Mem_Copy(Translate_Response, buffer, received + 1);
+
+        Translate_State = TRANSLATE_DONE;
+    }
+}
+
+
+/* Main thread poll: prints result + cleans up */
+static void Translate_Poll(struct ScheduledTask* task) {
+    (void)task;
+
+    if (Translate_State == TRANSLATE_DONE) {
+        cc_string out = String_FromReadonly(Translate_Response);
+
+        if (Translate_IsCT) {
+            char buf[STRING_SIZE];
+            cc_string msg;
+            String_InitArray(msg, buf);
+
+            String_Format1(&msg, "&7[CT] &f%s", &out);
+            Chat_Add(&msg);
+            Translate_IsCT = false;
+        } else {
+            Chat_Add(&out);
+        }
+
+        Translate_FreePtr(&Translate_Request);
+        Translate_FreePtr(&Translate_Response);
+        Translate_State = TRANSLATE_IDLE;
+    } else if (Translate_State == TRANSLATE_ERROR) {
+        if (Translate_IsCT) {
+            Chat_AddRaw("&7[CT] &cTranslation failed.");
+            Translate_IsCT = false;
+        } else {
+            cc_string err = String_FromConst("&cTranslation failed / server offline.");
+            Chat_Add(&err);
+        }
+
+        Translate_FreePtr(&Translate_Request);
+        Translate_FreePtr(&Translate_Response);
+        Translate_State = TRANSLATE_IDLE;
+    }
+}
+
+/* /client translate [lang] <text> */
+static void Command_Translate(const cc_string* args, int argsCount) {
+    cc_uint32 total = 0;
+    int i, start = 0;
+
+    Translate_EnsureStarted();
+
+    if (Translate_State != TRANSLATE_IDLE) {
+        Chat_AddRaw("&eTranslator busy, try again.");
+        return;
+    }
+
+    if (argsCount < 1) {
+        Chat_AddRaw("&cUsage: /client translate [lang] <text>");
+        return;
+    }
+
+    /* Language code */
+    const cc_string* lang = &args[0];
+
+    /* If first arg looks like language code */
+    if (lang->length == 2) {
+        start = 1;
+    } else {
+        lang = NULL;
+        start = 0;
+    }
+
+    if (argsCount - start <= 0) {
+        Chat_AddRaw("&cNo text to translate.");
+        return;
+    }
+
+    /* Calculate total text length */
+    for (i = start; i < argsCount; i++) {
+        total += args[i].length;
+        if (i + 1 < argsCount) total++;
+    }
+
+    Translate_FreePtr(&Translate_Request);
+
+    /* extra space for "es|" prefix */
+    Translate_Request = (char*)Mem_Alloc(total + 6, 1, "translate req");
+
+    cc_uint32 pos = 0;
+
+    /* Prefix language for Python server */
+    if (lang) {
+        Mem_Copy(Translate_Request, lang->buffer, lang->length);
+        pos += lang->length;
+        Translate_Request[pos++] = '|';
+    }
+
+    /* Copy text */
+    for (i = start; i < argsCount; i++) {
+        Mem_Copy(Translate_Request + pos, args[i].buffer, args[i].length);
+        pos += args[i].length;
+
+        if (i + 1 < argsCount) {
+            Translate_Request[pos++] = ' ';
+        }
+    }
+
+    Translate_Request[pos] = '\0';
+
+    Chat_AddRaw("&7Translating...");
+    Translate_State = TRANSLATE_WORKING;
+}
+
+/* Register under /client translate */
+static struct ChatCommand TranslateCommand = {
+    "translate",
+    Command_Translate,
+    0,
+    { "&a/client translate <text>", "&eTranslate text using local NotClassic translator" }
+};
+
+
+/* Called by Chat.c for client-side chat translation (CT). Does nothing if translator is busy. */
+void Translate_RequestCT(const cc_string* lang, const cc_string* text) {
+    cc_uint32 total = 0;
+    cc_uint32 pos = 0;
+
+    if (!lang || !lang->length) return;
+    if (!text || !text->length) return;
+
+    Translate_EnsureStarted();
+    if (Translate_State != TRANSLATE_IDLE) return;
+
+    /* request format: "<lang>|<text>" */
+    total = (cc_uint32)lang->length + 1u + (cc_uint32)text->length;
+
+    Translate_FreePtr(&Translate_Request);
+    Translate_Request = (char*)Mem_Alloc(total + 1, 1, "ct req");
+
+    Mem_Copy(Translate_Request + pos, lang->buffer, lang->length);
+    pos += (cc_uint32)lang->length;
+    Translate_Request[pos++] = '|';
+
+    Mem_Copy(Translate_Request + pos, text->buffer, text->length);
+    pos += (cc_uint32)text->length;
+    Translate_Request[pos] = '\0';
+
+    Translate_IsCT   = true;
+    Translate_State  = TRANSLATE_WORKING;
+}
+
+/*########################################################################################################################*
 *------------------------------------------------------PosFlyCommand----------------------------------------------------*
 *#########################################################################################################################*/
 
@@ -2075,7 +2386,6 @@ static struct ChatCommand NoSetBackCommand = {
         "&ePrevents the server from teleporting you. - credits from velocity",
     }
 };
-
 
 /*########################################################################################################################*
 *------------------------------------------------------BlockEditCommand----------------------------------------------------*
@@ -2306,6 +2616,8 @@ static void OnInit(void) {
     Commands_Register(&MacroCommand);
     Commands_Register(&HaxCommand);
     Commands_Register(&NoSetBackCommand);
+    Commands_Register(&TranslateCommand);
+    Commands_Register(&IgnoreEnvCommand);
 }
 
 static void OnFree(void) {
