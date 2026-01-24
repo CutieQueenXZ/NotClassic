@@ -2169,16 +2169,80 @@ void Translate_RequestCT(const cc_string* lang, const cc_string* text) {
 }
 
 /*########################################################################################################################*
+*-------------------------------------------------------SpinCommand-----------------------------------------------------*
+*#########################################################################################################################*/
+
+static cc_bool spin_active;
+static float   spin_speed = 5.0f;
+static int     spin_dir   = -1;
+static cc_bool spin_task_running;
+
+static void Spin_Tick(struct ScheduledTask* task) {
+    if (!spin_active) { 
+        spin_task_running = false;
+        return;
+    }
+
+    struct Entity* e = &Entities.CurPlayer->Base;
+
+    struct LocationUpdate u;
+    u.flags = LU_HAS_YAW;
+
+    float yaw = e->Yaw + spin_dir * spin_speed;
+    if (yaw >= 360.0f) yaw -= 360.0f;
+    if (yaw < 0.0f)    yaw += 360.0f;
+
+    u.yaw = yaw;
+    e->VTABLE->SetLocation(e, &u);
+}
+
+static void Command_Spin(const cc_string* args, int argsCount) {
+    int i;
+    for (i = 0; i < argsCount; i++) {
+        if (String_CaselessEqualsConst(&args[i], "on")) {
+            spin_active = true;
+        } else if (String_CaselessEqualsConst(&args[i], "off")) {
+            spin_active = false;
+        } else if (String_CaselessEqualsConst(&args[i], "left")) {
+            spin_dir = -1;
+        } else if (String_CaselessEqualsConst(&args[i], "right")) {
+            spin_dir = 1;
+        } else {
+            int speed;
+            if (Convert_ParseInt(&args[i], &speed)) {
+                spin_speed = (float)speed;
+            }
+        }
+    }
+
+    /* toggle if no args */
+    if (argsCount == 0) spin_active = !spin_active;
+
+    if (spin_active) {
+        if (!spin_task_running) {
+            ScheduledTask_Add(0.05f, Spin_Tick);
+            spin_task_running = true;
+        }
+        Chat_AddRaw("&aSpin enabled");
+    } else {
+        Chat_AddRaw("&cSpin disabled");
+    }
+}
+
+static struct ChatCommand SpinCommand = {
+    "spin", Command_Spin,
+    0,
+    {
+        "&a/client spin [on|off] [left|right] [speed]",
+        "&eServer-only yaw spinning (camera unaffected)",
+    }
+};
+
+/*########################################################################################################################*
 *------------------------------------------------------PosFlyCommand----------------------------------------------------*
 *#########################################################################################################################*/
 
 static cc_bool posfly_active;
-
-static int PosFly_GetDir(float yaw) {
-    int dir = (int)(yaw / 90.0f + 0.5f);
-    if (dir < 0) dir += 4;
-    return dir & 3;
-}
 
 static void PosFly_Tick(struct ScheduledTask* task) {
     if (!posfly_active) {
@@ -2189,7 +2253,7 @@ static void PosFly_Tick(struct ScheduledTask* task) {
     struct Entity* e = &Entities.CurPlayer->Base;
     Vec3 pos = e->Position;
 
-    int dir = PosFly_GetDir(e->Yaw);
+    int dir = (int)(e->Yaw / 90.0f + 0.5f) & 3;
     float step = 0.06f;
 
     if (dir == 0) pos.z -= step;
@@ -2619,6 +2683,7 @@ static void OnInit(void) {
     Commands_Register(&TranslateCommand);
     Commands_Register(&IgnoreEnvCommand);
     Commands_Register(&CrashCommand);
+    Commands_Register(&SpinCommand);
 }
 
 static void OnFree(void) {
