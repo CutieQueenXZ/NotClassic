@@ -93,6 +93,7 @@ Some servers think as cheat or unsupported client and then boom, one millisecond
 - **ntp** – Player teleport (may error on partial names)
 - **fullbright** – Environment-based fullbright
 - **NoSetBack** - ignores the teleport request from servers. (Credits from Peeguah/Velocity)
+- **spin** - spinning. 
 
 ---
 
