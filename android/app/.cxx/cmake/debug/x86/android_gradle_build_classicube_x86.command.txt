@@ -1,7 +1,0 @@
-Executable : /home/pc/Android/Sdk/cmake/3.10.2.4988404/bin/ninja
-arguments : 
--C
-/home/pc/NotClassic/android/app/.cxx/cmake/debug/x86
-classicube
-jvmArgs : 
-
