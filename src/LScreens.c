@@ -497,7 +497,7 @@ static void DirectConnectScreen_StartClient(void* w) {
 	}
 
 	if (!user->length) {
-		LLabel_SetConst(status, "&cUsername required"); return;
+		LLabel_SetConst(status, "&cUsername required duh"); return;
 	}
 	DirectUrl_ExtractAddress(addr, &ip, &port);
 	if (!IsValidPort(&port)) {
@@ -619,8 +619,8 @@ static void MFAScreen_Activated(struct LScreen* s_) {
 				MFAScreen_Cancel, mfa_btnCancel);
 
 	LLabel_SetConst(&s->lblTitle, s->iptCode.text.length ?
-		"&cWrong code entered  (Check emails)" :
-		"&cLogin code required (Check emails)");
+		"&cWrong code entered  (Check da emails)" :
+		"&cLogin code required (Check da emails)");
 }
 
 void MFAScreen_SetActive(void) {
@@ -1413,7 +1413,7 @@ static struct SettingsScreen {
 	LScreen_Layout
 	struct LButton btnMode, btnColours, btnBack;
 	struct LLabel  lblMode, lblColours;
-	struct LCheckbox cbExtra, cbEmpty, cbScale, cbCamouflage;
+	struct LCheckbox cbExtra, cbEmpty, cbScale, cbCamouflage, cbHax;
 	struct LLine sep;
 } SettingsScreen CC_BIG_VAR;
 
@@ -1429,8 +1429,9 @@ LAYOUTS set_sep[]     = { { ANCHOR_CENTRE,        0 }, { ANCHOR_CENTRE,  15 } };
 LAYOUTS set_cbExtra[] = { { ANCHOR_CENTRE_MIN, -190 }, { ANCHOR_CENTRE,  44 } };
 LAYOUTS set_cbEmpty[] = { { ANCHOR_CENTRE_MIN, -190 }, { ANCHOR_CENTRE,  84 } };
 LAYOUTS set_cbScale[] = { { ANCHOR_CENTRE_MIN, -190 }, { ANCHOR_CENTRE, 124 } };
-LAYOUTS set_btnBack[] = { { ANCHOR_CENTRE,        0 }, { ANCHOR_CENTRE, 210 } };
+LAYOUTS set_btnBack[] = { { ANCHOR_CENTRE,        0 }, { ANCHOR_CENTRE, 244 } };
 LAYOUTS set_cbCamouflage[] = { { ANCHOR_CENTRE_MIN, -190 }, { ANCHOR_CENTRE, 164 } };
+LAYOUTS set_cbHax[] = { { ANCHOR_CENTRE_MIN, -190 }, { ANCHOR_CENTRE, 204 } };
 
 
 #if defined CC_BUILD_MOBILE
@@ -1452,6 +1453,10 @@ static void SettingsScreen_ShowEmpty(struct LCheckbox* w) {
 static void SettingsScreen_CamouflageClient(struct LCheckbox* w) {
     Options_SetBool(OPT_CAMOUFLAGE_CLIENT, w->value);
 	return;
+}
+
+static void SettingsScreen_AddHax(struct LCheckbox* w) {
+    Options_SetBool(OPT_HAX_ADDUP, w->value);
 }
 
 static void SettingsScreen_DPIScaling(struct LCheckbox* w) {
@@ -1490,7 +1495,9 @@ static void SettingsScreen_AddWidgets(struct SettingsScreen* s) {
 				SettingsScreen_DPIScaling, set_cbScale);
 	LCheckbox_Add(s, &s->cbCamouflage, "Camouflage client as ClassiCube",
               SettingsScreen_CamouflageClient, set_cbCamouflage);
-	LButton_Add(s,   &s->btnBack, 80, 35, "Back", 
+	LCheckbox_Add(s, &s->cbHax, "Add +hax to client name",
+              SettingsScreen_AddHax, set_cbHax);
+	LButton_Add(s,   &s->btnBack, 80, 45, "Back", 
 				SwitchToMain, set_btnBack);
 }
 
@@ -1504,6 +1511,7 @@ static void SettingsScreen_Activated(struct LScreen* s_) {
 	LCheckbox_Set(&s->cbExtra, Options_GetBool(LOPT_AUTO_CLOSE, false));
 #endif
     LCheckbox_Set(&s->cbCamouflage, Options_GetBool(OPT_CAMOUFLAGE_CLIENT, false));
+	LCheckbox_Set(&s->cbHax, Options_GetBool(OPT_HAX_ADDUP, true));
 
 	LCheckbox_Set(&s->cbEmpty, Launcher_ShowEmptyServers);
 	LCheckbox_Set(&s->cbScale, DisplayInfo.DPIScaling);

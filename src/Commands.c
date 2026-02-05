@@ -1,3 +1,4 @@
+
 #include "Commands.h"
 #include "Chat.h"
 #include "String.h"
@@ -48,6 +49,7 @@ static cc_bool posfly_active;
 static cc_uint64 posfly_last;
 static cc_bool posfly_active = false;
 static struct ScheduledTask* posfly_task = NULL;
+cc_bool NoPush_enabled = false;
 
 #define COMMANDS_PREFIX "/client"
 #define COMMANDS_PREFIX_SPACE "/client "
@@ -2239,6 +2241,36 @@ static struct ChatCommand SpinCommand = {
 };
 
 /*########################################################################################################################*
+*----------------------------------------------------NoPush Command------------------------------------------------------*
+*#########################################################################################################################*/
+
+static void NoPushCommand_Execute(const cc_string* args, int argsCount) {
+	cc_bool newState = NoPush_enabled;
+
+	if (argsCount > 0) {
+		if (String_CaselessEqualsConst(&args[0], "on"))  newState = true;
+		if (String_CaselessEqualsConst(&args[0], "off")) newState = false;
+	} else {
+		newState = !NoPush_enabled;
+	}
+
+	if (newState == NoPush_enabled) return;
+
+	NoPush_enabled = newState;
+	Chat_AddRaw(NoPush_enabled
+		? "&aNoPush enabled."
+		: "&eNoPush disabled.");
+}
+
+static struct ChatCommand NoPushCommand = {
+	"nopush", NoPushCommand_Execute, 0,
+	{
+		"&a/client nopush [on/off]",
+		"&eDisables entity collision pushing.",
+	}
+};
+
+/*########################################################################################################################*
 *------------------------------------------------------PosFlyCommand----------------------------------------------------*
 *#########################################################################################################################*/
 
@@ -2246,7 +2278,7 @@ static cc_bool posfly_active;
 
 static void PosFly_Tick(struct ScheduledTask* task) {
     if (!posfly_active) {
-        task->interval = 0;
+        posfly_active = false;
         return;
     }
 
@@ -2340,7 +2372,7 @@ static void RickRollCommand_Execute(const cc_string* args, int argsCount) {
     rick_last   = Stopwatch_Measure();
 
     ScheduledTask_Add(0.05, RickRoll_Tick);
-    Chat_AddRaw("&dBET...");
+    Chat_AddRaw("&dStarting...");
 }
 
 static struct ChatCommand RickRollCommand = {
@@ -2431,6 +2463,82 @@ static struct ChatCommand N8BallCommand = {
 };
 
 /*########################################################################################################################*
+*--------------------------------------------------------PCoordCommand--------------------------------------------------*
+*#########################################################################################################################*/
+
+static struct Entity* FindPlayerByNameExact(
+    const cc_string* name
+) {
+    for (int i = 0; i < TABLIST_MAX_NAMES; i++) {
+        if (!TabList.NameOffsets[i]) continue;
+
+        cc_string n = TabList_UNSAFE_GetPlayer(i);
+
+        if (String_CaselessEquals(&n, name)) {
+            return &NetPlayers_List[i].Base;
+        }
+    }
+    return NULL;
+}
+
+static void CommandPCoord_Execute(const cc_string* args, int argsCount) {
+    if (argsCount == 0) {
+        Chat_AddRaw("&e/client pcoord <player>");
+        return;
+    }
+
+    int matches = 0;
+    struct Entity* target = FindPlayerByName(&args[0], &matches);
+
+    if (matches == 0) {
+        Chat_AddRaw("&cPlayer not found.");
+        return;
+    }
+
+    if (matches > 1) {
+        Chat_AddRaw("&eMultiple players match:");
+
+        for (int i = 0; i < MAX_NET_PLAYERS; i++) {
+            struct NetPlayer* p = &NetPlayers_List[i];
+            if (!p->Base.Flags) continue;
+
+            cc_string n = TabList_UNSAFE_GetPlayer(i);
+            if (!n.length) continue;
+
+            if (String_ContainsCaseless(&n, &args[0])) {
+                Chat_AddRaw("&7 - ");
+                Chat_Add(&n);
+            }
+        }
+
+        Chat_AddRaw("&eBe more specific.");
+        return;
+    }
+
+    char msg[128];
+    snprintf(
+        msg, sizeof(msg),
+        "&a%s &7→ X=%.2f Y=%.2f Z=%.2f",
+        target->NameRaw,
+        target->Position.x,
+        target->Position.y,
+        target->Position.z
+    );
+
+    Chat_AddRaw(msg);
+}
+
+static struct ChatCommand ClientPCoordCommand = {
+    "pcoord",
+    CommandPCoord_Execute,
+    COMMAND_FLAG_UNSPLIT_ARGS,
+    {
+        "&a/client pcoord <player>",
+        "&7Shows another player's coordinates",
+    }
+};
+
+/*########################################################################################################################*
 *------------------------------------------------------NoSetBack-----------------------------------------------------------*
 *#########################################################################################################################*/
 
@@ -2448,6 +2556,87 @@ static struct ChatCommand NoSetBackCommand = {
     {
         "&a/client NoSetBack.",
         "&ePrevents the server from teleporting you. - credits from velocity",
+    }
+};
+
+/*########################################################################################################################*
+*--------------------------------------------------------Info--------------------------------------------------------------*
+*#########################################################################################################################*/
+
+static void Chat_AddConst(const char* text) {
+	cc_string s = String_FromConst(text);
+	Chat_Add(&s);
+}
+
+static void InfoCommand_Execute(const cc_string* args, int argsCount) {
+    Chat_AddRaw("&bClient Info");
+    Chat_AddRaw("&7--------------------");
+
+    const char* displayName;
+    if (Options_GetBool(OPT_CAMOUFLAGE_CLIENT, false)) {
+        displayName = "ClassiCube 1.3.7";
+    } else {
+        displayName = GAME_APP_NAME;
+    }
+
+    char nameLine[128];
+    snprintf(nameLine, sizeof(nameLine), "&7Name: &f%s%s%s",
+        displayName,
+        Options_GetBool(OPT_HAX_ADDUP, true) ? " +hax" : "",
+        Options_GetBool(OPT_CAMOUFLAGE_CLIENT, false) ? " (camouflaged)" : ""
+    );
+    Chat_AddRaw(nameLine);
+
+    char verLine[64];
+    snprintf(verLine, sizeof(verLine), "&7Version: &f%s", GAME_APP_VER);
+    Chat_AddRaw(verLine);
+
+    char platLine[64];
+    snprintf(platLine, sizeof(platLine), "&7Platform: &f%s", FromPlatform);
+    Chat_AddRaw(platLine);
+    Chat_AddRaw(Options_GetBool(OPT_CAMOUFLAGE_CLIENT, false) ? "&7Camouflage: &fEnabled" : "&7Camouflage: &fDisabled");
+    Chat_AddRaw(Options_GetBool(OPT_HAX_ADDUP, true) ? "&7+Hax: &fEnabled" : "&7+Hax: &fDisabled");
+}
+
+static struct ChatCommand ClientInfoCommand = {
+	"info",
+	InfoCommand_Execute,
+	false,
+	0
+};
+
+/*########################################################################################################################*
+*---------------------------------------------------ClientEasterCommand---------------------------------------------------*
+*#########################################################################################################################*/
+
+static void ClientEaster_Execute(const cc_string* args, int argsCount) {
+    static const char* faces[] = {
+        "(>'-')>   <('-'<)   ^(' - ')^",
+        "(o_o)     (>^.^<)   (_._)",
+        "(>^_^)>   <(^_^<)   (^_^)",
+        "(*_*)     (>o_o<)   (^.^)",
+        "(^_^)     (^-^)     (>^_^<)"
+    };
+    int idx = (int)(Stopwatch_Measure() % (sizeof(faces)/sizeof(faces[0])));
+
+    cc_string msg;
+    char buf[128];
+    String_InitArray(msg, buf);
+    String_AppendConst(&msg, "&bYou've discovered the NotClassic's easiest easter egg! :D");
+    Chat_Send(&msg, false);
+
+    String_InitArray(msg, buf);
+    String_AppendConst(&msg, faces[idx]);
+    Chat_Send(&msg, false);
+}
+
+static struct ChatCommand ClientEasterCommand = {
+    "easter",
+    ClientEaster_Execute,
+    0,  // flags
+    {
+        "&a/client easter",
+        "&eSecret hidden modder easter egg"
     }
 };
 
@@ -2657,6 +2846,7 @@ static void OnInit(void) {
 	Commands_Register(&BlockEditCommand);
 	Commands_Register(&CuboidCommand);
 	Commands_Register(&ReplaceCommand);
+    /*NotClassic's here!*/
 	Commands_Register(&RenameCommand);
 	Commands_Register(&PosFlyCommand);
 	Commands_Register(&OCuboidCommand);
@@ -2684,6 +2874,10 @@ static void OnInit(void) {
     Commands_Register(&IgnoreEnvCommand);
     Commands_Register(&CrashCommand);
     Commands_Register(&SpinCommand);
+    Commands_Register(&NoPushCommand);
+    Commands_Register(&ClientPCoordCommand);
+    Commands_Register(&ClientInfoCommand);
+    Commands_Register(&ClientEasterCommand);
 }
 
 static void OnFree(void) {

@@ -34,6 +34,7 @@ cc_bool Launcher_ShowEmptyServers;
 static cc_bool useBitmappedFont, hasBitmappedFont;
 static struct Bitmap dirtBmp, stoneBmp;
 #define TILESIZE 48
+#define OPT_HAX_INIT "hax-initialised"
 
 static void CloseActiveScreen(void) {
 	OnscreenKeyboard_Close();
@@ -241,9 +242,14 @@ void Launcher_Setup(void) {
 	LBackend_Init();
 	LBackend_InitFramebuffer();
 	Launcher_ShowEmptyServers = Options_GetBool(LOPT_SHOW_EMPTY, true);
+	/*for uhh... jshtab...*/
+	if (!Options_GetBool(OPT_HAX_INIT, true)) {
+		Options_SetBool(OPT_HAX_ADDUP, true);
+		Options_SetBool(OPT_HAX_INIT, true);
+	}
 	Options_Get(LOPT_USERNAME, &Launcher_Username, "");
 	/* Some window backends require priming a few frames in case e.g. returning from in-game */
-	LBackend_AddDirtyFrames(4);
+	LBackend_AddDirtyFrames(5);
 
 	LWebTasks_Init();
 	Session_Load();

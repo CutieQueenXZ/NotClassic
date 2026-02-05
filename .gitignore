@@ -321,4 +321,16 @@ local.properties
 
 *.tmp
 *.bak
+
+*.png 
+
+# Android / CMake build trash
+android/app/.cxx/
+**/build.ninja
+**/.ninja_*
+**/compile_commands.json
+**/cmake_server_log.txt
+**/*gradle_build*.json
+**/json_generation_record.json
+
 >>>>>>> f413e09c079e7c0ce5ca92b9143894e8d2d8a0c5

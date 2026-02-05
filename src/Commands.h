@@ -18,6 +18,8 @@ cc_bool Commands_Execute(const cc_string* input);
 
 extern cc_bool NoSetBack_enabled;
 
+extern cc_bool NoPush_enabled;
+
 struct ChatCommand;
 /* Represents a client-side command/action */
 struct ChatCommand {

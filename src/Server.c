@@ -527,16 +527,21 @@ static void OnInit(void) {
 	String_AppendConst(&Server.AppName, Platform_AppNameSuffix);
     String_InitArray(Server.AppName, appBuffer);
 
-    if (Options_GetBool(OPT_CAMOUFLAGE_CLIENT, false)) {
-        /* Pretend to be vanilla ClassiCube */
-        String_AppendConst(&Server.AppName, "ClassiCube 1.3.7");
-    } else {
-        /* Normal NotClassic identity */
-    String_AppendConst(&Server.AppName, GAME_APP_NAME);
-    }
+	const char* baseName;
 
-    String_AppendConst(&Server.AppName, Platform_AppNameSuffix);
+	if (Options_GetBool(OPT_CAMOUFLAGE_CLIENT, false)) {
+		baseName = "ClassiCube " GAME_APP_VER;
+	} else {
+		baseName = GAME_APP_NAME;
+	}
 
+	String_AppendConst(&Server.AppName, baseName);
+
+	if (Options_GetBool(OPT_HAX_ADDUP, true)) {
+		String_AppendConst(&Server.AppName, " +hax");
+	}
+
+	String_AppendConst(&Server.AppName, Platform_AppNameSuffix);
 
 #ifdef CC_BUILD_WEB
 	if (!Input_TouchMode) return;

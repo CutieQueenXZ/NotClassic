@@ -25,6 +25,7 @@
 #include "Protocol.h"
 #include "Vectors.h"
 #include "Hacks.h"
+#include "Commands.h"
 
 /*########################################################################################################################*
 *---------------------------------------------------------Entity----------------------------------------------------------*
@@ -708,7 +709,6 @@ static void LocalPlayer_HandleInput(struct LocalPlayer* p, float* xMoving, float
 			/* need a { } block because it's a macro */
 			Vec3_Set(p->Base.Velocity, 0,0,0);
 		}
-		HacksComp_SetNoclip(hacks, hacks->_noclipping);
 	}
 }
 
@@ -732,7 +732,7 @@ static void LocalPlayer_Tick(struct Entity* e, float delta) {
 	LocalInterpComp_AdvanceState(&p->Interp, e);
 	LocalPlayer_HandleInput(p, &xMoving, &zMoving);
 	hacks->Floating = hacks->Noclip || hacks->Flying;
-	if (!hacks->Floating && hacks->CanBePushed) PhysicsComp_DoEntityPush(e);
+	if (!hacks->Floating && !NoPush_enabled) PhysicsComp_DoEntityPush(e);
 
 	/* Immediate stop in noclip mode */
 	if (!hacks->NoclipSlide && (hacks->Noclip && xMoving == 0 && zMoving == 0)) {
@@ -947,7 +947,6 @@ static cc_bool LocalPlayer_HandleFly(int key, struct InputDevice* device) {
 	if (Gui.InputGrab) return false;
 
 	if (p->Hacks.CanFly && p->Hacks.Enabled) {
-		HacksComp_SetFlying(&p->Hacks, !p->Hacks.Flying);
 		return true;
 	} else if (!p->_warnedFly) {
 		p->_warnedFly = true;
@@ -964,7 +963,6 @@ static cc_bool LocalPlayer_HandleNoclip(int key, struct InputDevice* device) {
 	if (p->Hacks.CanNoclip && p->Hacks.Enabled) {
 		if (p->Hacks.WOMStyleHacks) return true; /* don't handle this here */
 		if (p->Hacks.Noclip) p->Base.Velocity.y = 0;
-		HacksComp_SetNoclip(&p->Hacks, !p->Hacks.Noclip);
 		return true;
 	} else if (!p->_warnedNoclip) {
 		p->_warnedNoclip = true;
