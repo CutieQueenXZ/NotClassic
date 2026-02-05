@@ -26,7 +26,7 @@ jobs:
         shell: bash
         id: compile
         env: 
-          LIBS: "-lwinmm -limagehlp"
+          LIBS: "-lwinmm -limagehlp -lgdi32 -lcomdlg32"
           SRCS: "src/*.c third_party/bearssl/*.c"
           COMMON_FLAGS: "-O1 -s -fno-stack-protector -fno-math-errno -DCC_NOMAIN -Qn"
           WIN32_FLAGS:  "-Wl,-e_main_real -DCC_NOMAIN src/CCicon_32.res"
@@ -80,7 +80,7 @@ jobs:
         shell: bash
         id: compile
         env: 
-          LIBS: "-lwinmm -limagehlp"
+          LIBS: "-lwinmm -limagehlp -lgdi32 -lcomdlg32"
           SRCS: "src/*.c third_party/bearssl/*.c"
           COMMON_FLAGS: "-O1 -s -fno-stack-protector -fno-math-errno -DCC_NOMAIN -Qn"
           WIN64_FLAGS:  "-Wl,-emain_real -DCC_NOMAIN src/CCicon_64.res"
