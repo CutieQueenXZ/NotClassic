@@ -28,8 +28,8 @@ jobs:
         env:
           LIBS: "-lwinmm -limagehlp -lgdi32 -lcomdlg32"
           SRCS: "src/*.c third_party/bearssl/*.c"
-          COMMON_FLAGS: "-O1 -s -fno-stack-protector -fno-math-errno -Qn -Werror -DCC_NOMAIN"
-          WIN32_FLAGS: "-mwindows -Wl,--subsystem,console src/CCicon_32.res"
+          COMMON_FLAGS: "-O1 -s -fno-stack-protector -fno-math-errno -Qn -Werror -DCC_NOMAIN -mconsole"
+          WIN32_FLAGS: "src/CCicon_32.res"
         run: |
           LATEST_FLAG=-DCC_COMMIT_SHA=\"$(git rev-parse --short "$GITHUB_SHA")\"
           cp misc/windows/CCicon_32.res src/CCicon_32.res
@@ -78,8 +78,8 @@ jobs:
         env:
           LIBS: "-lwinmm -limagehlp -lgdi32 -lcomdlg32"
           SRCS: "src/*.c third_party/bearssl/*.c"
-          COMMON_FLAGS: "-O1 -s -fno-stack-protector -fno-math-errno -Qn -Werror -DCC_NOMAIN"
-          WIN64_FLAGS: "-mwindows -Wl,-emain_real src/CCicon_64.res"
+          COMMON_FLAGS: "-O1 -s -fno-stack-protector -fno-math-errno -Qn -Werror -DCC_NOMAIN -mconsole"
+          WIN64_FLAGS: "src/CCicon_64.res"
         run: |
           LATEST_FLAG=-DCC_COMMIT_SHA=\"$(git rev-parse --short "$GITHUB_SHA")\"
           cp misc/windows/CCicon_64.res src/CCicon_64.res
