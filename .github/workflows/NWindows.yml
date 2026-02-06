@@ -1,5 +1,5 @@
 name: NotClassic Windows
-# trigger via either push to selected branches or on manual run
+
 on:
   push:
     branches:
@@ -13,7 +13,7 @@ concurrency:
 jobs:
 #============================================
 # ============== 32 BIT WINDOWS =============
-# ===========================================
+#============================================
   build-32:
     timeout-minutes: 10
     runs-on: ubuntu-latest
@@ -21,50 +21,49 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Install packages
-        shell: bash
-        run: |
-          sudo apt-get -y install gcc-mingw-w64-i686
+        run: sudo apt-get -y install gcc-mingw-w64-i686
+
       - name: Compile 32 bit Windows builds
         shell: bash
-        env: 
-          LIBS: "-lwinmm -limagehlp"
+        env:
+          LIBS: "-lwinmm -limagehlp -lgdi32 -lcomdlg32"
           SRCS: "src/*.c third_party/bearssl/*.c"
-          COMMON_FLAGS: "-O1 -s -fno-stack-protector -fno-math-errno -Qn -Werror"
-          WIN32_FLAGS:  "-mwindows -nostartfiles -Wl,-e_main_real -DCC_NOMAIN src/CCicon_32.res"
+          COMMON_FLAGS: "-O1 -s -fno-stack-protector -fno-math-errno -Qn -Werror -DCC_NOMAIN"
+          WIN32_FLAGS: "-mwindows -Wl,-e_main_real src/CCicon_32.res"
         run: |
-          LATEST_FLAG=-DCC_COMMIT_SHA=\"$(git rev-parse --short "$GITHUB_SHA")\"          
+          LATEST_FLAG=-DCC_COMMIT_SHA=\"$(git rev-parse --short "$GITHUB_SHA")\"
           cp misc/windows/CCicon_32.res src/CCicon_32.res
-          i686-w64-mingw32-gcc ${{ env.SRCS }} ${{ env.COMMON_FLAGS }} ${{ env.WIN32_FLAGS }} -o cc-w32-d3d9.exe  $LATEST_FLAG ${{ env.LIBS }}
-          i686-w64-mingw32-gcc ${{ env.SRCS }} ${{ env.COMMON_FLAGS }} ${{ env.WIN32_FLAGS }} -o cc-w32-ogl.exe   $LATEST_FLAG -DCC_GFX_BACKEND=CC_GFX_BACKEND_GL1 ${{ env.LIBS }}
-          i686-w64-mingw32-gcc ${{ env.SRCS }} ${{ env.COMMON_FLAGS }} ${{ env.WIN32_FLAGS }} -o cc-w32-d3d11.exe $LATEST_FLAG -DCC_GFX_BACKEND=CC_GFX_BACKEND_D3D11 ${{ env.LIBS }}
-          
-          # mingw defaults to i686, but some really old CPUs only support i586
-          i686-w64-mingw32-gcc ${{ env.SRCS }} ${{ env.COMMON_FLAGS }} ${{ env.WIN32_FLAGS }} -march=i586 -o cc-w9x-ogl.exe $LATEST_FLAG -DCC_GFX_BACKEND=CC_GFX_BACKEND_GL1 -DCC_BUILD_NOSTDLIB ${{ env.LIBS }}
-          
-          
+
+          i686-w64-mingw32-gcc $SRCS $COMMON_FLAGS $WIN32_FLAGS -o cc-w32-d3d9.exe  $LATEST_FLAG $LIBS
+          i686-w64-mingw32-gcc $SRCS $COMMON_FLAGS $WIN32_FLAGS -o cc-w32-ogl.exe   $LATEST_FLAG -DCC_GFX_BACKEND=CC_GFX_BACKEND_GL1 $LIBS
+          i686-w64-mingw32-gcc $SRCS $COMMON_FLAGS $WIN32_FLAGS -o cc-w32-d3d11.exe $LATEST_FLAG -DCC_GFX_BACKEND=CC_GFX_BACKEND_D3D11 $LIBS
+
+          i686-w64-mingw32-gcc $SRCS $COMMON_FLAGS $WIN32_FLAGS -march=i586 \
+            -o cc-w9x-ogl.exe $LATEST_FLAG -DCC_GFX_BACKEND=CC_GFX_BACKEND_GL1 -DCC_BUILD_NOSTDLIB $LIBS
+
       - uses: ./.github/actions/upload_build
         with:
-          SOURCE_FILE: 'cc-w32-d3d9.exe'
-          DEST_NAME: 'NotClassic-Win32-Direct3D9.exe'
-          
+          SOURCE_FILE: cc-w32-d3d9.exe
+          DEST_NAME: NotClassic-Win32-Direct3D9.exe
+
       - uses: ./.github/actions/upload_build
         with:
-          SOURCE_FILE: 'cc-w32-ogl.exe'
-          DEST_NAME: 'NotClassic-Win32-OpenGL.exe'
-          
+          SOURCE_FILE: cc-w32-ogl.exe
+          DEST_NAME: NotClassic-Win32-OpenGL.exe
+
       - uses: ./.github/actions/upload_build
         with:
-          SOURCE_FILE: 'cc-w32-d3d11.exe'
-          DEST_NAME: 'NotClassic-Win32-Direct3D11.exe'
-          
+          SOURCE_FILE: cc-w32-d3d11.exe
+          DEST_NAME: NotClassic-Win32-Direct3D11.exe
+
       - uses: ./.github/actions/upload_build
         with:
-          SOURCE_FILE: 'cc-w9x-ogl.exe'
-          DEST_NAME: 'NotClassic-Win9x.exe'
-          
+          SOURCE_FILE: cc-w9x-ogl.exe
+          DEST_NAME: NotClassic-Win9x.exe
+
 #============================================
 # ============== 64 BIT WINDOWS =============
-# ===========================================
+#============================================
   build-64:
     timeout-minutes: 10
     runs-on: ubuntu-latest
@@ -72,36 +71,34 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Install packages
-        shell: bash
-        run: |
-          sudo apt-get -y install gcc-mingw-w64-x86-64
+        run: sudo apt-get -y install gcc-mingw-w64-x86-64
+
       - name: Compile 64 bit Windows builds
         shell: bash
-        env: 
-          LIBS: "-lwinmm -limagehlp"
+        env:
+          LIBS: "-lwinmm -limagehlp -lgdi32 -lcomdlg32"
           SRCS: "src/*.c third_party/bearssl/*.c"
-          COMMON_FLAGS: "-O1 -s -fno-stack-protector -fno-math-errno -Qn -Werror"
-          WIN64_FLAGS:  "-mwindows -nostartfiles -Wl,-emain_real -DCC_NOMAIN src/CCicon_64.res"
+          COMMON_FLAGS: "-O1 -s -fno-stack-protector -fno-math-errno -Qn -Werror -DCC_NOMAIN"
+          WIN64_FLAGS: "-mwindows -Wl,-emain_real src/CCicon_64.res"
         run: |
-          LATEST_FLAG=-DCC_COMMIT_SHA=\"$(git rev-parse --short "$GITHUB_SHA")\"  
-          
+          LATEST_FLAG=-DCC_COMMIT_SHA=\"$(git rev-parse --short "$GITHUB_SHA")\"
           cp misc/windows/CCicon_64.res src/CCicon_64.res
-          x86_64-w64-mingw32-gcc ${{ env.SRCS }} ${{ env.COMMON_FLAGS }} ${{ env.WIN64_FLAGS }} -o cc-w64-d3d9.exe  $LATEST_FLAG ${{ env.LIBS }}
-          x86_64-w64-mingw32-gcc ${{ env.SRCS }} ${{ env.COMMON_FLAGS }} ${{ env.WIN64_FLAGS }} -o cc-w64-ogl.exe   $LATEST_FLAG -DCC_GFX_BACKEND=CC_GFX_BACKEND_GL1 ${{ env.LIBS }}
-          x86_64-w64-mingw32-gcc ${{ env.SRCS }} ${{ env.COMMON_FLAGS }} ${{ env.WIN64_FLAGS }} -o cc-w64-d3d11.exe $LATEST_FLAG -DCC_GFX_BACKEND=CC_GFX_BACKEND_D3D11 ${{ env.LIBS }}
+
+          x86_64-w64-mingw32-gcc $SRCS $COMMON_FLAGS $WIN64_FLAGS -o cc-w64-d3d9.exe  $LATEST_FLAG $LIBS
+          x86_64-w64-mingw32-gcc $SRCS $COMMON_FLAGS $WIN64_FLAGS -o cc-w64-ogl.exe   $LATEST_FLAG -DCC_GFX_BACKEND=CC_GFX_BACKEND_GL1 $LIBS
+          x86_64-w64-mingw32-gcc $SRCS $COMMON_FLAGS $WIN64_FLAGS -o cc-w64-d3d11.exe $LATEST_FLAG -DCC_GFX_BACKEND=CC_GFX_BACKEND_D3D11 $LIBS
 
       - uses: ./.github/actions/upload_build
         with:
-          SOURCE_FILE: 'cc-w64-d3d9.exe'
-          DEST_NAME: 'NotClassic-Win64-Direct3D9.exe'
-          
+          SOURCE_FILE: cc-w64-d3d9.exe
+          DEST_NAME: NotClassic-Win64-Direct3D9.exe
+
       - uses: ./.github/actions/upload_build
         with:
-          SOURCE_FILE: 'cc-w64-ogl.exe'
-          DEST_NAME: 'NotClassic-Win64-OpenGL.exe'
-          
+          SOURCE_FILE: cc-w64-ogl.exe
+          DEST_NAME: NotClassic-Win64-OpenGL.exe
+
       - uses: ./.github/actions/upload_build
         with:
-          SOURCE_FILE: 'cc-w64-d3d11.exe'
-          DEST_NAME: 'NotClassic-Win64-Direct3D11.exe'
-          
+          SOURCE_FILE: cc-w64-d3d11.exe
+          DEST_NAME: NotClassic-Win64-Direct3D11.exe
