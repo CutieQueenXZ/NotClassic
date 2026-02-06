@@ -25,6 +25,7 @@
 static HANDLE heap;
 const cc_result ReturnCode_FileShareViolation = ERROR_SHARING_VIOLATION;
 const cc_result ReturnCode_FileNotFound     = ERROR_FILE_NOT_FOUND;
+const cc_result ReturnCode_PathNotFound     = ERROR_PATH_NOT_FOUND;
 const cc_result ReturnCode_DirectoryExists  = ERROR_ALREADY_EXISTS;
 const cc_result ReturnCode_SocketInProgess  = WSAEINPROGRESS;
 const cc_result ReturnCode_SocketWouldBlock = WSAEWOULDBLOCK;
@@ -239,7 +240,7 @@ void Platform_DecodePath(cc_string* dst, const cc_filepath* path) {
 	}
 }
 
-cc_result Directory_Create(const cc_filepath* path) {
+cc_result Directory_Create2(const cc_filepath* path) {
 	WCHAR fullPath[MAX_PATH];
 	
 	MakeAbsolutePath(path->uni, fullPath, MAX_PATH);
@@ -389,6 +390,10 @@ void Thread_Join(void* handle) {
 	Thread_Detach(handle);
 }
 
+
+/*########################################################################################################################*
+*-----------------------------------------------------Synchronisation-----------------------------------------------------*
+*#########################################################################################################################*/
 void* Mutex_Create(const char* name) {
 	CRITICAL_SECTION* ptr = (CRITICAL_SECTION*)Mem_Alloc(1, sizeof(CRITICAL_SECTION), "mutex");
 	InitializeCriticalSection(ptr);
@@ -455,6 +460,14 @@ void Platform_LoadSysFonts(void) {
 *#########################################################################################################################*/
 static char sockaddr_size_check[sizeof(SOCKADDR_STORAGE) < CC_SOCKETADDR_MAXSIZE ? 1 : -1];
 
+cc_bool SockAddr_ToString(const cc_sockaddr* addr, cc_string* dst) {
+	SOCKADDR_IN* addr4 = (SOCKADDR_IN*)addr->data;
+
+	if (addr4->sin_family == AF_INET) 
+		return IPv4_ToString(&addr4->sin_addr, &addr4->sin_port, dst);
+	return false;
+}
+
 static cc_bool ParseIPv4(const cc_string* ip, int port, cc_sockaddr* dst) {
 	SOCKADDR_IN* addr4 = (SOCKADDR_IN*)dst->data;
 	cc_uint32 ip_addr;
@@ -462,7 +475,7 @@ static cc_bool ParseIPv4(const cc_string* ip, int port, cc_sockaddr* dst) {
 
 	addr4->sin_addr.S_un.S_addr = ip_addr;
 	addr4->sin_family      = AF_INET;
-	addr4->sin_port        = htons(port);
+	addr4->sin_port        = SockAddr_EncodePort(port);
 		
 	dst->size = sizeof(*addr4);
 	return true;
@@ -494,7 +507,7 @@ static cc_result ParseHost(const char* host, int port, cc_sockaddr* addrs, int* 
 
 		addr4 = (SOCKADDR_IN*)addrs[i].data;
 		addr4->sin_family = AF_INET;
-		addr4->sin_port   = htons(port);
+		addr4->sin_port   = SockAddr_EncodePort(port);
 		addr4->sin_addr   = *(IN_ADDR*)src_addr;
 	}
 

@@ -1,7 +1,7 @@
 #include "Core.h"
 #if defined CC_BUILD_WIN
 
-#include "String.h"
+#include "String_.h"
 #include "Stream.h"
 #include "SystemFonts.h"
 #include "Funcs.h"
@@ -27,6 +27,7 @@
 static HANDLE heap;
 const cc_result ReturnCode_FileShareViolation = ERROR_SHARING_VIOLATION;
 const cc_result ReturnCode_FileNotFound     = ERROR_FILE_NOT_FOUND;
+const cc_result ReturnCode_PathNotFound     = ERROR_PATH_NOT_FOUND;
 const cc_result ReturnCode_DirectoryExists  = ERROR_ALREADY_EXISTS;
 const cc_result ReturnCode_SocketInProgess  = WSAEINPROGRESS;
 const cc_result ReturnCode_SocketWouldBlock = WSAEWOULDBLOCK;
@@ -223,7 +224,9 @@ void CrashHandler_Install(void) {
 	SetUnhandledExceptionFilter(UnhandledFilter);
 }
 
-#if __GNUC__
+#if __clang__
+void __attribute__((optnone)) Process_Abort2(cc_result result, const char* raw_msg) {
+#elif __GNUC__
 /* Don't want compiler doing anything fancy with registers */
 void __attribute__((optimize("O0"))) Process_Abort2(cc_result result, const char* raw_msg) {
 #else
@@ -278,7 +281,7 @@ void Platform_DecodePath(cc_string* dst, const cc_filepath* path) {
 	}
 }
 
-cc_result Directory_Create(const cc_filepath* path) {
+cc_result Directory_Create2(const cc_filepath* path) {
 	cc_result res;
 	if (CreateDirectoryW(path->uni, NULL)) return 0;
 	/* Windows 9x does not support W API functions */
@@ -452,6 +455,10 @@ void Thread_Join(void* handle) {
 #endif
 }
 
+
+/*########################################################################################################################*
+*-----------------------------------------------------Synchronisation-----------------------------------------------------*
+*#########################################################################################################################*/
 void* Mutex_Create(const char* name) {
 	CRITICAL_SECTION* ptr = (CRITICAL_SECTION*)Mem_Alloc(1, sizeof(CRITICAL_SECTION), "mutex");
 	InitializeCriticalSection(ptr);
@@ -552,6 +559,14 @@ void Platform_LoadSysFonts(void) {
 /* Sanity check to ensure cc_sockaddr struct is large enough to contain all socket addresses supported by this platform */
 static char sockaddr_size_check[sizeof(SOCKADDR_STORAGE) < CC_SOCKETADDR_MAXSIZE ? 1 : -1];
 
+cc_bool SockAddr_ToString(const cc_sockaddr* addr, cc_string* dst) {
+	struct sockaddr_in* addr4 = (struct sockaddr_in*)addr->data;
+
+	if (addr4->sin_family == AF_INET) 
+		return IPv4_ToString(&addr4->sin_addr, &addr4->sin_port, dst);
+	return false;
+}
+
 static cc_bool ParseIPv4(const cc_string* ip, int port, cc_sockaddr* dst) {
 	SOCKADDR_IN* addr4 = (SOCKADDR_IN*)dst->data;
 	cc_uint32 ip_addr;
@@ -559,7 +574,7 @@ static cc_bool ParseIPv4(const cc_string* ip, int port, cc_sockaddr* dst) {
 
 	addr4->sin_addr.S_un.S_addr = ip_addr;
 	addr4->sin_family      = AF_INET;
-	addr4->sin_port        = _htons(port);
+	addr4->sin_port        = SockAddr_EncodePort(port);
 		
 	dst->size = sizeof(*addr4);
 	return true;
@@ -572,7 +587,7 @@ static cc_bool ParseIPv6(const char* ip, int port, cc_sockaddr* dst) {
 	if (!_WSAStringToAddressA) return false;
 
 	if (!_WSAStringToAddressA((char*)ip, AF_INET6, NULL, addr6, &size)) {
-		addr6->sin6_port = _htons(port);
+		addr6->sin6_port = SockAddr_EncodePort(port);
 
 		dst->size = size;
 		return true;
@@ -609,7 +624,7 @@ static cc_result ParseHostOld(const char* host, int port, cc_sockaddr* addrs, in
 
 		addr4 = (SOCKADDR_IN*)addrs[i].data;
 		addr4->sin_family = AF_INET;
-		addr4->sin_port   = _htons(port);
+		addr4->sin_port   = SockAddr_EncodePort(port);
 		addr4->sin_addr   = *(IN_ADDR*)src_addr;
 	}
 
