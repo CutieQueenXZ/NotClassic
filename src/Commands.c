@@ -2560,52 +2560,6 @@ static struct ChatCommand NoSetBackCommand = {
 };
 
 /*########################################################################################################################*
-*--------------------------------------------------------Info--------------------------------------------------------------*
-*#########################################################################################################################*/
-
-static void Chat_AddConst(const char* text) {
-	cc_string s = String_FromConst(text);
-	Chat_Add(&s);
-}
-
-static void InfoCommand_Execute(const cc_string* args, int argsCount) {
-    Chat_AddRaw("&bClient Info");
-    Chat_AddRaw("&7--------------------");
-
-    const char* displayName;
-    if (Options_GetBool(OPT_CAMOUFLAGE_CLIENT, false)) {
-        displayName = "ClassiCube 1.3.7";
-    } else {
-        displayName = GAME_APP_NAME;
-    }
-
-    char nameLine[128];
-    snprintf(nameLine, sizeof(nameLine), "&7Name: &f%s%s%s",
-        displayName,
-        Options_GetBool(OPT_HAX_ADDUP, true) ? " +hax" : "",
-        Options_GetBool(OPT_CAMOUFLAGE_CLIENT, false) ? " (camouflaged)" : ""
-    );
-    Chat_AddRaw(nameLine);
-
-    char verLine[64];
-    snprintf(verLine, sizeof(verLine), "&7Version: &f%s", GAME_APP_VER);
-    Chat_AddRaw(verLine);
-
-    char platLine[64];
-    snprintf(platLine, sizeof(platLine), "&7Platform: &f%s", FromPlatform);
-    Chat_AddRaw(platLine);
-    Chat_AddRaw(Options_GetBool(OPT_CAMOUFLAGE_CLIENT, false) ? "&7Camouflage: &fEnabled" : "&7Camouflage: &fDisabled");
-    Chat_AddRaw(Options_GetBool(OPT_HAX_ADDUP, true) ? "&7+Hax: &fEnabled" : "&7+Hax: &fDisabled");
-}
-
-static struct ChatCommand ClientInfoCommand = {
-	"info",
-	InfoCommand_Execute,
-	false,
-	0
-};
-
-/*########################################################################################################################*
 *---------------------------------------------------ClientEasterCommand---------------------------------------------------*
 *#########################################################################################################################*/
 
@@ -2876,7 +2830,6 @@ static void OnInit(void) {
     Commands_Register(&SpinCommand);
     Commands_Register(&NoPushCommand);
     Commands_Register(&ClientPCoordCommand);
-    Commands_Register(&ClientInfoCommand);
     Commands_Register(&ClientEasterCommand);
 }
 

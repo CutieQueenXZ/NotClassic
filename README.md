@@ -1,3 +1,7 @@
+# update: its gonna be remaking of it... anyway...
+
+# the windows making (NWindows.yml) is failing... its not gonna release until success.
+
 <p align="center">
   <img src="https://raw.githubusercontent.com/CutieQueenXZ/NotClassic/refs/heads/main/NCicon.png" width="150" alt="logo">
 </p>
