@@ -18,6 +18,7 @@ Copyright 2014-2025 ClassiCube | Licensed under BSD-3
 #elif defined(CC_BUILD_WIN)
     #define GAME_APP_NAME  "NotClassic 1.4 Windows"
     #define GAME_APP_TITLE "NotClassic Windows"
+    #define FromPlatform   "Windows"
 
 #elif defined(CC_BUILD_LINUX)
     #define GAME_APP_NAME  "NotClassic 1.4 Linux"
@@ -94,5 +95,4 @@ enum SKIN_TYPE { SKIN_64x32, SKIN_64x64, SKIN_64x64_SLIM, SKIN_INVALID = 0xF0 };
 
 #define DEFAULT_USERNAME "Singleplayer"
 #endif
-
 

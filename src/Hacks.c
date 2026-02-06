@@ -22,5 +22,9 @@ void Hacks_ApplyClient(struct HacksComp* h) {
         h->CanFly    = false;
         h->CanNoclip = false;
         h->CanSpeed  = false;
+        #if defined(CC_BUILD_ANDROID)
+        TouchOnscreen_UpdateButton(s, btn);
+	    TouchScreen_Refresh();
+        #endif
     }
 }
