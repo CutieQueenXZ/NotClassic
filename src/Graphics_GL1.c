@@ -7,6 +7,7 @@
 #include "_GraphicsBase.h"
 #include "Errors.h"
 #include "Window.h"
+#include <stdint.h>
 
 #if defined CC_BUILD_WIN
 	#define CC_BUILD_GL11_FALLBACK
@@ -712,4 +713,5 @@ static void GLBackend_Init(void) {
 #endif
 }
 #endif
+
 
