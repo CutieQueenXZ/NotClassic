@@ -86,7 +86,7 @@ jobs:
           BASE_SRCS="src/*.c third_party/bearssl/*.c"
           LIBS="-lwinmm -limagehlp"
           COMMON_FLAGS="-O1 -s -fno-stack-protector -fno-math-errno -Werror"
-          WIN_FLAGS="-mwindows -Wl,-e_main_real -DCC_NOMAIN"
+          WIN_FLAGS="-mwindows -Wl,-e_main_real -DCC_NOMAIN -lmingw32"
 
           # OpenGL
           i686-w64-mingw32-gcc $BASE_SRCS $COMMON_FLAGS $WIN_FLAGS \
