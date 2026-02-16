@@ -1,4 +1,4 @@
-# lemme fix hax one... itll take longer...
+# windows yml doesnt work yall :D
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/CutieQueenXZ/NotClassic/refs/heads/main/NCicon.png" width="150" alt="logo">
