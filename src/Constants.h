@@ -10,29 +10,29 @@ Copyright 2014-2025 ClassiCube | Licensed under BSD-3
 #define GAME_API_VER 1
 
 #if defined(CC_BUILD_ANDROID)
-    #define GAME_APP_NAME  "NotClassic 1.4"
+    #define GAME_APP_NAME  "NotClassic 1.4.1"
     #define GAME_APP_TITLE "NotClassic"
-    #define GAME_APP_ALT   "NotClassic 1.4"
+    #define GAME_APP_ALT   "NotClassic 1.4.1"
     #define FromPlatform   "Android"
 
 #elif defined(CC_BUILD_WIN)
-    #define GAME_APP_NAME  "NotClassic 1.4 Windows"
+    #define GAME_APP_NAME  "NotClassic 1.4.1 Windows"
     #define GAME_APP_TITLE "NotClassic Windows"
     #define FromPlatform   "Windows"
 
 #elif defined(CC_BUILD_LINUX)
-    #define GAME_APP_NAME  "NotClassic 1.4 Linux"
+    #define GAME_APP_NAME  "NotClassic 1.4.1 Linux"
     #define GAME_APP_TITLE "NotClassic Linux"
     #define FromPlatform   "Linux"
 
 #elif defined(CC_BUILD_WEB)
-    #define GAME_APP_NAME  "NotClassic 1.4 Web"
+    #define GAME_APP_NAME  "NotClassic 1.4.1 Web"
     #define GAME_APP_TITLE "NotClassic Web"
     #define GAME_APP_ALT   "NotClassic Web Mobile"
     #define FromPlatform   "Web"
 
 #else
-    #define GAME_APP_NAME  "NotClassic 1.4"
+    #define GAME_APP_NAME  "NotClassic 1.4.1"
     #define GAME_APP_TITLE "NotClassic"
     #define FromPlatform   "Unknown"
 #endif

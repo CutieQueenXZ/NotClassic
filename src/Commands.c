@@ -1,4 +1,3 @@
-
 #include "Commands.h"
 #include "Chat.h"
 #include "String.h"
@@ -2641,6 +2640,65 @@ static struct ChatCommand ClientEasterCommand = {
 };
 
 /*########################################################################################################################*
+*-------------------------------------------------------FreezeCommand-----------------------------------------------------*
+*#########################################################################################################################*/
+
+void FreezeCommand_Execute(const cc_string* args, int argsCount) {
+    struct LocalPlayer* p = Entities.CurPlayer;
+    struct HacksComp* h = &p->Hacks;
+
+    if (!h->Freeze) {
+        h->Freeze = true;
+        h->FreezePos = p->Base.next.pos;
+        h->FreezeYaw   = p->Base.Yaw;
+        h->FreezePitch = p->Base.Pitch;
+        Chat_AddRaw("&bFreeze enabled");
+    } else {
+        h->Freeze = false;
+        Chat_AddRaw("&bFreeze disabled");
+    }
+}
+
+static struct ChatCommand FreezeCommand = {
+    "freeze", 
+    FreezeCommand_Execute,
+    0,
+    {
+        "brrrrrrrrrr",
+        "idunno"
+    }
+};
+
+/*########################################################################################################################*
+*----------------------------------------------------SilentrotCommand-----------------------------------------------------*
+*#########################################################################################################################*/
+
+void SilentRotcommand_Execute(const cc_string* args, int argsCount) {
+    struct LocalPlayer* p = Entities.CurPlayer;
+    struct HacksComp* h = &p->Hacks;
+
+    if (!h->SilentRot) {
+        h->SilentRot = true;
+        h->SilentYaw   = p->Base.Yaw;
+        h->SilentPitch = p->Base.Pitch;
+        Chat_AddRaw("&SilentRot enabled");
+    } else {
+        h->SilentRot = false;
+        Chat_AddRaw("&SilentRot disabled");
+    }
+}
+
+static struct ChatCommand SilentRotCommand = {
+    "silentrot", 
+    SilentRotcommand_Execute,
+    0,
+    {
+        "brrrrrrrrrr",
+        "idunno"
+    }
+};
+
+/*########################################################################################################################*
 *------------------------------------------------------BlockEditCommand----------------------------------------------------*
 *#########################################################################################################################*/
 static cc_bool BlockEditCommand_GetInt(const cc_string* str, const char* name, int* value, int min, int max) {
@@ -2878,6 +2936,8 @@ static void OnInit(void) {
     Commands_Register(&ClientPCoordCommand);
     Commands_Register(&ClientInfoCommand);
     Commands_Register(&ClientEasterCommand);
+    Commands_Register(&FreezeCommand);
+    Commands_Register(&SilentRotCommand);
 }
 
 static void OnFree(void) {

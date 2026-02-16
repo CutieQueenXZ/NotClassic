@@ -830,9 +830,26 @@ static void Classic_Reset(void) {
 static cc_uint8* Classic_Tick(cc_uint8* data) {
 	struct Entity* e = &Entities.CurPlayer->Base;
 	if (!classic_receivedFirstPos) return data;
+	struct LocalPlayer* p = Entities.CurPlayer;
 
-	/* Report end position of each physics tick, rather than current position */
-	/*  (otherwise can miss landing on a block then jumping off of it again) */
+	if (p->Hacks.Freeze) {
+		return Classic_WritePosition(
+			data,
+			p->Hacks.FreezePos,
+			p->Hacks.FreezeYaw,
+			p->Hacks.FreezePitch
+		);
+	}
+
+	if (p->Hacks.SilentRot) {
+		return Classic_WritePosition(
+			data,
+			e->next.pos,
+			p->Hacks.SilentYaw,
+			p->Hacks.SilentPitch
+		);
+	}
+
 	return Classic_WritePosition(data, e->next.pos, e->Yaw, e->Pitch);
 }
 

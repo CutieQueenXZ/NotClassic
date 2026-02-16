@@ -326,6 +326,8 @@ local.properties
 
 NotClassic
 
+src_backup
+
 # Android / CMake build trash
 android/app/.cxx/
 **/build.ninja

@@ -235,25 +235,20 @@ void HacksComp_RecheckFlags(struct HacksComp* hacks) {
 }
 
 void HacksComp_Update(struct HacksComp* hacks) {
-    hacks->Enabled       = true;
-    hacks->CanFly        = true;
-    hacks->CanNoclip     = true;
-    hacks->CanSpeed      = true;
-    hacks->CanDoubleJump = true;
+	if (!hacks->CanFly || !hacks->Enabled) {
+		HacksComp_SetFlying(hacks, false); 
+		hacks->FlyingDown = false; hacks->FlyingUp = false;
+	}
+	if (!hacks->CanNoclip || !hacks->Enabled) {
+		HacksComp_SetNoclip(hacks, false);
+	}
+	if (!hacks->CanSpeed || !hacks->Enabled) {
+		hacks->Speeding = false; hacks->HalfSpeeding = false;
+	}
 
-    if (hacks->FlyingDown || hacks->FlyingUp) {
-        hacks->Flying = true;
-    }
-
-    hacks->_noclipping = true;
-
-    hacks->Speeding       = true;
-    hacks->HalfSpeeding   = true;
-    hacks->SpeedMultiplier = 10.0f;
-
-    Event_RaiseVoid(&UserEvents.HackPermsChanged);
+	hacks->CanDoubleJump = hacks->Enabled && hacks->CanSpeed;
+	Event_RaiseVoid(&UserEvents.HackPermsChanged);
 }
-
 
 void HacksComp_SetFlying(struct HacksComp* hacks, cc_bool flying) {
 	if (hacks->Flying == flying) return;
