@@ -1,4 +1,5 @@
-name: NotClassic Windows
+also, heres a new NWINDOWS.YML
+`name: NotClassic Windows
 
 on:
   push:
@@ -10,105 +11,53 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-# ============================================
-# =============== WIN64 BUILDS ================
-# ============================================
-  build-win64:
-    name: Windows 64-bit
+  build-windows:
+    name: Build Windows
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    strategy:
+      matrix:
+        include:
+          - arch: x86_64
+            name: Win64
+            gcc: x86_64-w64-mingw32-gcc
+            entry: main_real
+          - arch: i686
+            name: Win32
+            gcc: i686-w64-mingw32-gcc
+            entry: _main_real
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install MinGW (64-bit)
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y gcc-mingw-w64-x86-64
-
-      - name: Build Win64 binaries
+      - name: Build ${{ matrix.name }} binaries
         shell: bash
         run: |
           set -e
-
           BASE_SRCS="src/*.c third_party/bearssl/*.c"
-          LIBS="-lwinmm -limagehlp"
-          COMMON_FLAGS="-O1 -s -fno-stack-protector -fno-math-errno -Werror"
-          WIN_FLAGS="-mwindows -Wl,-emain_real -DCC_NOMAIN"
+          # -static is the life-saver here
+          COMMON_FLAGS="-O1 -s -static -fno-stack-protector -fno-math-errno -Werror"
+          WIN_FLAGS="-mwindows -Wl,-e${{ matrix.entry }} -DCC_NOMAIN"
 
           # OpenGL
-          x86_64-w64-mingw32-gcc $BASE_SRCS $COMMON_FLAGS $WIN_FLAGS \
+          ${{ matrix.gcc }} $BASE_SRCS $COMMON_FLAGS $WIN_FLAGS \
             -DCC_GFX_BACKEND=CC_GFX_BACKEND_GL1 \
-            -o NotClassic-Win64-OpenGL.exe \
-            $LIBS
+            -o NotClassic-${{ matrix.name }}-OpenGL.exe \
+            -lwinmm -limagehlp
 
           # Direct3D9
-          x86_64-w64-mingw32-gcc $BASE_SRCS $COMMON_FLAGS $WIN_FLAGS \
+          ${{ matrix.gcc }} $BASE_SRCS $COMMON_FLAGS $WIN_FLAGS \
             -DCC_GFX_BACKEND=CC_GFX_BACKEND_D3D9 \
-            -o NotClassic-Win64-Direct3D9.exe \
-            $LIBS
+            -o NotClassic-${{ matrix.name }}-Direct3D9.exe \
+            -lwinmm -limagehlp -ld3d9
 
           # Direct3D11
-          x86_64-w64-mingw32-gcc $BASE_SRCS $COMMON_FLAGS $WIN_FLAGS \
+          ${{ matrix.gcc }} $BASE_SRCS $COMMON_FLAGS $WIN_FLAGS \
             -DCC_GFX_BACKEND=CC_GFX_BACKEND_D3D11 \
-            -o NotClassic-Win64-Direct3D11.exe \
-            $LIBS
+            -o NotClassic-${{ matrix.name }}-Direct3D11.exe \
+            -lwinmm -limagehlp -ld3d11
 
-      - name: Upload Win64 builds
+      - name: Upload ${{ matrix.name }} builds
         uses: actions/upload-artifact@v4
         with:
-          name: NotClassic-Windows-64bit
-          path: |
-            NotClassic-Win64-*.exe
-
-
-# ============================================
-# =============== WIN32 BUILDS ================
-# ============================================
-  build-win32:
-    name: Windows 32-bit
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Install MinGW (32-bit)
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y gcc-mingw-w64-i686
-
-      - name: Build Win32 binaries
-        shell: bash
-        run: |
-          set -e
-
-          BASE_SRCS="src/*.c third_party/bearssl/*.c"
-          LIBS="-lwinmm -limagehlp"
-          COMMON_FLAGS="-O1 -s -fno-stack-protector -fno-math-errno -Werror"
-          WIN_FLAGS="-mwindows -Wl,-e_main_real -DCC_NOMAIN -lmingw32"
-
-          # OpenGL
-          i686-w64-mingw32-gcc $BASE_SRCS $COMMON_FLAGS $WIN_FLAGS \
-            -DCC_GFX_BACKEND=CC_GFX_BACKEND_GL1 \
-            -o NotClassic-Win32-OpenGL.exe \
-            $LIBS
-
-          # Direct3D9
-          i686-w64-mingw32-gcc $BASE_SRCS $COMMON_FLAGS $WIN_FLAGS \
-            -DCC_GFX_BACKEND=CC_GFX_BACKEND_D3D9 \
-            -o NotClassic-Win32-Direct3D9.exe \
-            $LIBS
-
-          # Direct3D11
-          i686-w64-mingw32-gcc $BASE_SRCS $COMMON_FLAGS $WIN_FLAGS \
-            -DCC_GFX_BACKEND=CC_GFX_BACKEND_D3D11 \
-            -o NotClassic-Win32-Direct3D11.exe \
-            $LIBS
-
-      - name: Upload Win32 builds
-        uses: actions/upload-artifact@v4
-        with:
-          name: NotClassic-Windows-32bit
-          path: |
-            NotClassic-Win32-*.exe
+          name: NotClassic-Windows-${{ matrix.arch }}
+          path: NotClassic-${{ matrix.name }}-*.exe`
