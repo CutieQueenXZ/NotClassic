@@ -1,5 +1,4 @@
-also, heres a new NWINDOWS.YML
-`name: NotClassic Windows
+name: NotClassic Windows
 
 on:
   push:
@@ -60,4 +59,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: NotClassic-Windows-${{ matrix.arch }}
-          path: NotClassic-${{ matrix.name }}-*.exe`
+          path: NotClassic-${{ matrix.name }}-*.exe
