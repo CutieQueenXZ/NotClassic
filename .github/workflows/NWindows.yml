@@ -44,21 +44,21 @@ jobs:
           WIN_FLAGS="-mwindows -Wl,-e${{ matrix.entry }} -DCC_NOMAIN"
 
           # OpenGL
-          ${{ matrix.gcc }} src/*.c src/Graphics_GL1.c third_party/bearssl/*.c \
+          ${{ matrix.gcc }} $BASE_SRCS src/Graphics_GL1.c $BEARSSL_SRCS \
             $BASE_SRCS $COMMON_FLAGS $WIN_FLAGS \
             -DCC_GFX_BACKEND=CC_GFX_BACKEND_GL1 \
             -o NotClassic-${{ matrix.name }}-OpenGL.exe \
             -lwinmm -limagehlp
 
           # Direct3D9
-          ${{ matrix.gcc }} src/*.c src/Graphics_D3D9.c third_party/bearssl/*.c \
+          ${{ matrix.gcc }} $BASE_SRCS src/Graphics_D3D9.c $BEARSSL_SRCS \
             $BASE_SRCS $COMMON_FLAGS $WIN_FLAGS \
             -DCC_GFX_BACKEND=CC_GFX_BACKEND_D3D9 \
             -o NotClassic-${{ matrix.name }}-Direct3D9.exe \
             -lwinmm -limagehlp -ld3d9
 
           # Direct3D11
-          ${{ matrix.gcc }} src/*.c src/Graphics_D3D11.c third_party/bearssl/*.c \
+          ${{ matrix.gcc }} $BASE_SRCS src/Graphics_D3D11.c $BEARSSL_SRCS \
             $BASE_SRCS $COMMON_FLAGS $WIN_FLAGS \
             -DCC_GFX_BACKEND=CC_GFX_BACKEND_D3D11 \
             -o NotClassic-${{ matrix.name }}-Direct3D11.exe \
