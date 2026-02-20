@@ -535,7 +535,7 @@ struct GL10Texture {
 static struct GL10Texture* gl10_tex;
 
 static void APIENTRY gl10_bindTexture(GLenum target, GLuint texture) {
-	gl10_tex = (struct GL10Texture*)texture;
+	gl10_tex = (struct GL10Texture*)(uintptr_t)texture;
 	if (gl10_tex && gl10_tex->pixels) {
 		_glTexImage2D(GL_TEXTURE_2D, 0, 4, gl10_tex->width, gl10_tex->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, gl10_tex->pixels);
 	} else {
@@ -712,4 +712,5 @@ static void GLBackend_Init(void) {
 #endif
 }
 #endif
+
 
