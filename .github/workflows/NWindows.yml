@@ -37,7 +37,8 @@ jobs:
         shell: bash
         run: |
           set -e
-          BASE_SRCS="src/*.c third_party/bearssl/*.c"
+          BASE_SRCS=$(find src -maxdepth 1 -name "*.c" ! -name "Graphics_*.c")
+          BEARSSL_SRCS=$(find third_party/bearssl -name "*.c")
           # -static is the life-saver here
           COMMON_FLAGS="-O1 -s -static -fno-stack-protector -fno-math-errno -Werror"
           WIN_FLAGS="-mwindows -Wl,-e${{ matrix.entry }} -DCC_NOMAIN"
