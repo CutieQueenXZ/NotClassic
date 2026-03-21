@@ -1,3 +1,11 @@
+# notice from my repo
+hello guys, since my old repo was failed, i should make a remake from... here.
+
+so ye, dont say some bullshit in here, im just trying to make fixes, also seems forking okay with me.
+
+ignore my massage and dont check on mine later, duh, bye.
+
+
 ClassiCube is a custom Minecraft Classic compatible client written in C from scratch.<br>
 > [!IMPORTANT]
 **ClassiCube is not affiliated with (or supported by) Mojang AB, Minecraft, or Microsoft in any way.** <br><br>
