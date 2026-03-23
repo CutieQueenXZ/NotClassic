@@ -41,6 +41,7 @@
 #include "SystemFonts.h"
 #include "Formats.h"
 #include "EntityRenderers.h"
+#include "Commands.h"
 
 struct _GameData Game;
 static cc_uint64 frameStart;
@@ -777,6 +778,8 @@ void Game_RenderFrame(void) {
 	Game.Time += deltaD;
 	Game_Vertices = 0;
 	Gamepad_Tick(delta);
+
+	BadApple_Tick();
 
 #ifdef CC_BUILD_SPLITSCREEN
 	/* TODO: find a better solution */

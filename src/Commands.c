@@ -18,6 +18,14 @@
 #include "Options.h"
 #include "Drawer2D.h"
 #include "Audio.h"
+#include <string.h>
+#include <stdlib.h>
+#include "ExtMath.h"
+#include "PackedCol.h"
+#include "Core.h"
+#include "ExtMath.h"
+#include "Platform.h"
+
 
 #define COMMANDS_PREFIX "/client"
 #define COMMANDS_PREFIX_SPACE "/client "
@@ -28,6 +36,7 @@ void Commands_Register(struct ChatCommand* cmd) {
 	LinkedList_Append(cmd, cmds_head, cmds_tail);
 }
 
+void BadApple_Tick(void);
 
 /*########################################################################################################################*
 *------------------------------------------------------Command handling---------------------------------------------------*
@@ -792,6 +801,187 @@ static struct ChatCommand BlockEditCommand = {
 	}
 };
 
+/*--------------------------------------------------------NotClassic*/
+/*--------------------------------------------------------NotClassic*/
+/*--------------------------------------------------------NotClassic*/
+
+/*########################################################################################################################*
+*----------------------------------------------------------NtpCommand----------------------------------------------------*
+*#########################################################################################################################*/
+
+static char ToLowerChar(char c) {
+    if (c >= 'A' && c <= 'Z') return c + ('a' - 'A');
+    return c;
+}
+
+static cc_bool String_ContainsCaseless(const cc_string* haystack, const cc_string* needle) {
+    int i, j;
+    if (!needle->length || needle->length > haystack->length) return false;
+
+    for (i = 0; i <= haystack->length - needle->length; i++) {
+        for (j = 0; j < needle->length; j++) {
+            char a = ToLowerChar(haystack->buffer[i + j]);
+            char b = ToLowerChar(needle->buffer[j]);
+            if (a != b) break;
+        }
+        if (j == needle->length) return true;
+    }
+    return false;
+}
+
+
+static struct Entity* FindPlayerByName(
+    const cc_string* name,
+    int* matchCount
+) {
+    struct Entity* result = NULL;
+    *matchCount = 0;
+
+    for (int i = 0; i < TABLIST_MAX_NAMES; i++) {
+        if (!TabList.NameOffsets[i]) continue;
+
+        cc_string n = TabList_UNSAFE_GetPlayer(i);
+
+        if (String_CaselessEquals(&n, name)) {
+            *matchCount = 1;
+            return &NetPlayers_List[i].Base;
+        }
+
+        if (String_ContainsCaseless(&n, name)) {
+            (*matchCount)++;
+            result = &NetPlayers_List[i].Base;
+        }
+    }
+
+    return result;
+}
+
+
+static void TeleportToEntity(struct Entity* target) {
+    struct Entity* me = &Entities.CurPlayer->Base;
+
+    Vec3 pos = target->Position;
+    pos.y += 0.0f; 
+
+    struct LocationUpdate u;
+    u.flags = LU_HAS_POS | LU_POS_ABSOLUTE_INSTANT;
+    u.pos   = pos;
+
+    me->VTABLE->SetLocation(me, &u);
+}
+
+static void NtpCommand_Execute(const cc_string* args, int argsCount) {
+    if (argsCount == 0) {
+        Chat_AddRaw("&e/client ntp <player>");
+        return;
+    }
+
+    int matches = 0;
+    struct Entity* target = FindPlayerByName(&args[0], &matches);
+
+    if (matches == 0) {
+        Chat_AddRaw("&cPlayer not found.");
+        return;
+    }
+
+    if (matches > 1) {
+        Chat_AddRaw("&eMultiple players match:");
+
+        for (int i = 0; i < MAX_NET_PLAYERS; i++) {
+            struct NetPlayer* p = &NetPlayers_List[i];
+            if (!p->Base.Flags) continue;
+
+            cc_string n = TabList_UNSAFE_GetPlayer(i);
+            if (!n.length) continue;
+
+            if (String_ContainsCaseless(&n, &args[0])) {
+                Chat_AddRaw("&7 - ");
+                Chat_Add(&n);
+            }
+        }
+
+        Chat_AddRaw("&eBe more specific. ;-;");
+        return;
+    }
+
+    TeleportToEntity(target);
+    Chat_AddRaw("&aTeleported.");
+}
+
+static struct ChatCommand NtpCommand = {
+    "ntp", NtpCommand_Execute,
+    0,
+    {
+        "&a/client ntp <player>",
+        "&eTeleport to another player (client-side)"
+    }
+};
+
+/*########################################################################################################################*
+*------------------------------------------------------BadAppleCommand--------------------------------------------------*
+*#########################################################################################################################*/
+
+#include "BadAppleFrames.h"
+
+static int badapple_index;
+static cc_bool badapple_active;
+
+static void BadApple_SendFrame(void) {
+    if (!badapple_active) return;
+
+    if (badapple_index >= BADAPPLE_FRAME_COUNT) {
+        badapple_active = false;
+        Chat_AddRaw("&aBad Apple finished.");
+        return;
+    }
+
+    for (int i = 0; i < BADAPPLE_FRAME_HEIGHT; i++) {
+        const char* line = BADAPPLE_FRAMES[badapple_index][i];
+
+        cc_string msg = String_FromRaw((char*)line, String_Length(line));
+        Chat_Send(&msg, false);
+    }
+
+    badapple_index++;
+}
+
+static void BadAppleCommand_Execute(const cc_string* args, int argsCount) {
+    if (argsCount >= 1 && String_CaselessEqualsConst(&args[0], "stop")) {
+        if (badapple_active) {
+            badapple_active = false;
+            Chat_AddRaw("&cBad Apple stopped.");
+        } else {
+            Chat_AddRaw("&eBad Apple is not running.");
+        }
+        return;
+    }
+
+    badapple_index  = 0;
+    badapple_active = true;
+
+    Chat_AddRaw("&dBad Apple started...");
+    BadApple_SendFrame();
+}
+
+void BadApple_Tick(void) {
+    static cc_uint64 last;
+    cc_uint64 now = Stopwatch_Measure();
+
+    if (Stopwatch_ElapsedMicroseconds(last, now) < 70000) return;
+    last = now;
+
+    BadApple_SendFrame();
+}
+
+static struct ChatCommand BadAppleCommand = {
+    "badapple", BadAppleCommand_Execute,
+    0,
+    {
+        "&a/client badapple [&fstop&a]",
+        "&ePlays Bad Apple in chat",
+    }
+};
+
 
 /*########################################################################################################################*
 *------------------------------------------------------Commands component-------------------------------------------------*
@@ -810,6 +1000,9 @@ static void OnInit(void) {
 	Commands_Register(&BlockEditCommand);
 	Commands_Register(&CuboidCommand);
 	Commands_Register(&ReplaceCommand);
+	/*NotClassic*/
+	Commands_Register(&NtpCommand);
+	Commands_Register(&BadAppleCommand);
 }
 
 static void OnFree(void) {

@@ -27,6 +27,8 @@ struct ChatCommand {
 	struct ChatCommand* next; /* Next command in linked-list of client commands */
 };
 
+void BadApple_Tick(void);
+
 /* Registers a client-side command, allowing it to be used with /client [cmd name] */
 CC_API  void Commands_Register(      struct ChatCommand* cmd);
 typedef void (*FP_Commands_Register)(struct ChatCommand* cmd);
