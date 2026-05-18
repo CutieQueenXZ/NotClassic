@@ -41,6 +41,10 @@
 #include "SystemFonts.h"
 #include "Formats.h"
 #include "EntityRenderers.h"
+#include "Commands.h"
+#include "ChatGPT.h"
+
+cc_bool pending_reload = false;
 
 struct _GameData Game;
 static cc_uint64 frameStart;
@@ -746,6 +750,18 @@ void Game_RenderFrame(void) {
 			return;
 		}
 	}
+
+	CuboidCommand_Tick();
+    SCuboidCommand_Tick();
+	DCuboidCommand_Tick();
+	LCuboidCommand_Tick();
+	ChatGPT_Tick();	
+	Stream_Tick();
+	Gemini_Tick();
+	N8Ball_TickHook();
+	BadApple_Tick();
+	BStream_Tick();
+	Menu_TickPostRender();
 
 	Gfx_BeginFrame();
 	Gfx_BindIb(Gfx.DefaultIb);

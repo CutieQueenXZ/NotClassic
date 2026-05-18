@@ -23,6 +23,7 @@ struct FontDesc;
 struct Widget;
 struct InputDevice;
 struct PadAxisUpdate;
+extern cc_bool pending_reload;
 extern struct IGameComponent Gui_Component;
 
 CC_VAR extern struct _GuiData {

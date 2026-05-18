@@ -37,15 +37,38 @@
 #include "Lighting.h"
 #include "InputHandler.h"
 #include "Protocol.h"
+#include <math.h>
+#include <stdio.h>
 
 /*########################################################################################################################*
 *--------------------------------------------------------Menu base--------------------------------------------------------*
 *#########################################################################################################################*/
+void Menu_UpdateFade(float delta);
+static cc_bool pause_fade_out = false;
+static int menu_state = 0;
+static float menu_fade = 0.0f;
+static struct Screen* fading_screen = NULL;
+static cc_bool pause_closing = false;
+static cc_bool pending_remove = false;
+static struct Screen* pending_screen = NULL;
+static struct ListScreen ListScreen;
+static void ListScreen_ReloadInternal(struct ListScreen* s);
+void NotClassicOptions_Init(struct MenuOptionsScreen* s);
+void MenuOptionsScreen_Show(void (*init)(struct MenuOptionsScreen*));
+
 void Menu_AddButtons(void* screen, struct ButtonWidget* btns, int width, const struct SimpleButtonDesc* descs, int count) {
 	int i;
 	for (i = 0; i < count; i++) {
 		ButtonWidget_Add(screen, &btns[i], width, descs[i].onClick);
 	}
+}
+
+void ListScreen_RequestReload(void) {
+	ListScreen_ReloadInternal(&ListScreen);
+}
+
+void ListScreen_Reload(void) {
+	ListScreen_ReloadInternal(&ListScreen);
 }
 
 void Menu_LayoutButtons(struct ButtonWidget* btns, const struct SimpleButtonDesc* descs, int count) {
@@ -62,20 +85,63 @@ void Menu_SetButtons(struct ButtonWidget* btns, struct FontDesc* font, const str
 	}
 }
 
+void Menu_Tick(float delta) {
+	Menu_UpdateFade(delta);
+}
+
+void Menu_UpdateFade(float delta) {
+	float speed = 4.0f;
+
+	if (menu_state == 1) { // fade in
+		menu_fade += delta * speed;
+		if (menu_fade >= 1.0f) {
+			menu_fade = 1.0f;
+			menu_state = 0;
+		}
+
+	} else if (menu_state == 2) { // fade out
+		menu_fade -= delta * speed;
+
+		if (menu_fade <= 0.0f) {
+			menu_fade = 0.0f;
+
+			if (fading_screen) {
+				pending_screen = fading_screen;
+				pending_remove = true;
+				fading_screen = NULL;
+			}
+
+			menu_state = 0;
+		}
+	}
+}
+
+cc_bool Menu_IsFading(void) {
+	return menu_state == 2;
+}
+
+void Menu_TickPostRender(void) {
+	if (pending_remove && pending_screen) {
+		Gui_Remove(pending_screen);
+		pending_screen = NULL;
+		pending_remove = false;
+	}
+}
+
 void Menu_LayoutBack(struct ButtonWidget* btn) {
 	Widget_SetLocation(btn, ANCHOR_CENTRE, ANCHOR_MAX, 0, 25);
 }
 static void Menu_CloseKeyboard(void* s) { OnscreenKeyboard_Close(); }
 
 static void Menu_RenderBounds(void) {
-	/* These were sourced by taking a screenshot of vanilla
-	Then using paint to extract the color components
-	Then using wolfram alpha to solve the glblendfunc equation */
-	PackedCol topCol    = PackedCol_Make(24, 24, 24, 105);
-	PackedCol bottomCol = PackedCol_Make(51, 51, 98, 162);
+	float a1 = 40 + (90  * menu_fade);
+	float a2 = 80 + (160 * menu_fade);
+
+	PackedCol topCol    = PackedCol_Make(0, 0, 0, (int)a1);
+	PackedCol bottomCol = PackedCol_Make(0, 0, 0, (int)a2);
+
 	Gfx_Draw2DGradient(0, 0, Window_UI.Width, Window_UI.Height, topCol, bottomCol);
 }
-
 
 static void Menu_UnselectAll(struct Screen* s) {
 	int i;
@@ -180,6 +246,8 @@ static int Menu_DoInputDown(void* screen, int key, struct InputDevice* device) {
 }
 
 int Menu_InputDown(void* screen, int key, struct InputDevice* device) {
+	if (menu_state == 2) return true; // swallow input during fade-out
+
 	Menu_DoInputDown(screen, key, device);
 	return Screen_InputDown(screen, key, device);
 }
@@ -233,7 +301,7 @@ static void Menu_SwitchLoadLevel(void* a, void* b)       { LoadLevelScreen_Show(
 static void Menu_SwitchSaveLevel(void* a, void* b)       { SaveLevelScreen_Show(); }
 static void Menu_SwitchTexPacks(void* a, void* b)        { TexturePackScreen_Show(); }
 static void Menu_SwitchHotkeys(void* a, void* b)         { HotkeyListScreen_Show(); }
-
+static void Menu_SwitchNotClassic(void* a, void* b)      { MenuOptionsScreen_Show(NotClassicOptions_Init); }
 
 /*########################################################################################################################*
 *--------------------------------------------------------ListScreen-------------------------------------------------------*
@@ -414,6 +482,7 @@ static void ListScreen_Init(void* screen) {
 }
 
 static void ListScreen_Render(void* screen, float delta) {
+	Menu_UpdateFade(delta);
 	Menu_RenderBounds();
 	Screen_Render2Widgets(screen, delta);
 }
@@ -443,19 +512,21 @@ static void ListScreen_ContextRecreated(void* screen) {
 	ButtonWidget_SetConst(&s->action, s->actionText, &s->font);
 }
 
-static void ListScreen_Reload(struct ListScreen* s) {
-	ListScreen_Free(s);
-	s->LoadEntries(s);
-	ListScreen_SetCurrentIndex(s, s->currentIndex);
+static void ListScreen_ReloadInternal(struct ListScreen* s) {
+    ListScreen_Free(s);
+    s->LoadEntries(s);
+    ListScreen_SetCurrentIndex(s, s->currentIndex);
 }
 
 static const struct ScreenVTABLE ListScreen_VTABLE = {
-	ListScreen_Init,    Screen_NullUpdate, ListScreen_Free,  
-	ListScreen_Render,  Screen_BuildMesh,
-	ListScreen_KeyDown, Screen_InputUp,    Screen_TKeyPress, Screen_TText,
-	Menu_PointerDown,   Screen_PointerUp,  Menu_PointerMove, Screen_TMouseScroll,
-	ListScreen_Layout,  ListScreen_ContextLost,  ListScreen_ContextRecreated
+    ListScreen_Init,    Screen_NullUpdate, ListScreen_Free,  
+    ListScreen_Render,  Screen_BuildMesh,
+    ListScreen_KeyDown, Screen_InputUp,    Screen_TKeyPress, Screen_TText,
+    Menu_PointerDown,   Screen_PointerUp,  Menu_PointerMove, Screen_TMouseScroll,
+    ListScreen_Layout,  ListScreen_ContextLost,  ListScreen_ContextRecreated,
+    Menu_PadAxis
 };
+
 void ListScreen_Show(void) {
 	struct ListScreen* s = &ListScreen;
 	s->grabsInput = true;
@@ -464,14 +535,6 @@ void ListScreen_Show(void) {
 	Gui_Add((struct Screen*)s, GUI_PRIORITY_MENU);
 }
 
-
-/*########################################################################################################################*
-*--------------------------------------------------------MenuScreen-------------------------------------------------------*
-*#########################################################################################################################*/
-void MenuScreen_Render2(void* screen, float delta) {
-	Menu_RenderBounds();
-	Screen_Render2Widgets(screen, delta);
-}
 
 
 /*########################################################################################################################*
@@ -484,14 +547,28 @@ static struct PauseScreen {
 	const struct SimpleButtonDesc* descs;
 	struct ButtonWidget btns[PAUSE_MAX_BTNS], quit, back;
 	struct TextWidget title;
+	
 } PauseScreen;
+
+/*########################################################################################################################*
+*--------------------------------------------------------MenuScreen-------------------------------------------------------*
+*#########################################################################################################################*/
+void MenuScreen_Render2(void* screen, float delta) {
+    struct PauseScreen* s = (struct PauseScreen*)screen;
+
+    Menu_UpdateFade(delta);
+	
+    Menu_RenderBounds();
+    Screen_Render2Widgets(screen, delta);
+}
 
 static void PauseScreenBase_Quit(void* a, void* b) { 
 	Window_RequestClose(); 
 }
 
 static void PauseScreenBase_Game(void* a, void* b) { 
-	Gui_Remove((struct Screen*)&PauseScreen); 
+    fading_screen = (struct Screen*)a;
+    menu_state = 2;
 }
 
 static void PauseScreenBase_ContextRecreated(struct PauseScreen* s, struct FontDesc* titleFont) {
@@ -517,10 +594,6 @@ static struct Widget* pause_widgets[1 + 6 + 2];
 static void PauseScreen_CheckHacksAllowed(void* screen) {
 	struct PauseScreen* s = (struct PauseScreen*)screen;
 	if (Gui.ClassicMenu) return;
-
-	Widget_SetDisabled(&s->btns[1],
-			!Entities.CurPlayer->Hacks.CanAnyHacks); /* select texture pack */
-	s->dirty = true;
 }
 
 static void PauseScreen_ContextRecreated(void* screen) {
@@ -543,6 +616,7 @@ static void PauseScreen_Layout(void* screen) {
 
 static void PauseScreen_Init(void* screen) {
 	struct PauseScreen* s = (struct PauseScreen*)screen;
+	
 	static const struct SimpleButtonDesc descs[] = {
 		{ -160,  -50, "Options...",             Menu_SwitchOptions   },
 		{ -160,    0, "Change texture pack...", Menu_SwitchTexPacks  },
@@ -563,10 +637,6 @@ static void PauseScreen_Init(void* screen) {
 	PauseScreenBase_AddWidgets(s, 300);
 	ButtonWidget_Add(s, &s->quit, 120, PauseScreenBase_Quit);
 	s->maxVertices = Screen_CalcDefaultMaxVertices(s);
-
-	if (Server.IsSinglePlayer) return;
-	s->btns[3].flags = WIDGET_FLAG_DISABLED;
-	s->btns[4].flags = WIDGET_FLAG_DISABLED;
 }
 
 static void PauseScreen_Free(void* screen) {
@@ -586,9 +656,32 @@ void PauseScreen_Show(void) {
 	s->grabsInput = true;
 	s->closable   = true;
 	s->VTABLE     = &PauseScreen_VTABLE;
+
+    menu_fade = 0.0f;
+    menu_state = 1;
+
 	Gui_Add((struct Screen*)s, GUI_PRIORITY_MENU);
 }
 
+static int PauseScreen_InputDown(void* screen, int key, struct InputDevice* device) {
+    struct PauseScreen* s = (struct PauseScreen*)screen;
+
+    if (key == device->escapeButton) {
+        // start fade out instead of instant close
+        fading_screen = (struct Screen*)s;
+        menu_state = 2;
+        return true; // IMPORTANT: stops default closing
+    }
+
+    return Menu_InputDown(screen, key, device);
+}
+
+void Menu_BeginClose(struct Screen* s) {
+    if (menu_state == 2) return;
+
+    fading_screen = s;
+    menu_state = 2;
+}
 
 /*########################################################################################################################*
 *----------------------------------------------------ClassicPauseScreen---------------------------------------------------*
@@ -628,17 +721,15 @@ static void ClassicPauseScreen_Init(void* screen) {
 	PauseScreenBase_AddWidgets(s, 400);
 	s->maxVertices = Screen_CalcDefaultMaxVertices(s);
 
-	if (Server.IsSinglePlayer) return;
-	s->btns[1].flags = WIDGET_FLAG_DISABLED;
-	s->btns[3].flags = WIDGET_FLAG_DISABLED;
-
 	if (Game_PureClassic) s->btns[2].flags = WIDGET_FLAG_DISABLED;
 }
+
+//	Menu_InputDown, 
 
 static const struct ScreenVTABLE ClassicPauseScreen_VTABLE = {
 	ClassicPauseScreen_Init,   Screen_NullUpdate, Screen_NullFunc, 
 	MenuScreen_Render2,        Screen_BuildMesh,
-	Menu_InputDown,            Screen_InputUp,    Screen_TKeyPress, Screen_TText,
+	PauseScreen_InputDown,     Screen_InputUp,    Screen_TKeyPress, Screen_TText,
 	Menu_PointerDown,          Screen_PointerUp,  Menu_PointerMove, Screen_TMouseScroll,
 	ClassicPauseScreen_Layout, Screen_ContextLost, ClassicPauseScreen_ContextRecreated,
 	Menu_PadAxis
@@ -658,13 +749,14 @@ void ClassicPauseScreen_Show(void) {
 static struct OptionsGroupScreen {
 	Screen_Body
 	struct FontDesc textFont;
-	struct ButtonWidget btns[8];
+	struct ButtonWidget btns[9];
 	struct TextWidget desc;
 	struct ButtonWidget done;
-	struct Widget* __widgets[8 + 2];
+	struct Widget* __widgets[11];
 } OptionsGroupScreen;
 
-static const char* const optsGroup_descs[8] = {
+static const char* const optsGroup_descs[9] = {
+	"&eCustom NotClassic features, FPS, autoclick, cheats, etc",
 	"&eMusic/Sound, view bobbing, and more",
 	"&eGui scale, font settings, and more",
 	"&eFPS limit, view distance, entity names/shadows",
@@ -672,9 +764,10 @@ static const char* const optsGroup_descs[8] = {
 	"&eChat options",
 	"&eHacks allowed, jump settings, and more",
 	"&eEnv colours, water level, weather, and more",
-	"&eSettings for resembling the original classic",
+	"&eSettings for resembling the original classic"
 };
-static const struct SimpleButtonDesc optsGroup_btns[8] = {
+static const struct SimpleButtonDesc optsGroup_btns[9] = {
+	{  10, -150, "NotClassic options...", Menu_SwitchNotClassic },
 	{ -160, -100, "Misc options...",      Menu_SwitchMisc        },
 	{ -160,  -50, "Gui options...",       Menu_SwitchGui         },
 	{ -160,    0, "Graphics options...",  Menu_SwitchGfx         },
@@ -687,9 +780,7 @@ static const struct SimpleButtonDesc optsGroup_btns[8] = {
 
 static void OptionsGroupScreen_CheckHacksAllowed(void* screen) {
 	struct OptionsGroupScreen* s = (struct OptionsGroupScreen*)screen;
-	Widget_SetDisabled(&s->btns[6],
-			!Entities.CurPlayer->Hacks.CanAnyHacks); /* env settings */
-	s->dirty = true;
+	return;
 }
 
 CC_NOINLINE static void OptionsGroupScreen_UpdateDesc(struct OptionsGroupScreen* s) {
@@ -710,7 +801,7 @@ static void OptionsGroupScreen_ContextRecreated(void* screen) {
 	Gui_MakeTitleFont(&titleFont);
 	Gui_MakeBodyFont(&s->textFont);
 
-	Menu_SetButtons(s->btns, &titleFont, optsGroup_btns, 8);
+	Menu_SetButtons(s->btns, &titleFont, optsGroup_btns, 10);
 	ButtonWidget_SetConst(&s->done, "Done", &titleFont);
 
 	if (s->selectedI >= 0) OptionsGroupScreen_UpdateDesc(s);
@@ -720,7 +811,7 @@ static void OptionsGroupScreen_ContextRecreated(void* screen) {
 
 static void OptionsGroupScreen_Layout(void* screen) {
 	struct OptionsGroupScreen* s = (struct OptionsGroupScreen*)screen;
-	Menu_LayoutButtons(s->btns, optsGroup_btns, 8);
+	Menu_LayoutButtons(s->btns, optsGroup_btns, 9);
 	Widget_SetLocation(&s->desc, ANCHOR_CENTRE, ANCHOR_CENTRE, 0, 100);
 	Menu_LayoutBack(&s->done);
 }
@@ -735,7 +826,7 @@ static void OptionsGroupScreen_Init(void* screen) {
 	s->selectedI   = -1;
 	s->widgetsPerPage = 4;
 
-	Menu_AddButtons(s,  s->btns, 300, optsGroup_btns, 8);
+	Menu_AddButtons(s,  s->btns, 300, optsGroup_btns, 9);
 	TextWidget_Add(s,   &s->desc);
 	AddPrimaryButton(s, &s->done, Menu_SwitchPause);
 
@@ -1098,7 +1189,7 @@ static void GenLevelScreen_Make(struct GenLevelScreen* s, int i, int def) {
 	if (i == 3) {
 		MenuInput_Seed(desc);
 	} else {
-		MenuInput_Int(desc, 1, 8192, def);
+		MenuInput_Int(desc, -9999999, 9999999, def);
 	}
 
 	String_InitArray(tmp, tmpBuffer);
@@ -1400,7 +1491,9 @@ static cc_result SaveLevelScreen_SaveMap(const cc_string* path) {
 	if (res) return res;
 
 	World.LastSave = Game.Time;
-	Gui_ShowPauseMenu();
+	if (!pause_fade_out && !pause_closing) {
+    	Gui_ShowPauseMenu();
+	}
 	return 0;
 }
 
@@ -1588,7 +1681,7 @@ static void TexturePackScreen_EntryClick(void* screen, void* widget) {
 	/* FileNotFound error may be because user deleted .zips from disc */
 	if (res != ReturnCode_FileNotFound) return;
 	Chat_AddRaw("&eReloading texture pack list as it may be out of date");
-	ListScreen_Reload(s);
+	ListScreen_Reload();
 }
 
 static void TexturePackScreen_FilterFiles(const cc_string* path, void* obj, int isDirectory) {
@@ -1822,7 +1915,7 @@ static void LoadLevelScreen_EntryClick(void* screen, void* widget) {
 	/* FileNotFound error may be because user deleted maps from disc */
 	if (res != ReturnCode_FileNotFound) return;
 	Chat_AddRaw("&eReloading level list as it may be out of date");
-	ListScreen_Reload(s);
+	ListScreen_Reload();
 }
 
 static void LoadLevelScreen_FilterFiles(const cc_string* path, void* obj, int isDirectory) {
@@ -2275,10 +2368,12 @@ static struct MenuInputOverlay {
 
 void MenuInputOverlay_Close(cc_bool valid) {
 	struct MenuInputOverlay* s = (struct MenuInputOverlay*)&MenuInputOverlay;
-	Gui_Remove((struct Screen*)s);
-	
-	if (s->onDone) s->onDone(&s->input.base.text, valid);
+	MenuInputDone cb = s->onDone;
 	s->onDone = NULL;
+
+	if (cb) cb(&s->input.base.text, valid);
+
+	Gui_Remove((struct Screen*)s);
 }
 
 static void MenuInputOverlay_EnterInput(struct MenuInputOverlay* s) {
@@ -2992,6 +3087,7 @@ void NostalgiaMenuScreen_Show(void) {
 	s->VTABLE     = &NostalgiaMenuScreen_VTABLE;
 	Gui_Add((struct Screen*)s, GUI_PRIORITY_MENU);
 }
+
 #else
 void TexIdsOverlay_Show(void) { }
 void UrlWarningOverlay_Show(const cc_string* url) { }

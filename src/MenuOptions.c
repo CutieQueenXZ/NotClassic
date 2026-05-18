@@ -34,6 +34,8 @@
 #include "Utils.h"
 #include "Errors.h"
 #include "SystemFonts.h"
+#include "UwU.h"
+#include "Lolcat.h"
 
 typedef void (*Button_GetText)(struct ButtonWidget* btn, cc_string* raw);
 typedef void (*Button_SetText)(struct ButtonWidget* btn, const cc_string* raw);
@@ -685,10 +687,10 @@ static void EnvSettingsScreen_InitWidgets(struct MenuOptionsScreen* s) {
 		MenuOptionsScreen_AddHex(s, "Fog color",    ENV_DEFAULT_FOG_COLOR,
 			ES_GetFogColor,     ES_SetFogColor, NULL);
 		MenuOptionsScreen_AddNum(s, "Clouds speed",
-			0,       1000,                1,
+			-9999999,       9999999,                1,
 			ES_GetCloudsSpeed,  ES_SetCloudsSpeed, NULL);
 		MenuOptionsScreen_AddInt(s, "Clouds height", 
-			-10000, 10000, World.Height + 2,
+			-9999999, 9999999, World.Height + 2,
 			ES_GetCloudsHeight, ES_SetCloudsHeight, NULL);
 		
 		MenuOptionsScreen_AddHex(s, "Sunlight color", ENV_DEFAULT_SUN_COLOR,
@@ -698,10 +700,10 @@ static void EnvSettingsScreen_InitWidgets(struct MenuOptionsScreen* s) {
 		MenuOptionsScreen_AddEnum(s, "Weather", Weather_Names, Array_Elems(Weather_Names),
 			ES_GetWeather,      ES_SetWeather, NULL);
 		MenuOptionsScreen_AddNum(s, "Rain/Snow speed",
-			 -100,  100,                1,
+			 -9999999,  9999999,                1,
 			ES_GetWeatherSpeed, ES_SetWeatherSpeed, NULL);
 		MenuOptionsScreen_AddInt(s, "Water level",
-			-2048, 2048, World.Height / 2,
+			-9999999, 9999999, World.Height / 2,
 			ES_GetEdgeHeight,   ES_SetEdgeHeight, NULL);
 	}
 	MenuOptionsScreen_EndButtons(s, -1, Menu_SwitchOptions);
@@ -716,7 +718,7 @@ void EnvSettingsScreen_Show(void) {
 *--------------------------------------------------GraphicsOptionsScreen--------------------------------------------------*
 *#########################################################################################################################*/
 static void GrO_CheckLightingModeAllowed(struct MenuOptionsScreen* s) {
-	Widget_SetDisabled(s->widgets[3], Lighting_ModeLockedByServer);
+	return;
 }
 
 static int  GrO_GetFPS(void) { return Game_FpsLimit; }
@@ -777,7 +779,7 @@ static void GraphicsOptionsScreen_InitWidgets(struct MenuOptionsScreen* s) {
 			"&eNoLimit: &fRenders as many frames as possible each second.\n" \
 			"&cNoLimit is pointless - it wastefully renders frames that you don't even see!");
 		MenuOptionsScreen_AddInt(s, "View distance",
-			8, 4096, 512,
+			-9999999, 9999999, 5,
 			GrO_GetViewDist,   GrO_SetViewDist, NULL);
 		MenuOptionsScreen_AddBool(s, "Smooth lighting",
 			GrO_GetSmooth,     GrO_SetSmooth,
@@ -870,10 +872,10 @@ static void ChatOptionsScreen_InitWidgets(struct MenuOptionsScreen* s) {
 		MenuOptionsScreen_AddBool(s, "Scale with window",
 			ChO_GetAutoScaleChat, ChO_SetAutoScaleChat, NULL);
 		MenuOptionsScreen_AddNum(s, "Chat scale",
-			0.25f, 4.00f, 1,
+			-9999999, 9999999, 1,
 			ChO_GetChatScale,     ChO_SetChatScale, NULL);
 		MenuOptionsScreen_AddInt(s, "Chat lines",
-			    0,    30, Gui.DefaultLines,
+			    -9999999,    9999999, Gui.DefaultLines,
 			ChO_GetChatlines,     ChO_SetChatlines, NULL);
 
 		MenuOptionsScreen_AddBool(s, "Log to disk",
@@ -939,13 +941,13 @@ static void GuiOptionsScreen_InitWidgets(struct MenuOptionsScreen* s) {
 		MenuOptionsScreen_AddBool(s, "Show FPS",
 			GuO_GetShowFPS,   GuO_SetShowFPS, NULL);
 		MenuOptionsScreen_AddNum(s,  "Hotbar scale",
-			0.25f, 4.00f, 1,
+			-9999999, 9999999, 1,
 			GuO_GetHotbar,    GuO_SetHotbar, NULL);
 		MenuOptionsScreen_AddNum(s,  "Inventory scale",
-			0.25f, 4.00f, 1,
+			-9999999, 9999999, 1,
 			GuO_GetInventory, GuO_SetInventory, NULL);
 		MenuOptionsScreen_AddNum(s,  "Crosshair scale",
-			0.25f, 4.00f, 1,
+			-9999999, 9999999, 1,
 			GuO_GetCrosshair, GuO_SetCrosshair, NULL);
 		
 		MenuOptionsScreen_AddBool(s, "Black text shadows",
@@ -1047,11 +1049,6 @@ static void HacksSettingsScreen_CheckHacksAllowed(struct MenuOptionsScreen* s) {
 	struct Widget** widgets = s->widgets;
 	struct LocalPlayer* p   = Entities.CurPlayer;
 	cc_bool disabled        = !p->Hacks.Enabled;
-
-	Widget_SetDisabled(widgets[3], disabled || !p->Hacks.CanSpeed);
-	Widget_SetDisabled(widgets[4], disabled || !p->Hacks.CanSpeed);
-	Widget_SetDisabled(widgets[5], disabled || !p->Hacks.CanSpeed);
-	Widget_SetDisabled(widgets[7], disabled || !p->Hacks.CanPushbackBlocks);
 	MenuInputOverlay_CheckStillValid(s);
 }
 
@@ -1061,14 +1058,14 @@ static void HacksSettingsScreen_InitWidgets(struct MenuOptionsScreen* s) {
 		MenuOptionsScreen_AddBool(s, "Hacks enabled",
 			HS_GetHacks,    HS_SetHacks, NULL);
 		MenuOptionsScreen_AddNum(s,  "Speed multiplier", 
-			0.1f,   50, 10,
+			-9999999,   9999999, 10,
 			HS_GetSpeed,    HS_SetSpeed, NULL);
 		MenuOptionsScreen_AddBool(s, "Camera clipping",
 			HS_GetClipping, HS_SetClipping,
 			"&eIf &fON&e, then the third person cameras will limit\n" \
 			"&etheir zoom distance if they hit a solid block.");
 		MenuOptionsScreen_AddNum(s,  "Jump height",
-			0.1f, 2048, 1.233f,
+			-9999999, 9999999, 1.233f,
 			HS_GetJump,     HS_SetJump,
 			"&eSets how many blocks high you can jump up.\n" \
 			"&eNote: You jump much higher when holding down the Speed key binding.");
@@ -1092,7 +1089,7 @@ static void HacksSettingsScreen_InitWidgets(struct MenuOptionsScreen* s) {
 			HS_GetSlide,    HS_SetSlide,
 			"&eIf &fOFF&e, you will immediately stop when in noclip\n&emode and no movement keys are held down.");
 		MenuOptionsScreen_AddInt(s,  "Field of view", 
-			1,  179, 70,
+			-9999999,  9999999, 70,
 			HS_GetFOV,      HS_SetFOV, NULL);
 	}
 	MenuOptionsScreen_EndButtons(s, -1, Menu_SwitchOptions);
@@ -1154,6 +1151,16 @@ static void    MiO_SetInvert(cc_bool v) {
 	Options_SetBool(OPT_INVERT_MOUSE, v); 
 }
 
+static int Cuboid_GetDelay(void) {
+    return Options_CuboidDelayMS;
+}
+
+static void Cuboid_SetDelay(int v) {
+    if (v < 0) v = 0;
+    if (v > 999999) v = 999999; /* cap at 5 seconds */
+    Options_CuboidDelayMS = v;
+}
+
 static int  MiO_GetSensitivity(void)  { return Camera.Sensitivity; }
 static void MiO_SetSensitivity(int v) {
 	Camera.Sensitivity = v;
@@ -1164,19 +1171,24 @@ static void MiscSettingsScreen_InitWidgets(struct MenuOptionsScreen* s) {
 	MenuOptionsScreen_BeginButtons(s);
 	{
 		MenuOptionsScreen_AddNum(s,  "Reach distance",
-			   1, 1024, 5,
+			   -9999999, 9999999, 5,
 			MiO_GetReach,    MiO_SetReach, NULL);
 		MenuOptionsScreen_AddNum(s, "Camera Mass",
-			1, 100, 20,
+			-9999999, 9999999, 20,
 			MiO_GetCameraMass, MiO_SetCameraMass,
 			"&eChange the smoothness of the smooth camera.");
 		MenuOptionsScreen_AddInt(s,  "Music volume",
-			   0, 100,  DEFAULT_MUSIC_VOLUME,
+			   -9999999, 9999999,  DEFAULT_MUSIC_VOLUME,
 			MiO_GetMusic,     MiO_SetMusic, NULL);
 		MenuOptionsScreen_AddInt(s,  "Sounds volume",
-			   0, 100,  DEFAULT_SOUNDS_VOLUME,
+			   -9999999, 9999999,  DEFAULT_SOUNDS_VOLUME,
 			MiO_GetSounds,  MiO_SetSounds, NULL);
-
+		MenuOptionsScreen_AddInt(s, "Cuboid delay (ms)",
+            0, 999999, 40,
+            Cuboid_GetDelay, Cuboid_SetDelay,
+            "&eDelay between cuboid block placements btw.\n"
+            "&eHigher = safe, but if u set more, slow as snail shit.");
+            Cuboid_GetDelay, Cuboid_SetDelay,
 		MenuOptionsScreen_AddBool(s, "Block physics",
 			MiO_GetPhysics, MiO_SetPhysics, NULL);
 		MenuOptionsScreen_AddBool(s, "Smooth camera",
@@ -1187,9 +1199,9 @@ static void MiscSettingsScreen_InitWidgets(struct MenuOptionsScreen* s) {
 			MiO_GetInvert,  MiO_SetInvert, NULL);
 		MenuOptionsScreen_AddInt(s,  "Mouse sensitivity", 
 #ifdef CC_BUILD_WIN
-			   1, 200, 40,
+			   -9999999, 9999999, 40,
 #else
-			   1, 200, 30,
+			   -9999999, 9999999, 30,
 #endif
 			MiO_GetSensitivity, MiO_SetSensitivity, NULL);
 	}
@@ -1355,3 +1367,139 @@ void NostalgiaFunctionalityScreen_Show(void) {
 	MenuOptionsScreen_Show(NostalgiaFunctionalityScreen_InitWidgets);
 }
 
+int autoclick_cps = 10;
+cc_bool cfps_enabled = false;
+int cfps_value = 0;
+
+static void AutoClick_Set(const char* mode, float delay);
+
+extern float autoclick_delay;
+
+static cc_bool NC_GetAutoclickEnabled(void);
+static void NC_SetAutoclickEnabled(cc_bool v);
+
+static int NC_GetAutoclickDelay(void);
+static void NC_SetAutoclickDelay(int v);
+
+static int NC_GetCFPS(void);
+static void NC_SetCFPS(int v);
+
+static void NotClassicOptionsScreen_ContextRecreated(void* screen);	
+
+static cc_bool NC_GetAutoclickEnabled(void) {
+    return autoclick_left || autoclick_right;
+}
+
+static void NC_SetAutoclickEnabled(cc_bool v) {
+    if (!v) {
+        autoclick_left = false;
+        autoclick_right = false;
+    } else {
+        autoclick_left = true;
+        autoclick_right = false;
+    }
+}
+
+static int NC_GetAutoclickDelay(void) {
+    return (int)(autoclick_delay * 9999900.0f);
+}
+
+static void NC_SetAutoclickDelay(int v) {
+    autoclick_delay = v / 9999900.0f;
+
+    if (autoclick_delay < 0.01f) autoclick_delay = 0.01f;
+    if (autoclick_delay > 5.0f) autoclick_delay = 5.0f;
+}
+
+static cc_bool NC_GetCFPSEnabled(void) {
+    return cfps_enabled;
+}
+
+static void NC_SetCFPSEnabled(cc_bool v) {
+    if (!v) {
+        cfps_enabled = false;
+        cfps_value = 0;
+        Game_SetFpsLimit(FPS_LIMIT_NONE);
+    } else {
+        cfps_enabled = true;
+        if (cfps_value <= 0) cfps_value = 60;
+        Game_SetMinFrameTime(1000.0f / cfps_value);
+    }
+}
+
+static int NC_GetCFPSValue(void) {
+    return cfps_value;
+}
+
+static void NC_SetCFPSValue(int v) {
+    if (v <= 0) {
+        cfps_enabled = false;
+        cfps_value = 0;
+        Game_SetFpsLimit(FPS_LIMIT_NONE);
+        return;
+    }
+
+    cfps_enabled = true;
+
+    if (v < 1) v = 1;
+    if (v > 240) v = 240;
+
+    cfps_value = v;
+    Game_SetMinFrameTime(1000.0f / v);
+}
+
+cc_bool NC_GetUwU(void) {
+    return UwU_Auto;
+}
+
+void NC_SetUwU(cc_bool v) {
+    UwU_Auto = v;
+	Chat_AddRaw(v ? "&aUwU auto ON" : "&cUwU auto OFF");
+}
+
+cc_bool NC_GetLolcat(void) {
+    return Lolcat_Auto;
+}
+
+void NC_SetLolcat(cc_bool v) {
+    Lolcat_Auto = v;
+
+    Chat_AddRaw(v ? "&aLolcat ON" : "&cLolcat OFF");
+}
+
+void NotClassicOptions_Init(struct MenuOptionsScreen* s) {
+    MenuOptionsScreen_BeginButtons(s);
+    {
+        MenuOptionsScreen_AddBool(s, "AutoClick",
+    		NC_GetAutoclickEnabled,
+    		NC_SetAutoclickEnabled,
+    		NULL);
+
+		MenuOptionsScreen_AddInt(s, "AutoClick Delay",
+			1, 9999900, 1,
+			NC_GetAutoclickDelay,
+			NC_SetAutoclickDelay,
+			NULL);
+
+        MenuOptionsScreen_AddBool(s, "CFPS Enabled",
+			NC_GetCFPSEnabled,
+			NC_SetCFPSEnabled,
+			NULL);
+		MenuOptionsScreen_AddInt(s, "CFPS Value",
+			1, 240, 60,
+			NC_GetCFPSValue,
+			NC_SetCFPSValue,
+			NULL);
+
+		MenuOptionsScreen_AddBool(s, "UwU Mode",
+			NC_GetUwU,
+			NC_SetUwU,
+			"&dTurns your massages u send will become discord kitten");
+
+		MenuOptionsScreen_AddBool(s, "Lolcat Mode",
+			NC_GetLolcat,
+			NC_SetLolcat,
+			"&dRainbow chaos chat");
+			}
+    MenuOptionsScreen_EndButtons(s, -1, Menu_SwitchPause);
+}

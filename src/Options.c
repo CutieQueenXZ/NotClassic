@@ -12,6 +12,7 @@ CC_BIG_VAR struct StringsBuffer Options;
 static CC_BIG_VAR struct StringsBuffer changedOpts;
 cc_result Options_LoadResult;
 static cc_bool savingPaused;
+cc_uint32 Options_CuboidDelayMS = 40;
 
 #if defined CC_BUILD_WEB || defined CC_BUILD_MOBILE || defined CC_BUILD_CONSOLE
 	#define OPTIONS_SAVE_IMMEDIATELY

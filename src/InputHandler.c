@@ -30,6 +30,10 @@ static cc_bool input_buttonsDown[3];
 static int input_pickingId = -1;
 static float input_deltaAcc;
 static float input_fovIndex = -1.0f;
+cc_bool autoclick_left  = false;
+cc_bool autoclick_right = false;
+float autoclick_timer = 0.0f;
+float autoclick_delay = 0.0f;
 #ifdef CC_BUILD_WEB
 static cc_bool suppressEscape;
 #endif
@@ -463,7 +467,7 @@ void InputHandler_Tick(float delta) {
 	if (Gui.InputGrab) return;
 
 	/* Only tick 4 times per second when held down */
-	if (input_deltaAcc < 0.2495f) return;
+	if (input_deltaAcc < 0.2495f && !autoclick_left && !autoclick_right) return;
 	/* NOTE: 0.2495 is used instead of 0.25 to produce delta time */
 	/*  values slightly closer to the old code which measured */
 	/*  elapsed time using DateTime_CurrentUTC_MS() instead */
@@ -473,6 +477,14 @@ void InputHandler_Tick(float delta) {
 	middle = input_buttonsDown[MOUSE_MIDDLE];
 	right  = input_buttonsDown[MOUSE_RIGHT];
 	
+	autoclick_timer += delta;
+
+	if (autoclick_timer >= autoclick_delay) {
+		if (autoclick_left)  left  = true;
+		if (autoclick_right) right = true;
+		autoclick_timer = 0;
+	}
+
 #ifdef CC_BUILD_TOUCH
 	if (Input_TouchMode) {
 		left   = (Input_HoldMode == INPUT_MODE_DELETE) && AnyBlockTouches();
@@ -841,11 +853,14 @@ static void OnInputDown(void* obj, int key, cc_bool was, struct InputDevice* dev
 	if (Input.DownHook && Input.DownHook(key, device)) return;
 
 #ifndef CC_BUILD_WEB
-	if (key == device->escapeButton && (s = Gui_GetClosable())) {
-		/* Don't want holding down escape to go in and out of pause menu */
-		if (!was) Gui_Remove(s);
-		return;
-	}
+if (key == device->escapeButton && (s = Gui_GetClosable())) {
+    if (!was) {
+        if (Menu_IsFading()) return;
+
+        Menu_BeginClose(s);
+    }
+    return;
+}
 #endif
 
 	if (InputHandler_IsShutdown(key)) {

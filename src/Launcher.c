@@ -34,6 +34,7 @@ cc_bool Launcher_ShowEmptyServers;
 static cc_bool useBitmappedFont, hasBitmappedFont;
 static struct Bitmap dirtBmp, stoneBmp;
 #define TILESIZE 48
+#define OPT_HAX_INIT "hax-initialised"
 
 static void CloseActiveScreen(void) {
 	OnscreenKeyboard_Close();
@@ -228,7 +229,7 @@ static void Launcher_Init(void) {
 
 void Launcher_Setup(void) {
 	static const cc_string title = String_FromConst(GAME_APP_TITLE);
-	Window_Create2D(640, 400);
+	Window_Create2D(DisplayInfo.Width * 0.5f, DisplayInfo.Height * 0.5f);
 #ifdef CC_BUILD_MOBILE
 	Window_LockLandscapeOrientation(Options_GetBool(OPT_LANDSCAPE_MODE, false));
 #endif
@@ -250,6 +251,11 @@ void Launcher_Setup(void) {
 	LBackend_Init();
 	LBackend_InitFramebuffer();
 	Launcher_ShowEmptyServers = Options_GetBool(LOPT_SHOW_EMPTY, true);
+	/*for uhh... jshtab...*/
+	if (!Options_GetBool(OPT_HAX_INIT, true)) {
+		Options_SetBool(OPT_HAX_ADDUP, true);
+		Options_SetBool(OPT_HAX_INIT, true);
+	}
 	Options_Get(LOPT_USERNAME, &Launcher_Username, "");
 	/* Some window backends require priming a few frames in case e.g. returning from in-game */
 	LBackend_AddDirtyFrames(4);
@@ -325,11 +331,11 @@ void Launcher_Finish(void) {
 struct LauncherTheme Launcher_Theme;
 const struct LauncherTheme Launcher_ModernTheme = {
 	false,
-	BitmapColor_RGB(153, 127, 172), /* background */
-	BitmapColor_RGB( 97,  81, 110), /* button border */
-	BitmapColor_RGB(189, 168, 206), /* active button */
-	BitmapColor_RGB(141, 114, 165), /* button foreground */
-	BitmapColor_RGB(162, 131, 186), /* button highlight */
+	BitmapColor_RGB(  0,   0,   0), /* background */
+	BitmapColor_RGB(  0,   0,   0), /* button border */
+	BitmapColor_RGB( 30,  30,  30), /* active button */
+	BitmapColor_RGB( 10,  10,  10), /* button foreground */
+	BitmapColor_RGB(  0,   0,   0), /* button highlight */
 };
 const struct LauncherTheme Launcher_ClassicTheme = {
 	true,

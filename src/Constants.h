@@ -6,15 +6,34 @@ Copyright 2014-2025 ClassiCube | Licensed under BSD-3
 */
 
 #define GAME_MAX_CMDARGS 5
-#define GAME_APP_VER "1.3.8"
+#define GAME_APP_VER "1.3.8"   /* protocol compatibility */
+#define GAME_API_VER 1
 
-#if defined CC_BUILD_WEB
-#define GAME_APP_ALT   "ClassiCube 1.3.8 web mobile"
-#define GAME_APP_NAME  "ClassiCube 1.3.8 web"
-#define GAME_APP_TITLE "ClassiCube"
+#if defined(CC_BUILD_ANDROID)
+    #define GAME_APP_NAME  "NotClassic 2.0"
+    #define GAME_APP_TITLE "NotClassic"
+    #define GAME_APP_ALT   "NotClassic 2.0"
+    #define FromPlatform   "Android"
+
+#elif defined(CC_BUILD_WIN)
+    #define GAME_APP_NAME  "NotClassic 2.0 Windows"
+    #define GAME_APP_TITLE "NotClassic Windows"
+    #define FromPlatform   "Windows"
+
+#elif defined(CC_BUILD_LINUX)
+    #define GAME_APP_NAME  "NotClassic 2.0 Linux"
+    #define GAME_APP_TITLE "NotClassic Linux"
+    #define FromPlatform   "Linux"
+
+#elif defined(CC_BUILD_WEB)
+    #define GAME_APP_NAME  "NotClassic 2.0 Web"
+    #define GAME_APP_TITLE "NotClassic Web"
+    #define GAME_APP_ALT   "NotClassic Web Mobile"
+    #define FromPlatform   "Web"
 #else
-#define GAME_APP_NAME  "ClassiCube 1.3.8"
-#define GAME_APP_TITLE "ClassiCube 1.3.8"
+    #define GAME_APP_NAME  "NotClassic 2.0"
+    #define GAME_APP_TITLE "NotClassic"
+    #define FromPlatform   "Unknown"
 #endif
 
 /* Max number of characters strings can have. */

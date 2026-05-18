@@ -27,6 +27,25 @@ struct ChatCommand {
 	struct ChatCommand* next; /* Next command in linked-list of client commands */
 };
 
+extern cc_bool NoSetBack_enabled;
+
+extern cc_bool NoPush_enabled;
+
+extern cc_bool ChatGPT_Send(const cc_string* msg);
+
+void ChatGPT_Tick(void);
+void LCuboidCommand_Tick(void);
+void DCuboidCommand_Tick(void);
+void BadApple_Tick(void);
+void Stream_Tick(void);
+void Gemini_Tick(void);
+void N8Ball_TickHook(void);
+extern void Rickroll_Tick(void);
+extern void SCuboidCommand_Tick(void);
+void CuboidCommand_Tick(void);
+void Stream_Tick(void);
+void BStream_Tick(void);
+
 /* Registers a client-side command, allowing it to be used with /client [cmd name] */
 CC_API  void Commands_Register(      struct ChatCommand* cmd);
 typedef void (*FP_Commands_Register)(struct ChatCommand* cmd);

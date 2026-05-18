@@ -227,3 +227,7 @@ UpgradeLog*.htm
 # Eclipse
 .cproject
 .project
+
+NotClassic
+
+client.log

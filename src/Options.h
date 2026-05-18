@@ -93,6 +93,8 @@ Copyright 2014-2025 ClassiCube | Licensed under BSD-3
 #define OPT_SELECTED_BLOCK_OUTLINE_COLOR "selected-block-outline-color"
 #define OPT_SELECTED_BLOCK_OUTLINE_OPACITY "selected-block-outline-opacity"
 #define OPT_SELECTED_BLOCK_OUTLINE_SCALE "selected-block-outline-scale"
+#define OPT_CAMOUFLAGE_CLIENT "camouflage-client"
+#define OPT_HAX_ADDUP "hax-addup"
 
 #define LOPT_SESSION  "launcher-session"
 #define LOPT_USERNAME "launcher-cc-username"
@@ -112,6 +114,8 @@ Copyright 2014-2025 ClassiCube | Licensed under BSD-3
 struct StringsBuffer;
 extern struct StringsBuffer Options;
 extern cc_result Options_LoadResult;
+extern cc_uint32 Options_CuboidDelayMS;
+
 /* Frees any memory allocated in storing options. */
 void Options_Free(void);
 

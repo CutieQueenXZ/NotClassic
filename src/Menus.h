@@ -60,6 +60,12 @@ void NostalgiaAppearanceScreen_Show(void);
 void NostalgiaFunctionalityScreen_Show(void);
 void NostalgiaMenuScreen_Show(void);
 
+void NotClassicOptionsScreen_Show(void);
+
+void ListScreen_RequestReload(void);
+void ListScreen_Show(void);
+void ListScreen_Reload(void);
+
 void UrlWarningOverlay_Show(const cc_string* url);
 void TexIdsOverlay_Show(void);
 void TexPackOverlay_Show(const cc_string* url);
@@ -73,7 +79,14 @@ void MenuScreen_Render2(void* screen, float delta);
 typedef void (*MenuInputDone)(const cc_string* value, cc_bool valid);
 void MenuInputOverlay_Show(struct MenuInputDesc* desc, const cc_string* value, MenuInputDone onDone, cc_bool screenMode);
 void MenuInputOverlay_Close(cc_bool valid);
+void Menu_BeginClose(struct Screen* s);
+cc_bool Menu_IsFading(void);
+void Menu_Tick(float delta);
+void Menu_TickPostRender(void);
 
+extern cc_bool autoclick_left;
+extern cc_bool autoclick_right;
+extern int autoclick_cps;
 
 typedef cc_bool (*Button_GetBool)(void);
 typedef void    (*Button_SetBool)(cc_bool value);
