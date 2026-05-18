@@ -65,6 +65,20 @@ struct HacksComp {
 	float MaxHorSpeed;
 	cc_string HacksFlags;
 	char __HacksFlagsBuffer[STRING_SIZE * 2];	
+	/*NOTCLASSIC*/
+	cc_bool Freeze;
+	Vec3 FreezePos;
+	float FreezeYaw;
+	float FreezePitch;
+	cc_bool SilentRot;
+	float SilentYaw;
+	float SilentPitch;
+	cc_bool FakeLag;
+	int FakeyTicks;
+	int FakeyInterval;
+	Vec3 FakeyPos;
+	float FakeyPitch;
+	float FakeyYaw;
 };
 
 void HacksComp_Init(struct HacksComp* hacks);

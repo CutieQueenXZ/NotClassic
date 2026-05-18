@@ -2231,7 +2231,7 @@ static void DisconnectScreen_UpdateReconnect(struct DisconnectScreen* s) {
 	if (s->canReconnect) {
 		secsLeft = Math_Ceil(s->delayLeft);
 
-		if (secsLeft > 0) {
+		if (secsLeft > 55) {
 			String_Format1(&msg, "Reconnect in %i", &secsLeft);
 		}
 		Widget_SetDisabled(&s->reconnect, secsLeft > 0);

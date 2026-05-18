@@ -263,7 +263,7 @@ static void MPConnection_Fail(const cc_string* reason) {
 }
 
 static void MPConnection_FailConnect(cc_result result) {
-	static const cc_string reason = String_FromConst("You failed to connect to the server. It's probably down!");
+	static const cc_string reason = String_FromConst("You failed to connect to the server. It's prob down");
 	cc_string msg; char msgBuffer[STRING_SIZE * 2];
 	String_InitArray(msg, msgBuffer);
 
@@ -382,8 +382,8 @@ static void MPConnection_SendChat(const cc_string* text) {
 }
 
 static void MPConnection_Disconnect(void) {
-	static const cc_string title  = String_FromConst("Disconnected!");
-	static const cc_string reason = String_FromConst("You've lost connection to the server");
+	static const cc_string title  = String_FromConst("DISSS-Disconnected!");
+	static const cc_string reason = String_FromConst("You've lost connection to the server btw");
 	Game_Disconnect(&title, &reason);
 }
 
@@ -397,7 +397,7 @@ static void DisconnectReadFailed(cc_result res) {
 }
 
 static void DisconnectInvalidOpcode(cc_uint8 opcode) {
-	static const cc_string title = String_FromConst("Disconnected");
+	static const cc_string title = String_FromConst("DISSS-Disconnected");
 	cc_string tmp; char tmpBuffer[STRING_SIZE];
 	String_InitArray(tmp, tmpBuffer);
 

@@ -35,6 +35,7 @@
 #include "Options.h"
 #include "Screens.h"
 #include "Audio.h"
+#include "Commands.h"
 
 struct _ProtocolData Protocol;
 
@@ -46,6 +47,8 @@ static cc_bool map_begunLoading;
 static cc_uint64 map_receiveBeg;
 static struct Stream map_part;
 static int map_volume;
+
+cc_bool Env_IgnoreServer = false;
 
 /*########################################################################################################################*
 *-----------------------------------------------------CPE extensions------------------------------------------------------*
@@ -824,6 +827,45 @@ static void Classic_Reset(void) {
 static cc_uint8* Classic_Tick(cc_uint8* data) {
 	struct Entity* e = &Entities.CurPlayer->Base;
 	if (!classic_receivedFirstPos) return data;
+		struct LocalPlayer* p = Entities.CurPlayer;
+
+	if (p->Hacks.Freeze) {
+		return Classic_WritePosition(
+			data,
+			p->Hacks.FreezePos,
+			p->Hacks.FreezeYaw,
+			p->Hacks.FreezePitch
+		);
+	}
+
+	if (p->Hacks.SilentRot) {
+		return Classic_WritePosition(
+			data,
+			e->next.pos,
+			p->Hacks.SilentYaw,
+			p->Hacks.SilentPitch
+		);
+	}
+
+	if (p->Hacks.FakeLag) {
+		struct HacksComp* h = &p->Hacks;
+
+		h->FakeyTicks++;
+
+		if (h->FakeyTicks >= h->FakeyInterval) {
+			h->FakeyTicks = 0;
+			h->FakeyPos = e->next.pos;
+			h->FakeyYaw = e->Yaw;
+			h->FakeyPitch = e->Pitch;
+		}
+
+		return Classic_WritePosition(
+			data,
+			h->FakeyPos,
+			h->FakeyYaw,
+			h->FakeyPitch
+		);
+	}
 
 	/* Report end position of each physics tick, rather than current position */
 	/*  (otherwise can miss landing on a block then jumping off of it again) */
@@ -1191,6 +1233,8 @@ static void CPE_SetEnvCol(cc_uint8* data) {
 	/* Above > 255 is 'invalid' (this is used by servers) */
 	c = PackedCol_Make(data[2], data[4], data[6], 255);
 
+	if (Env_IgnoreServer) return;
+
 	if (variable == 0) {
 		Env_SetSkyCol(invalid        ? ENV_DEFAULT_SKY_COLOR      : c);
 	} else if (variable == 1) {	     
@@ -1231,6 +1275,7 @@ static void CPE_ChangeModel(cc_uint8* data) {
 static void CPE_EnvSetMapAppearance(cc_uint8* data) {
 	cc_string url = UNSAFE_GetString(data);
 	int maxViewDist;
+	if (Env_IgnoreServer) return;
 	CPE_ApplyTexturePack(&url);
 
 	Env_SetSidesBlock(data[64]);
@@ -1246,12 +1291,15 @@ static void CPE_EnvSetMapAppearance(cc_uint8* data) {
 }
 
 static void CPE_EnvWeatherType(cc_uint8* data) {
+	if (Env_IgnoreServer) return;
 	Env_SetWeather(data[0]);
 }
 
 static void CPE_HackControl(cc_uint8* data) {
 	struct LocalPlayer* p = Entities.CurPlayer;
 	int jumpHeight;
+
+	if (Env_IgnoreServer) return;
 
 	p->Hacks.CanFly            = data[0] != 0;
 	p->Hacks.CanNoclip         = data[1] != 0;
@@ -1554,6 +1602,7 @@ static void CPE_PluginMessage(cc_uint8* data) {
 }
 
 static void CPE_ExtEntityTeleport(cc_uint8* data) {
+	if (NoSetBack_enabled) return;
 	EntityID id = *data++;
 	cc_uint8 packetFlags = *data++;
 	cc_uint8 flags = 0;

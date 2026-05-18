@@ -1012,6 +1012,26 @@ static void MainScreen_Tick(struct LScreen* s_) {
 #endif
 }
 
+static const char* currentTitle;
+
+static const char* titlePool[] = {
+    "NotClassic :3",
+	"Hewwo :3",
+	"Shall I compare thee, summer?",
+    "My beloved",
+    "Crazy right?",
+	"To be, or not to be.",
+	"Two roads diverged, I chose one",
+	"baby shoes, never worn.",
+    "Type C for fast charging",
+	"I think, therefore I am code.",
+	"It knows you better than yourself",
+};
+
+static int RandRange(int max) {
+    return (int)(Stopwatch_Measure() % max);
+}
+
 void MainScreen_SetActive(void) {
 	struct MainScreen* s = &MainScreen;
 	LScreen_Reset((struct LScreen*)s);
@@ -1022,7 +1042,8 @@ void MainScreen_SetActive(void) {
 	s->Activated     = MainScreen_Activated;
 	s->LoadState     = MainScreen_Load;
 	s->Tick          = MainScreen_Tick;
-	s->title         = "ClassiCube";
+	currentTitle = titlePool[RandRange(Array_Elems(titlePool))];
+	s->title = currentTitle;
 
 #ifdef CC_BUILD_NETWORKING
 	s->onEnterWidget = (struct LWidget*)&s->btnLogin;
@@ -1032,7 +1053,6 @@ void MainScreen_SetActive(void) {
 
 	Launcher_SetScreen((struct LScreen*)s);
 }
-
 
 #ifdef CC_BUILD_RESOURCES
 /*########################################################################################################################*
@@ -1438,11 +1458,11 @@ static struct SettingsScreen {
 	LScreen_Layout
 	struct LButton btnMode, btnColours, btnBack;
 	struct LLabel  lblMode, lblColours;
-	struct LCheckbox cbExtra, cbEmpty, cbScale;
+	struct LCheckbox cbExtra, cbEmpty, cbScale, cbCamouflage, cbHax;
 	struct LLine sep;
 } SettingsScreen CC_BIG_VAR;
 
-#define SETTINGS_SCREEN_MAX_WIDGETS 9
+#define SETTINGS_SCREEN_MAX_WIDGETS 12
 static struct LWidget* settings_widgets[SETTINGS_SCREEN_MAX_WIDGETS];
 
 LAYOUTS set_btnMode[]    = { { ANCHOR_CENTRE,     -135 }, { ANCHOR_CENTRE,  -70 } };
@@ -1455,6 +1475,8 @@ LAYOUTS set_cbExtra[] = { { ANCHOR_CENTRE_MIN, -190 }, { ANCHOR_CENTRE,  44 } };
 LAYOUTS set_cbEmpty[] = { { ANCHOR_CENTRE_MIN, -190 }, { ANCHOR_CENTRE,  84 } };
 LAYOUTS set_cbScale[] = { { ANCHOR_CENTRE_MIN, -190 }, { ANCHOR_CENTRE, 124 } };
 LAYOUTS set_btnBack[] = { { ANCHOR_CENTRE,        0 }, { ANCHOR_CENTRE, 170 } };
+LAYOUTS set_cbCamouflage[] = { { ANCHOR_CENTRE_MIN, -190 }, { ANCHOR_CENTRE, 164 } };
+LAYOUTS set_cbHax[] = { { ANCHOR_CENTRE_MIN, -190 }, { ANCHOR_CENTRE, 204 } };
 
 
 #if defined CC_BUILD_MOBILE
@@ -1473,13 +1495,22 @@ static void SettingsScreen_ShowEmpty(struct LCheckbox* w) {
 	Options_SetBool(LOPT_SHOW_EMPTY, w->value);
 }
 
+static void SettingsScreen_CamouflageClient(struct LCheckbox* w) {
+    Options_SetBool(OPT_CAMOUFLAGE_CLIENT, w->value);
+	return;
+}
+
+static void SettingsScreen_AddHax(struct LCheckbox* w) {
+    Options_SetBool(OPT_HAX_ADDUP, w->value);
+}
+
 static void SettingsScreen_DPIScaling(struct LCheckbox* w) {
 #if defined CC_BUILD_WIN
 	DisplayInfo.DPIScaling = w->value;
 	Options_SetBool(OPT_DPI_SCALING, w->value);
-	Window_ShowDialog("Restart required", "You must restart ClassiCube before display scaling takes effect");
+	Window_ShowDialog("Restart required", "You must restart NotClassic before display scaling takes effect");
 #else
-	Window_ShowDialog("Restart required", "Display scaling is currently only supported on Windows");
+	Window_ShowDialog("Restart required", "Display scaling is currently only supported on damn Windows, gng");
 #endif
 }
 
@@ -1507,7 +1538,11 @@ static void SettingsScreen_AddWidgets(struct SettingsScreen* s) {
 				SettingsScreen_ShowEmpty,  set_cbEmpty);
 	LCheckbox_Add(s, &s->cbScale, "Use display scaling", 
 				SettingsScreen_DPIScaling, set_cbScale);
-	LButton_Add(s,   &s->btnBack, 80, 35, "Back", 
+	LCheckbox_Add(s, &s->cbCamouflage, "Camouflage client as ClassiCube",
+              SettingsScreen_CamouflageClient, set_cbCamouflage);
+	LCheckbox_Add(s, &s->cbHax, "Add +hax to client name",
+              SettingsScreen_AddHax, set_cbHax);
+	LButton_Add(s,   &s->btnBack, 80, 45, "Back", 
 				SwitchToMain, set_btnBack);
 }
 
@@ -1520,6 +1555,8 @@ static void SettingsScreen_Activated(struct LScreen* s_) {
 #else
 	LCheckbox_Set(&s->cbExtra, Options_GetBool(LOPT_AUTO_CLOSE, false));
 #endif
+    LCheckbox_Set(&s->cbCamouflage, Options_GetBool(OPT_CAMOUFLAGE_CLIENT, false));
+	LCheckbox_Set(&s->cbHax, Options_GetBool(OPT_HAX_ADDUP, true));
 
 	LCheckbox_Set(&s->cbEmpty, Launcher_ShowEmptyServers);
 	LCheckbox_Set(&s->cbScale, DisplayInfo.DPIScaling);

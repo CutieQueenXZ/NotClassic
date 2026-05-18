@@ -72,6 +72,9 @@ extern struct IGameComponent Protocol_Component;
 
 void Protocol_Tick(void);
 
+extern cc_bool Env_IgnoreServer;
+
+
 extern cc_bool cpe_needD3Fix;
 struct LoginPacket {
 	cc_uint8 opcode;

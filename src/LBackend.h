@@ -88,5 +88,8 @@ void LBackend_TableMouseDown(struct LTable* w, int idx);
 void LBackend_TableMouseUp(struct   LTable* w, int idx);
 void LBackend_TableMouseMove(struct LTable* w, int idx);
 
+void LBackend_DrawSubtitle(struct Context2D* ctx, const char* text);
+void LBackend_DrawSmallText(struct Context2D* ctx, const char* text);
+
 CC_END_HEADER
 #endif
