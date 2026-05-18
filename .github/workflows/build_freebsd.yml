@@ -56,12 +56,12 @@ jobs:
       - uses: ./.github/actions/upload_build
         with:
           SOURCE_FILE: 'cc-fbsd32-gl1'
-          DEST_NAME: 'ClassiCube-FreeBSD-32'
+          DEST_NAME: 'NotClassic-FreeBSD-32'
           
       - uses: ./.github/actions/upload_build
         with:
           SOURCE_FILE: 'cc-fbsd64-gl1'
-          DEST_NAME: 'ClassiCube-FreeBSD-64'
+          DEST_NAME: 'NotClassic-FreeBSD-64'
           
           
       - uses: ./.github/actions/notify_success

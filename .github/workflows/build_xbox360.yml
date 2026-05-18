@@ -34,13 +34,13 @@ jobs:
           
       - uses: ./.github/actions/upload_build
         with:
-          SOURCE_FILE: 'ClassiCube-xbox360.elf'
-          DEST_NAME: 'ClassiCube-xbox360.elf'
+          SOURCE_FILE: 'NotClassic-xbox360.elf'
+          DEST_NAME: 'NotClassic-xbox360.elf'
           
       - uses: ./.github/actions/upload_build
         with:
-          SOURCE_FILE: 'ClassiCube-xbox360.elf32'
-          DEST_NAME: 'ClassiCube-xbox360.elf32'
+          SOURCE_FILE: 'NotClassic-xbox360.elf32'
+          DEST_NAME: 'NotClassic-xbox360.elf32'
           
           
       - uses: ./.github/actions/notify_success

@@ -38,13 +38,13 @@ jobs:
           
       - uses: ./.github/actions/upload_build
         with:
-          SOURCE_FILE: 'build-n64/ClassiCube-n64.elf'
-          DEST_NAME: 'ClassiCube-n64.elf'
+          SOURCE_FILE: 'build-n64/NotClassic-n64.elf'
+          DEST_NAME: 'NotClassic-n64.elf'
           
       - uses: ./.github/actions/upload_build
         with:
-          SOURCE_FILE: 'ClassiCube-n64.z64'
-          DEST_NAME: 'ClassiCube-n64.z64'
+          SOURCE_FILE: 'NotClassic-n64.z64'
+          DEST_NAME: 'NotClassic-n64.z64'
           
           
       - uses: ./.github/actions/notify_success

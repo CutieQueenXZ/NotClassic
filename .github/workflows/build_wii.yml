@@ -26,25 +26,25 @@ jobs:
       - name: Create Wii homebrew
         run: |
           mkdir -p wiitest/apps/ClassiCube
-          cp ClassiCube-wii.dol wiitest/apps/ClassiCube/boot.dol
+          cp NotClassic-wii.dol wiitest/apps/ClassiCube/boot.dol
           cp misc/wii/icon.png wiitest/apps/ClassiCube/icon.png
           cp misc/wii/meta.xml wiitest/apps/ClassiCube/meta.xml
           
           
       - uses: ./.github/actions/upload_build
         with:
-          SOURCE_FILE: 'ClassiCube-wii.dol'
-          DEST_NAME: 'ClassiCube-wii.dol'
+          SOURCE_FILE: 'NotClassic-wii.dol'
+          DEST_NAME: 'NotClassic-wii.dol'
           
       - uses: ./.github/actions/upload_build
         with:
-          SOURCE_FILE: 'ClassiCube-wii.elf'
-          DEST_NAME: 'ClassiCube-wii.elf'
+          SOURCE_FILE: 'NotClassic-wii.elf'
+          DEST_NAME: 'NotClassic-wii.elf'
           
       - uses: ./.github/actions/upload_build
         with:
           SOURCE_FILE: 'wiitest'
-          DEST_NAME: 'ClassiCube-Wii-Homebrew'
+          DEST_NAME: 'NotClassic-Wii-Homebrew'
           
           
       - uses: ./.github/actions/notify_success

@@ -26,13 +26,13 @@ jobs:
           
       - uses: ./.github/actions/upload_build
         with:
-          SOURCE_FILE: 'ClassiCube-gba.gba'
-          DEST_NAME: 'ClassiCube-gba.gba'
+          SOURCE_FILE: 'NotClassic-gba.gba'
+          DEST_NAME: 'NotClassic-gba.gba'
           
       - uses: ./.github/actions/upload_build
         with:
-          SOURCE_FILE: 'ClassiCube-gba.elf'
-          DEST_NAME: 'ClassiCube-gba.elf'
+          SOURCE_FILE: 'NotClassic-gba.elf'
+          DEST_NAME: 'NotClassic-gba.elf'
           
           
 # NOTE: Not uploaded to website downloads at present

@@ -26,18 +26,18 @@ jobs:
           
       - uses: ./.github/actions/upload_build
         with:
-          SOURCE_FILE: 'ClassiCube-wiiu.wuhb'
-          DEST_NAME: 'ClassiCube-wiiu.wuhb'
+          SOURCE_FILE: 'NotClassic-wiiu.wuhb'
+          DEST_NAME: 'NotClassic-wiiu.wuhb'
           
       - uses: ./.github/actions/upload_build
         with:
-          SOURCE_FILE: 'ClassiCube-wiiu.rpx'
-          DEST_NAME: 'ClassiCube-wiiu.rpx'
+          SOURCE_FILE: 'NotClassic-wiiu.rpx'
+          DEST_NAME: 'NotClassic-wiiu.rpx'
           
       - uses: ./.github/actions/upload_build
         with:
-          SOURCE_FILE: 'ClassiCube-wiiu.elf'
-          DEST_NAME: 'ClassiCube-wiiu.elf'
+          SOURCE_FILE: 'NotClassic-wiiu.elf'
+          DEST_NAME: 'NotClassic-wiiu.elf'
           
           
       - uses: ./.github/actions/notify_success

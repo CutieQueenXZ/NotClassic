@@ -26,13 +26,13 @@ jobs:
           
       - uses: ./.github/actions/upload_build
         with:
-          SOURCE_FILE: 'ClassiCube-gc.dol'
-          DEST_NAME: 'ClassiCube-gc.dol'
+          SOURCE_FILE: 'NotClassic-gc.dol'
+          DEST_NAME: 'NotClassic-gc.dol'
           
       - uses: ./.github/actions/upload_build
         with:
-          SOURCE_FILE: 'ClassiCube-gc.elf'
-          DEST_NAME: 'ClassiCube-gc.elf'
+          SOURCE_FILE: 'NotClassic-gc.elf'
+          DEST_NAME: 'NotClassic-gc.elf'
           
           
       - uses: ./.github/actions/notify_success

@@ -37,7 +37,7 @@ jobs:
       - uses: ./.github/actions/upload_build
         with:
           SOURCE_FILE: 'cc-arm32-d3d11.exe'
-          DEST_NAME: 'ClassiCube-arm32-Direct3D11.exe'
+          DEST_NAME: 'NotClassic-arm32-Direct3D11.exe'
           
           
       - uses: ./.github/actions/notify_failure
@@ -71,7 +71,7 @@ jobs:
       - uses: ./.github/actions/upload_build
         with:
           SOURCE_FILE: 'cc-arm64-d3d11.exe'
-          DEST_NAME: 'ClassiCube-arm64-Direct3D11.exe'          
+          DEST_NAME: 'NotClassic-arm64-Direct3D11.exe'          
           
 
       - uses: ./.github/actions/notify_failure
