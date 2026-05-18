@@ -28,18 +28,18 @@ jobs:
 
       - uses: ./.github/actions/upload_build
         with:
-          SOURCE_FILE: 'ClassiCube-ppc.dsk'
-          DEST_NAME: 'ClassiCube-ppc.dsk'
+          SOURCE_FILE: 'NotClassic-ppc.dsk'
+          DEST_NAME: 'NotClassic-ppc.dsk'
 
       - uses: ./.github/actions/upload_build
         with:
-          SOURCE_FILE: 'ClassiCube-68k.dsk'
-          DEST_NAME: 'ClassiCube-68k.dsk'
+          SOURCE_FILE: 'NotClassic-68k.dsk'
+          DEST_NAME: 'NotClassic-68k.dsk'
 
       - uses: ./.github/actions/upload_build
         with:
-          SOURCE_FILE: 'ClassiCube-68040.dsk'
-          DEST_NAME: 'ClassiCube-68040.dsk'
+          SOURCE_FILE: 'NotClassic-68040.dsk'
+          DEST_NAME: 'NotClassic-68040.dsk'
           
           
       - uses: ./.github/actions/notify_success

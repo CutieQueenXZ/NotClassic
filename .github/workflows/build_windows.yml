@@ -49,22 +49,22 @@ jobs:
       - uses: ./.github/actions/upload_build
         with:
           SOURCE_FILE: 'cc-w32-d3d9.exe'
-          DEST_NAME: 'ClassiCube-Win32-Direct3D9.exe'
+          DEST_NAME: 'NotClassic-Win32-Direct3D9.exe'
           
       - uses: ./.github/actions/upload_build
         with:
           SOURCE_FILE: 'cc-w32-ogl.exe'
-          DEST_NAME: 'ClassiCube-Win32-OpenGL.exe'
+          DEST_NAME: 'NotClassic-Win32-OpenGL.exe'
           
       - uses: ./.github/actions/upload_build
         with:
           SOURCE_FILE: 'cc-w32-d3d11.exe'
-          DEST_NAME: 'ClassiCube-Win32-Direct3D11.exe'
+          DEST_NAME: 'NotClassic-Win32-Direct3D11.exe'
           
       - uses: ./.github/actions/upload_build
         with:
           SOURCE_FILE: 'cc-w9x-ogl.exe'
-          DEST_NAME: 'ClassiCube-Win9x.exe'
+          DEST_NAME: 'NotClassic-Win9x.exe'
           
           
       - uses: ./.github/actions/notify_success
@@ -112,17 +112,17 @@ jobs:
       - uses: ./.github/actions/upload_build
         with:
           SOURCE_FILE: 'cc-w64-d3d9.exe'
-          DEST_NAME: 'ClassiCube-Win64-Direct3D9.exe'
+          DEST_NAME: 'NotClassic-Win64-Direct3D9.exe'
           
       - uses: ./.github/actions/upload_build
         with:
           SOURCE_FILE: 'cc-w64-ogl.exe'
-          DEST_NAME: 'ClassiCube-Win64-OpenGL.exe'
+          DEST_NAME: 'NotClassic-Win64-OpenGL.exe'
           
       - uses: ./.github/actions/upload_build
         with:
           SOURCE_FILE: 'cc-w64-d3d11.exe'
-          DEST_NAME: 'ClassiCube-Win64-Direct3D11.exe'
+          DEST_NAME: 'NotClassic-Win64-Direct3D11.exe'
           
           
       - uses: ./.github/actions/notify_success

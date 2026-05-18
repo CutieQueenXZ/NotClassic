@@ -26,13 +26,13 @@ jobs:
           
       - uses: ./.github/actions/upload_build
         with:
-          SOURCE_FILE: 'ClassiCube-switch.nro'
-          DEST_NAME: 'ClassiCube-switch.nro'
+          SOURCE_FILE: 'NotClassic-switch.nro'
+          DEST_NAME: 'NotClassic-switch.nro'
           
       - uses: ./.github/actions/upload_build
         with:
-          SOURCE_FILE: 'ClassiCube-switch.elf'
-          DEST_NAME: 'ClassiCube-switch.elf'
+          SOURCE_FILE: 'NotClassic-switch.elf'
+          DEST_NAME: 'NotClassic-switch.elf'
           
           
       - uses: ./.github/actions/notify_success

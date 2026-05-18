@@ -30,13 +30,13 @@ jobs:
           
       - uses: ./.github/actions/upload_build
         with:
-          SOURCE_FILE: 'ClassiCube-ps2.elf'
-          DEST_NAME: 'ClassiCube-ps2.elf'
+          SOURCE_FILE: 'NotClassic-ps2.elf'
+          DEST_NAME: 'NotClassic-ps2.elf'
           
       - uses: ./.github/actions/upload_build
         with:
-          SOURCE_FILE: 'ClassiCube-ps2-min.elf'
-          DEST_NAME: 'ClassiCube-ps2-min.elf'
+          SOURCE_FILE: 'NotClassic-ps2-min.elf'
+          DEST_NAME: 'NotClassic-ps2-min.elf'
           
           
       - uses: ./.github/actions/notify_success

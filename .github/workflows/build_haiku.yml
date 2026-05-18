@@ -26,13 +26,13 @@ jobs:
           SRCS: "src/*.c src/Platform_BeOS.cpp src/Window_BeOS.cpp third_party/bearssl/*.c"
           COMMON_FLAGS: "-O1 -s -fno-stack-protector -fno-math-errno -Qn -Werror"
         run: |
-          x86_64-unknown-haiku-gcc ${{ env.SRCS }} -o ClassiCube-haiku ${{ env.COMMON_FLAGS }} ${{ env.LIBS }}
+          x86_64-unknown-haiku-gcc ${{ env.SRCS }} -o NotClassic-haiku ${{ env.COMMON_FLAGS }} ${{ env.LIBS }}
           
           
       - uses: ./.github/actions/upload_build
         with:
-          SOURCE_FILE: 'ClassiCube-haiku'
-          DEST_NAME: 'ClassiCube-haiku'
+          SOURCE_FILE: 'NotClassic-haiku'
+          DEST_NAME: 'NotClassic-haiku'
           
           
       - uses: ./.github/actions/notify_success

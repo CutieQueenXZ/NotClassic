@@ -35,8 +35,8 @@ jobs:
           
       - uses: ./.github/actions/upload_build
         with:
-          SOURCE_FILE: 'ClassiCube-psp.elf'
-          DEST_NAME: 'ClassiCube-psp.elf'
+          SOURCE_FILE: 'NotClassic-psp.elf'
+          DEST_NAME: 'NotClassic-psp.elf'
           
           
       - uses: ./.github/actions/notify_success

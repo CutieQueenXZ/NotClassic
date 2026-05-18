@@ -57,7 +57,7 @@ jobs:
       - uses: ./.github/actions/upload_build
         with:
           SOURCE_FILE: 'misc/symbian/ClassiCube.sis'
-          DEST_NAME: 'ClassiCube-Symbian.sis'
+          DEST_NAME: 'NotClassic-Symbian.sis'
 
       - uses: ./.github/actions/upload_build
         with:

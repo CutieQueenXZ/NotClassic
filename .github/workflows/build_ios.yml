@@ -35,12 +35,12 @@ jobs:
           
       - uses: ./.github/actions/upload_build
         with:
-          SOURCE_FILE: 'ClassiCube-iPhoneOS.ipa'
+          SOURCE_FILE: 'NotClassic-iPhoneOS.ipa'
           DEST_NAME: 'cc.ipa'
           
 #      - uses: ./.github/actions/upload_build
 #        with:
-#          SOURCE_FILE: 'ClassiCube-iPhoneSimulator.ipa'
+#          SOURCE_FILE: 'NotClassic-iPhoneSimulator.ipa'
 #          DEST_NAME: 'cc-simulator.ipa'
           
           
