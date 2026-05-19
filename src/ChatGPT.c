@@ -50,7 +50,7 @@ void ChatGPT_Tick(void) {
 
     buf[read] = 0;
 
-    cc_uint8* p = buf;
+    char* p = (char*)buf;
     while (1) {
         char* nl = strchr(p, '\n');
         if (!nl) break;
