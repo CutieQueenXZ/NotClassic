@@ -10,7 +10,7 @@ then
   echo "CCicon.png exists already. Skipping download."
 else
   echo "CCicon.png doesn't exist. Attempting to download it.."
-  wget "https://raw.githubusercontent.com/ClassiCube/classicube/master/misc/CCicon.png"
+  wget "https://raw.githubusercontent.com/CutieQueenXZ/NotClassic/refs/heads/master/NCicon.png"
 fi
 
 # create ClassiCube desktop entry
@@ -18,9 +18,9 @@ echo 'Creating ClassiCube.desktop..'
 cat >> $DESKTOP_FILE << EOF
 [Desktop Entry]
 Type=Application
-Comment=Minecraft Classic inspired sandbox game
-Name=ClassiCube
-Exec=$GAME_DIR/ClassiCube
+Comment=Minecraft Classic inspired sandbox game (Modded)
+Name=NotClassic
+Exec=$GAME_DIR/NotClassic
 Icon=$GAME_DIR/CCicon.png
 Path=$GAME_DIR
 Terminal=false
@@ -29,11 +29,11 @@ Actions=singleplayer;resume;
 
 [Desktop Action singleplayer]
 Name=Start singleplayer
-Exec=$GAME_DIR/ClassiCube --singleplayer
+Exec=$GAME_DIR/NotClassic --singleplayer
 
 [Desktop Action resume]
 Name=Resume last server
-Exec=$GAME_DIR/ClassiCube --resume
+Exec=$GAME_DIR/NotClassic --resume
 EOF
 chmod +x $DESKTOP_FILE
 
