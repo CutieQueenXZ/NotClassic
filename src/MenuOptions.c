@@ -1188,7 +1188,6 @@ static void MiscSettingsScreen_InitWidgets(struct MenuOptionsScreen* s) {
             Cuboid_GetDelay, Cuboid_SetDelay,
             "&eDelay between cuboid block placements btw.\n"
             "&eHigher = safe, but if u set more, slow as snail shit.");
-            Cuboid_GetDelay, Cuboid_SetDelay,
 		MenuOptionsScreen_AddBool(s, "Block physics",
 			MiO_GetPhysics, MiO_SetPhysics, NULL);
 		MenuOptionsScreen_AddBool(s, "Smooth camera",

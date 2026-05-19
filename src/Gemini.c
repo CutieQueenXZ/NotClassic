@@ -46,7 +46,7 @@ cc_bool Gemini_Send(const cc_string* msg) {
 void Gemini_Tick(void) {
     if (gemini_sock == -1 || !gemini_waiting) return;
 
-    char buf[512];
+    cc_uint8 buf[512];
     cc_uint32 read = 0;
 
     if (Socket_Read(gemini_sock, buf, sizeof(buf)-1, &read) != 0 || read == 0)
