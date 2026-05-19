@@ -21,6 +21,8 @@ set(${CMAKE_C_FLAGS}, "${CMAKE_C_FLAGS}")
 # now build app's shared lib
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11 -Wall -Werror")
 
+set(ROOT_DIR ${CMAKE_CURRENT_LIST_DIR}/${ROOT_DIR}/..)
+
 add_library(classicube SHARED
         ${ROOT_DIR}/src/PluginAPI.c
         ${ROOT_DIR}/src/IsometricDrawer.c
