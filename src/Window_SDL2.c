@@ -7,7 +7,7 @@
 #include "Funcs.h"
 #include "Bitmap.h"
 #include "Errors.h"
-#include <SDL2/SDL.h>
+#include <SDL.h>
 
 static SDL_Window* win_handle;
 
