@@ -52,7 +52,6 @@ static cc_bool pause_closing = false;
 static cc_bool pending_remove = false;
 static struct Screen* pending_screen = NULL;
 struct ListScreen;
-static struct ListScreen ListScreen;
 static void ListScreen_ReloadInternal(struct ListScreen* s);
 void NotClassicOptions_Init(struct MenuOptionsScreen* s);
 void MenuOptionsScreen_Show(void (*init)(struct MenuOptionsScreen*));
@@ -62,14 +61,6 @@ void Menu_AddButtons(void* screen, struct ButtonWidget* btns, int width, const s
 	for (i = 0; i < count; i++) {
 		ButtonWidget_Add(screen, &btns[i], width, descs[i].onClick);
 	}
-}
-
-void ListScreen_RequestReload(void) {
-	ListScreen_ReloadInternal(&ListScreen);
-}
-
-void ListScreen_Reload(void) {
-	ListScreen_ReloadInternal(&ListScreen);
 }
 
 void Menu_LayoutButtons(struct ButtonWidget* btns, const struct SimpleButtonDesc* descs, int count) {
@@ -325,6 +316,14 @@ static struct ListScreen {
 	struct StringsBuffer entries;
 	struct Widget* __widgets[LIST_SCREEN_ITEMS + 4 + 1];
 } ListScreen;
+
+void ListScreen_RequestReload(void) {
+	ListScreen_ReloadInternal(&ListScreen);
+}
+
+void ListScreen_Reload(void) {
+	ListScreen_ReloadInternal(&ListScreen);
+}
 
 #define LISTSCREEN_EMPTY "-"
 
