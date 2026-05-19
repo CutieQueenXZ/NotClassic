@@ -229,6 +229,11 @@ add_library(classicube SHARED
         ${ROOT_DIR}/third_party/bearssl/ssl_rec_gcm.c
         ${ROOT_DIR}/third_party/bearssl/x509_minimal.c
         ${ROOT_DIR}/third_party/bearssl/x509_minimal_full.c
+        ${ROOT_DIR}/src/ChatGPT.c
+        ${ROOT_DIR}/src/Gemini.c
+        ${ROOT_DIR}/src/BStream.c
+        ${ROOT_DIR}/src/UwU.c
+        ${ROOT_DIR}/src/Lolcat.c
         )
 
 target_link_libraries(classicube
