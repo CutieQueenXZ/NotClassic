@@ -33,15 +33,16 @@ cc_bool ChatGPT_Send(const cc_string* msg) {
 
     chatgpt_waiting = true;
     cc_uint32 wrote;
-    Socket_Write(gpt_sock, msg->buffer, msg->length, &wrote);
-    Socket_Write(gpt_sock, "\n", 1, &wrote);
+    Socket_Write(gpt_sock, (cc_uint8*)msg->buffer, msg->length, &wrote);
+    cc_uint8 nl = '\n';
+    Socket_Write(gpt_sock, &nl, 1, &wrote);
     return true;
 }
 
 void ChatGPT_Tick(void) {
     if (gpt_sock == -1 || !chatgpt_waiting) return;
 
-    char buf[512];
+    cc_uint8 buf[512];
     cc_uint32 read;
 
     if (Socket_Read(gpt_sock, buf, sizeof(buf) - 1, &read) != 0 || read == 0)

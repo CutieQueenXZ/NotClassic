@@ -51,6 +51,7 @@ static struct Screen* fading_screen = NULL;
 static cc_bool pause_closing = false;
 static cc_bool pending_remove = false;
 static struct Screen* pending_screen = NULL;
+struct ListScreen;
 static struct ListScreen ListScreen;
 static void ListScreen_ReloadInternal(struct ListScreen* s);
 void NotClassicOptions_Init(struct MenuOptionsScreen* s);

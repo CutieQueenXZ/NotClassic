@@ -505,7 +505,7 @@ static int DrawOpCommand_ParseBlock(const cc_string* arg) {
 		drawOp_Func = CuboidCommand_Draw;
 
 		DrawOpCommand_ExtractPersistArg(&value);
-		cuboid_block = -1; /* Default to cuboiding with currently held block *
+		cuboid_block = -1; * Default to cuboiding with currently held block *
 
 		if (value.length) {
 			cuboid_block = DrawOpCommand_ParseBlock(&value);
@@ -2069,6 +2069,9 @@ void DCuboidCommand_Tick(void) {
 
     switch (dc_state) {
 
+    case DC_IDLE:
+        break;
+
     case DC_TP:
         DC_TeleportToCurrent();
         dc_lastTime = now;
@@ -2180,6 +2183,9 @@ void LCuboidCommand_Tick(void) {
     if (!lc_active) return;
 
     switch (lc_state) {
+
+    case DC_IDLE:
+        break;
 
     case LC_TP:
         LC_TeleportToCurrent();
