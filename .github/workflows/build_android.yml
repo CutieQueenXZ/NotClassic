@@ -37,7 +37,7 @@ jobs:
 
       - name: Build APK (Debug)
         run: |
-          cd android
+          cd misc/android/app/src/main
           chmod +x gradlew
           # Force it to use the NDK we just downloaded
           ./gradlew assembleDebug -Pandroid.ndkPath=$ANDROID_SDK_ROOT/ndk/20.0.5594570
