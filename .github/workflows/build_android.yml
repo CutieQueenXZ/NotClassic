@@ -41,8 +41,11 @@ jobs:
           chmod +x gradlew
           # Force it to use the NDK we just downloaded
           ./gradlew assembleDebug -Pandroid.ndkPath=$ANDROID_SDK_ROOT/ndk/20.0.5594570
+      - name: Rename APK
+        run: |
+          cp misc/android/app/build/outputs/apk/debug/app-debug.apk NotClassic-android.apk
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: NotClassic-android
-          path: android/app/build/outputs/apk/debug/*.apk
+          path: NotClassic-android.apk
