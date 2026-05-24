@@ -1,30 +1,28 @@
 .set noreorder
 #include "AsmCommon.i"
 
-// ===============================
-// FUNCTIONS
-// ===============================
-
-// Loads view matrix into M0
+// Loads view matrix into VFPU registers
+//	$a0 = addresss of matrix
 BEG_FUNC(Clip_LoadView)
 	#define SRC $a0
-	lv.q	R000,  0(SRC)
-	lv.q	R001, 16(SRC)
-	lv.q	R002, 32(SRC)
+	lv.q	VIEW_R1,  0(SRC)
+	lv.q	VIEW_R2, 16(SRC)
+	lv.q	VIEW_R3, 32(SRC)
 	jr		$ra
-	lv.q	R003, 48(SRC)
+	lv.q	VIEW_R4, 48(SRC)
 
 	#undef SRC
 END_FUNC(Clip_LoadView)
 
-// Loads projection matrix into M1
+// Loads projection matrix into VFPU registers
+//	$a0 = addresss of matrix
 BEG_FUNC(Clip_LoadProj)
 	#define SRC $a0
-	lv.q	R100,  0(SRC)
-	lv.q	R101, 16(SRC)
-	lv.q	R102, 32(SRC)
+	lv.q	PROJ_R1,  0(SRC)
+	lv.q	PROJ_R2, 16(SRC)
+	lv.q	PROJ_R3, 32(SRC)
 	jr		$ra
-	lv.q	R103, 48(SRC)
+	lv.q	PROJ_R4, 48(SRC)
 
 	#undef SRC
 END_FUNC(Clip_LoadProj)
@@ -32,22 +30,24 @@ END_FUNC(Clip_LoadProj)
 // Calculates MVP = VIEW * PROJ
 BEG_FUNC(Clip_RecalcMVP)
 	jr 		$ra
-	vmmul.q M200, M000, M100 // M2 = M0 * M1
+	vmmul.q MVP_MTX, VIEW_MTX, PROJ_MTX
 END_FUNC(Clip_RecalcMVP)
 
 // Stores MVP matrix
 BEG_FUNC(Clip_StoreMVP)
 	#define DST $a0
-	sv.q 	R200,  0(DST)
-	sv.q 	R201, 16(DST)
-	sv.q 	R202, 32(DST)
+	sv.q 	MVP_R1,  0(DST)
+	sv.q 	MVP_R2, 16(DST)
+	sv.q 	MVP_R3, 32(DST)
 	jr 		$ra
-	sv.q 	R203, 48(DST)
+	sv.q 	MVP_R4, 48(DST)
 
 	#undef DST
 END_FUNC(Clip_StoreMVP)
 
-
+// Sets scalefactor for visible XY frustum to guardband XY frustum
+//	$a0 = addresss of float containing X scalefactor
+//	$a1 = addresss of float containing Y scalefactor
 BEG_FUNC(Clip_SetGuardbandScale)
 	#define SRC_X $a0
 	#define SRC_Y $a1
@@ -77,33 +77,4 @@ BEG_FUNC(Math_FastCos)
 	sv.s	S700, 0(ADDR)
 	#undef ADDR
 END_FUNC(Math_FastCos)
-
-
-BEG_FUNC(Matrix_Mul)
-	#define DST   $a0
-	#define SRC_L $a1
-	#define SRC_R $a2
-
-	lv.q	R500,  0(SRC_L)
-	lv.q	R501, 16(SRC_L)
-	lv.q	R502, 32(SRC_L)
-	lv.q	R503, 48(SRC_L)
-
-	lv.q	R600,  0(SRC_R)
-	lv.q	R601, 16(SRC_R)
-	lv.q	R602, 32(SRC_R)
-	lv.q	R603, 48(SRC_R)
-
-	vmmul.q M700, M500, M600 // M7 = M5 * M6
-
-	sv.q 	R700,  0(DST)
-	sv.q 	R701, 16(DST)
-	sv.q 	R702, 32(DST)
-	jr		$ra
-	sv.q 	R703, 48(DST)
-
-	#undef DST
-	#undef SRC_L
-	#undef SRC_R
-END_FUNC(Matrix_Mul)
 

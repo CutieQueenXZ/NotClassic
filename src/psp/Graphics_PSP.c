@@ -24,6 +24,8 @@ static unsigned int CC_ALIGNED(16) list[262144];
 static cc_uint8* gfx_vertices;
 static int gfx_fields;
 
+struct Plane { float a, b, c, d; } CC_ALIGNED(16);
+
 
 /*########################################################################################################################*
 *---------------------------------------------------------General---------------------------------------------------------*
@@ -133,6 +135,46 @@ static void Gfx_FreeState(void) {
 }
 
 #define GU_Toggle(cap) if (enabled) { sceGuEnable(cap); } else { sceGuDisable(cap); }
+
+
+/*########################################################################################################################*
+*----------------------------------------------------------Frustum--------------------------------------------------------*
+*#########################################################################################################################*/
+extern cc_bool Frustum_SphereSkipsClipping(float x, float y, float z, float radius);
+
+cc_bool Gfx_CanSphereSkipClipping(float x, float y, float z, float radius) {
+	return Frustum_SphereSkipsClipping(x, y, z, radius);
+}
+
+/*struct Plane_ { float a, b, c, d; };
+struct FrustumPlanes { struct Plane_ L, R, B, T, F; };
+extern struct FrustumPlanes frustum;
+
+cc_bool Gfx_CanSphereSkipClipping(float x, float y, float z, float radius) {
+	float d;
+
+	d = frustum.L.a * x + frustum.L.b * y + frustum.L.c * z + frustum.L.d;
+	Platform_Log2("L %f3 < %f3", &d, &radius);
+	if (d < radius) return false;
+
+	d = frustum.R.a * x + frustum.R.b * y + frustum.R.c * z + frustum.R.d;
+	Platform_Log2("R %f3 < %f3", &d, &radius);
+	if (d < radius) return false;
+
+	d = frustum.B.a * x + frustum.B.b * y + frustum.B.c * z + frustum.B.d;
+	Platform_Log2("B %f3 < %f3", &d, &radius);
+	if (d < radius) return false;
+
+	d = frustum.T.a * x + frustum.T.b * y + frustum.T.c * z + frustum.T.d;
+	Platform_Log2("T %f3 < %f3", &d, &radius);
+	if (d < radius) return false;
+
+	d = frustum.F.a * x + frustum.F.b * y + frustum.F.c * z + frustum.F.d;
+	Platform_Log2("F %f3 < %f3", &d, &radius);
+	if (d < radius) return false;
+
+	return true;
+}*/
 
 
 /*########################################################################################################################*
@@ -566,7 +608,7 @@ void Gfx_EndFrame(void) {
 	sceGuSwapBuffers();
 
 	//Platform_Log3("C %i/%i / U %i", &CLIPPED, &MACLIPPED, &UNCLIPPED);
-	//CLIPPED = MACLIPPED = UNCLIPPED = 0;
+	CLIPPED = MACLIPPED = UNCLIPPED = 0;
 }
 
 void Gfx_OnWindowResize(void) {
@@ -700,9 +742,11 @@ extern void Clip_StoreMVP(float* dst);
 extern void Clip_RescaleMVPtoGuardband(void);
 
 static cc_bool clipping_dirty;
-struct Plane { float a, b, c, d; } CC_ALIGNED(16);
-static struct Plane frustum[6];
-extern void Frustum_CalcAllPlanes(struct Plane* planes);
+static struct Plane frustum_planes[6];
+
+extern void Frustum_CalcAllPlanes(void);
+extern void Frustum_StorePlanes(struct Plane* planes);
+extern void Frustum_SavePlanes(void);
 
 static CC_INLINE void RecalcMVP(void) {
 	Clip_RecalcMVP();
@@ -710,7 +754,8 @@ static CC_INLINE void RecalcMVP(void) {
 }
 
 static CC_NOINLINE void RecalcClipping(void) {
-	Frustum_CalcAllPlanes(frustum);
+	Frustum_CalcAllPlanes();
+	Frustum_StorePlanes(frustum_planes);
 	clipping_dirty = false;
 	Clip_RescaleMVPtoGuardband();
 }
@@ -739,7 +784,10 @@ void Gfx_LoadMVP(const struct Matrix* view, const struct Matrix* proj, struct Ma
 
 	Clip_RecalcMVP();
 	Clip_StoreMVP((float*)mvp);
-	clipping_dirty = true;
+	RecalcClipping();
+
+	Frustum_CalcAllPlanes();
+	Frustum_SavePlanes();
 }
 
 void Gfx_EnableTextureOffset(float x, float y) {
@@ -856,7 +904,7 @@ static void DrawClippableTexturedVertices(struct VertexTextured* v, int vertices
 		if (QuadNeedsClipping(&v->x, SIZEOF_VERTEX_TEXTURED)) {
 			MACLIPPED++;
 			ConvertTexturedToClipQuad(v, clipped1);
-			res = Clip_PolyToPlanes(clipped2, clipped1, 4, frustum);
+			res = Clip_PolyToPlanes(clipped2, clipped1, 4, frustum_planes);
 			if (res == 0) { run += 6; continue; }
 
 			cnt = CLIPRESULT_COUNT(res);
@@ -889,7 +937,7 @@ static void DrawClippableColouredVertices(struct VertexColoured* v, int vertices
 		if (QuadNeedsClipping(&v->x, SIZEOF_VERTEX_COLOURED)) {
 			MACLIPPED++;
 			ConvertColouredToClipQuad(v, clipped1);
-			res = Clip_PolyToPlanes(clipped2, clipped1, 4, frustum);
+			res = Clip_PolyToPlanes(clipped2, clipped1, 4, frustum_planes);
 			if (res == 0) { run += 6; continue; }
 
 			cnt = CLIPRESULT_COUNT(res);
