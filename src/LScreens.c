@@ -1474,7 +1474,7 @@ LAYOUTS set_sep[]     = { { ANCHOR_CENTRE,        0 }, { ANCHOR_CENTRE,  15 } };
 LAYOUTS set_cbExtra[] = { { ANCHOR_CENTRE_MIN, -190 }, { ANCHOR_CENTRE,  44 } };
 LAYOUTS set_cbEmpty[] = { { ANCHOR_CENTRE_MIN, -190 }, { ANCHOR_CENTRE,  84 } };
 LAYOUTS set_cbScale[] = { { ANCHOR_CENTRE_MIN, -190 }, { ANCHOR_CENTRE, 124 } };
-LAYOUTS set_btnBack[] = { { ANCHOR_CENTRE,        0 }, { ANCHOR_CENTRE, 170 } };
+LAYOUTS set_btnBack[] = { { ANCHOR_CENTRE,      200 }, { ANCHOR_CENTRE, 190 } };
 LAYOUTS set_cbCamouflage[] = { { ANCHOR_CENTRE_MIN, -190 }, { ANCHOR_CENTRE, 164 } };
 LAYOUTS set_cbHax[] = { { ANCHOR_CENTRE_MIN, -190 }, { ANCHOR_CENTRE, 204 } };
 
