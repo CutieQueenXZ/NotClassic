@@ -281,7 +281,7 @@ CC_API jint JNI_OnLoad(JavaVM* vm, void* reserved) {
 	VM_Ptr = vm;
 	Java_GetCurrentEnv(env);
 
-	klass     = (*env)->FindClass(env, "com/classicube/MainActivity");
+	klass     = (*env)->FindClass(env, "com/notclassic/MainActivity");
 	App_Class = (*env)->NewGlobalRef(env, klass);
 	
 	Java_RegisterNatives(env, methods);

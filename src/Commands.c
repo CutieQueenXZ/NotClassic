@@ -284,7 +284,7 @@ static void SkinCommand_Execute(const cc_string* args, int argsCount) {
 
 static struct ChatCommand SkinCommand = {
 	"Skin", SkinCommand_Execute,
-	COMMAND_FLAG_SINGLEPLAYER_ONLY | COMMAND_FLAG_UNSPLIT_ARGS,
+	COMMAND_FLAG_UNSPLIT_ARGS,
 	{
 		"&a/client skin [name]",
 		"&eChanges to the skin to the given player",

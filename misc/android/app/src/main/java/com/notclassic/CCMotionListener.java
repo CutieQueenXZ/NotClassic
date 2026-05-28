@@ -1,4 +1,4 @@
-package com.classicube;
+package com.notclassic;
 import android.view.InputDevice;
 import android.view.MotionEvent;
 import android.view.View;

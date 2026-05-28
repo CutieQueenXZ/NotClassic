@@ -1,4 +1,4 @@
-package com.classicube;
+package com.notclassic;
 import android.text.Editable;
 import android.text.Selection;
 import android.text.SpannableStringBuilder;
