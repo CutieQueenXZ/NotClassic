@@ -115,21 +115,25 @@ cc_bool Commands_Execute(const cc_string* input) {
 	cc_string name, value;
 	cc_string args[50];
 
-	if (String_CaselessStarts(input, &prefixSpace)) { 
-		/* /client [command] [args] */
-		offset = prefixSpace.length;
-	} else if (String_CaselessEquals(input, &prefix)) { 
-		/* /client */
-		offset = prefix.length;
-	} else if (Server.IsSinglePlayer && String_CaselessStarts(input, &prefix)) {
-		/* /client[command] [args] */
-		offset = prefix.length;
-	} else if (Server.IsSinglePlayer && input->length && input->buffer[0] == '/') {
-		/* /[command] [args] */
-		offset = 1;
-	} else {
-		return false;
-	}
+    if (String_CaselessStarts(input, &prefixSpace)) {
+        /* /client [command] [args] */
+        offset = prefixSpace.length;
+
+    } else if (String_CaselessEquals(input, &prefix)) {
+        /* /client */
+        offset = prefix.length;
+
+    /*
+    } else if (Server.IsSinglePlayer && String_CaselessStarts(input, &prefix)) {
+        offset = prefix.length;
+
+    } else if (Server.IsSinglePlayer && input->length && input->buffer[0] == '/') {
+        offset = 1;
+    */
+
+    } else {
+        return false;
+    }
 
 	text = String_UNSAFE_SubstringAt(input, offset);
 	/* Check for only / or /client */
@@ -138,11 +142,6 @@ cc_bool Commands_Execute(const cc_string* input) {
 	String_UNSAFE_Separate(&text, ' ', &name, &value);
 	cmd = Commands_FindMatch(&name);
 	if (!cmd) return true;
-
-	if ((cmd->flags & COMMAND_FLAG_SINGLEPLAYER_ONLY) && !Server.IsSinglePlayer) {
-		Chat_Add1("&e/client: \"&f%s&e\" can only be used in singleplayer.", &name);
-		return true;
-	}
 
 	if (cmd->flags & COMMAND_FLAG_UNSPLIT_ARGS) {
 		/* argsCount = 0 if value.length is 0, 1 otherwise */
@@ -474,60 +473,6 @@ static int DrawOpCommand_ParseBlock(const cc_string* arg) {
 	}
 	return block;
 }
-
-
-	/*########################################################################################################################*
-	*-------------------------------------------------------CuboidCommand-----------------------------------------------------*
-	*#########################################################################################################################*
-	static int cuboid_block;
-
-	static void CuboidCommand_Draw(IVec3 min, IVec3 max) {
-		BlockID toPlace;
-		int x, y, z;
-
-		toPlace = (BlockID)cuboid_block;
-		if (cuboid_block == -1) toPlace = Inventory_SelectedBlock;
-
-		for (y = min.y; y <= max.y; y++) {
-			for (z = min.z; z <= max.z; z++) {
-				for (x = min.x; x <= max.x; x++) {
-					Game_ChangeBlock(x, y, z, toPlace);
-				}
-			}
-		}
-	}
-
-	static void CuboidCommand_Execute(const cc_string* args, int argsCount) {
-		cc_string value = *args;
-
-		DrawOpCommand_ResetState();
-		drawOp_name = "Cuboid";
-		drawOp_Func = CuboidCommand_Draw;
-
-		DrawOpCommand_ExtractPersistArg(&value);
-		cuboid_block = -1; * Default to cuboiding with currently held block *
-
-		if (value.length) {
-			cuboid_block = DrawOpCommand_ParseBlock(&value);
-			if (cuboid_block == -1) return;
-		}
-
-		DrawOpCommand_Begin();
-	}
-
-	static struct ChatCommand CuboidCommand = {
-		"Cuboid", CuboidCommand_Execute,
-		COMMAND_FLAG_SINGLEPLAYER_ONLY | COMMAND_FLAG_UNSPLIT_ARGS,
-		{
-			"&a/client cuboid [block] [persist]",
-			"&eFills the 3D rectangle between two points with [block].",
-			"&eIf no block is given, uses your currently held block.",
-			"&e  If persist is given and is \"yes\", then the command",
-			"&e  will repeatedly cuboid, without needing to be typed in again.",
-		}
-	};
-
-    */
 
 /*########################################################################################################################*
 *-------------------------------------------------------ReplaceCommand-----------------------------------------------------*
