@@ -1707,7 +1707,7 @@ static void TexturePackScreen_UploadCallback(const cc_string* path) {
 	cc_string relPath = *path;
 	Utils_UNSAFE_GetFilename(&relPath);
 
-	ListScreen_Reload(&ListScreen);
+	ListScreen_Reload();
 	TexturePack_SetDefault(&relPath);
 #else
 	String_Copy(&TexturePack_Path, path);
