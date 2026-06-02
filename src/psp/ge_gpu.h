@@ -42,13 +42,22 @@ enum GE_COMMANDS {
 	GE_SET_VIEWPORT_Y_ORIGIN    = 0x46,
 	GE_SET_VIEWPORT_Z_ORIGIN    = 0x47,
 
+	GE_SET_TEX_OFFSET_X         = 0x4A,
+	GE_SET_TEX_OFFSET_Y         = 0x4B,
+
 	GE_SET_SCREEN_OFFSET_X      = 0x4C,
 	GE_SET_SCREEN_OFFSET_Y      = 0x4D,
+
+	GE_SET_CLUT_BUFFER_PTR_LO	= 0xB0,
+	GE_SET_CLUT_BUFFER_PTR_HI	= 0xB1,
+
+	GE_LOAD_CLUT_ENTRIES		= 0xC4,
 
 	GE_SET_FOG_BIAS				= 0xCD,
 	GE_SET_FOG_STEP				= 0xCE,
 	GE_SET_FOG_COLOR            = 0xCF,
-		
+	
+	GE_SET_CLEARING_STATE		= 0xD3,	
 	GE_SET_SCISSOR_TL           = 0xD4,
 	GE_SET_SCISSOR_BR           = 0xD5,
 	GE_SET_Z_RANGE_MIN          = 0xD6,
@@ -85,6 +94,7 @@ static CC_INLINE void GE_UpdateStallAddr(void) {
 /*########################################################################################################################*
 *-----------------------------------------------------Matrix upload-------------------------------------------------------*
 *#########################################################################################################################*/
+// sets the world matrix
 static void GE_upload_world_matrix(const float* matrix) {
 	GE_PushI(GE_WORLDMATRIX_UPLOAD_INDEX, 0); // uploading all 3x4 entries
 
@@ -95,6 +105,7 @@ static void GE_upload_world_matrix(const float* matrix) {
 	}
 }
 
+// sets the view matrix
 static void GE_upload_view_matrix(const float* matrix) {
 	GE_PushI(GE_VIEW_MATRIX_UPLOAD_INDEX, 0); // uploading all 3x4 entries
 
@@ -105,6 +116,7 @@ static void GE_upload_view_matrix(const float* matrix) {
 	}
 }
 
+// sets the projection matrix
 static void GE_upload_proj_matrix(const float* matrix) {
 	GE_PushI(GE_PROJ_MATRIX_UPLOAD_INDEX, 0); // uploading all 4x4 entries
 
@@ -113,6 +125,34 @@ static void GE_upload_proj_matrix(const float* matrix) {
 	{
 		GE_PushF(GE_PROJ_MATRIX_UPLOAD_DATA, matrix[(i * 4) + j]);
 	}
+}
+
+
+/*########################################################################################################################*
+*----------------------------------------------------------CLUT-----------------------------------------------------------*
+*#########################################################################################################################*/
+// sets CLUT buffer pointer that can be subsequently loaded from
+static CC_INLINE void GE_set_clut_buffer(const void* ptr) {
+	cc_uintptr addr = (cc_uintptr)ptr;
+	// NOTE: addr must be 16 byte aligned
+
+	GE_PushI(GE_SET_CLUT_BUFFER_PTR_LO, GE_PACK_LO(addr));
+	GE_PushI(GE_SET_CLUT_BUFFER_PTR_HI, GE_PACK_HI(addr));
+}
+
+// loads CLUT/palette entries from CLUT buffer pointer
+static CC_INLINE void GE_load_clut_entries(int num_entries) {
+	// 8 entries per block
+	GE_PushI(GE_LOAD_CLUT_ENTRIES, num_entries / 8);
+}
+
+
+/*########################################################################################################################*
+*-------------------------------------------------------Texturing---------------------------------------------------------*
+*#########################################################################################################################*/
+static CC_INLINE void GE_set_texture_offset(float x, float y) {
+	GE_PushF(GE_SET_TEX_OFFSET_X, x);
+	GE_PushF(GE_SET_TEX_OFFSET_Y, y);
 }
 
 
@@ -129,11 +169,14 @@ static CC_INLINE void GE_set_screen_offset(int x, int y) {
     GE_PushI(GE_SET_SCREEN_OFFSET_Y, y << 4);
 }
 
-static CC_INLINE void GE_set_viewport_xy(int x, int y, int w, int h) {
-	GE_PushF(GE_SET_VIEWPORT_X_SCALE, w *  0.5f);
-	GE_PushF(GE_SET_VIEWPORT_Y_SCALE, h * -0.5f);
-	GE_PushF(GE_SET_VIEWPORT_X_ORIGIN, x);
-	GE_PushF(GE_SET_VIEWPORT_Y_ORIGIN, y);
+static CC_INLINE void GE_set_viewport_x(int origin, int scale) {
+	GE_PushF(GE_SET_VIEWPORT_X_ORIGIN, origin);
+	GE_PushF(GE_SET_VIEWPORT_X_SCALE,  scale);
+}
+
+static CC_INLINE void GE_set_viewport_y(int origin, int scale) {
+	GE_PushF(GE_SET_VIEWPORT_Y_ORIGIN, origin);
+	GE_PushF(GE_SET_VIEWPORT_Y_SCALE,  scale);
 }
 
 static CC_INLINE void GE_set_viewport_z(int n, int f) {
@@ -176,6 +219,10 @@ static CC_INLINE void GE_set_indices(const void* indices) {
 static CC_INLINE void GE_draw_array(int prim, int count) { 
 	GE_PushI(GE_DRAW_PRIMITIVES, (prim << 16) | count);
 	GE_UpdateStallAddr();
+}
+
+static CC_INLINE void GE_set_clearing_state(cc_bool clearing, int buffers) { 
+	GE_PushI(GE_SET_CLEARING_STATE, (buffers << 8) | clearing);
 }
 
 

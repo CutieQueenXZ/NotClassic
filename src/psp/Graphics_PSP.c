@@ -29,6 +29,10 @@ static int gfx_fields;
 
 struct Plane { float a, b, c, d; } CC_ALIGNED(16);
 
+// https://www.ppsspp.org/docs/psp-hardware/gpu/ge-overview
+// https://www.ppsspp.org/docs/psp-hardware/gpu/ge-vertex-pipeline
+// https://github.com/pspdev/pspsdk/blob/master/src/gu/doc/commands.txt
+
 
 /*########################################################################################################################*
 *---------------------------------------------------------General---------------------------------------------------------*
@@ -51,17 +55,15 @@ static void guInit(void) {
 	
 	sceGuFrontFace(GU_CCW);
 	sceGuShadeModel(GU_SMOOTH);
-	sceGuDisable(GU_TEXTURE_2D);
+	GE_set_texturing(false);
 	
 	sceGuAlphaFunc(GU_GREATER, 0x7f, 0xff);
 	sceGuBlendFunc(GU_ADD, GU_SRC_ALPHA, GU_ONE_MINUS_SRC_ALPHA, 0, 0);
 	sceGuDepthFunc(GU_LEQUAL); // sceGuDepthFunc(GU_GEQUAL);
-	sceGuClearDepth(65535); // sceGuClearDepth(0);
 	GE_set_viewport_z(0, 65535); // GE_set_viewport_z(65535, 0);
 
 	GE_set_depth_range(0, 65535);
 	GE_upload_world_matrix((const float*)&Matrix_Identity);
-	sceGuColor(0xffffffff);
 	
 	sceGuEnable(GU_CLIP_PLANES); // TODO: swap near/far instead of this?
 	sceGuTexFunc(GU_TFX_MODULATE, GU_TCC_RGBA);
@@ -77,22 +79,24 @@ static void guInit(void) {
 
 extern void Clip_SetGuardbandScale(const float* x, const float* y);
 static void InitGuardband(void) {
-	// PSP guard band ranges from 0..GB_RANGE
+	// PSP clipping guard band ranges from 0..GB_RANGE
 	// - 0 < screen_x < GB_RANGE
 	// - 0 < VIEWPORT(X/W) + WINDOW_OFFSET_X < GB_RANGE
 	// - 0 < ((X/W) * vp_hwidth + vp_x + vp_hwidth) + (GB_HALF-vp_hwidth) < GB_RANGE
 	// - 0 <  (X/W) * vp_hwidth + vp_x              +  GB_HALF            < GB_RANGE
 	// Although accurately rescaling from viewport range to guard band range
-	//  would involve vp_x and vp_hwidth, this does complicate the calculation
+	//  would involve vp_x and vp_hwidth, this complicates the calculation
 	//  as e.g. a non-zero vp_x means viewport is not equally distant from the
 	//  left and right guardband planes.
-	// So to simplify calculation, just pretend viewport is same size as screen:
+	// So to simplify calculation, just set viewport = screen size for clipping:
 	// - 0 < (X/W) * SCR_HWIDTH + (GB_HALF) < GB_RANGE
 	// - -GB_HALF < (X/W) * SCR_HWIDTH < GB_HALF 
 	// - -GB_HALF/SCR_HWIDTH < (X/W) < GB_HALF/SCR_HWIDTH
 	// - W * -GB_HALF/SCR_HWIDTH < X < W * GB_HALF/SCR_HWIDTH
 	// - -W < X / (GB_HALF/SCR_HWIDTH) < W
 	// - -W < X * (SCR_HWIDTH/GB_HALF) < W
+	// Clipping against guardband instead of view frustum reduces the
+	//   number of triangles that go through the slower 'clipping' codepath
 	float scaleX =  (SCREEN_WIDTH /2) / 2047.0f;
 	float scaleY = -(SCREEN_HEIGHT/2) / 2047.0f;
 	Clip_SetGuardbandScale(&scaleX, &scaleY);
@@ -455,7 +459,8 @@ void Gfx_BindTexture(GfxResourceID texId) {
 	if (!tex) tex  = white_square; 
 	
 	if (tex->paletted) {
-		sceGuClutLoad(MAX_PAL_4BPP_ENTRIES/8, tex->palette); // "count" is in units of "8 entries"
+		GE_set_clut_buffer(tex->palette);
+		GE_load_clut_entries(MAX_PAL_4BPP_ENTRIES);
 		sceGuTexMode(GU_PSM_T4, 0, 0, 1);
 	} else {
 		sceGuTexMode(GU_PSM_8888, 0, 0, 1);
@@ -482,7 +487,6 @@ static void SetAlphaBlend(cc_bool enabled) {
 
 void Gfx_ClearColor(PackedCol color) {
 	if (color == gfx_clearColor) return;
-	sceGuClearColor(color);
 	gfx_clearColor = color;
 }
 
@@ -590,17 +594,6 @@ void Gfx_BeginFrame(void) {
 	last_base = -1;
 }
 
-void Gfx_ClearBuffers(GfxBuffers buffers) {
-	int targets = GU_FAST_CLEAR_BIT;
-	if (buffers & GFX_BUFFER_COLOR) targets |= GU_COLOR_BUFFER_BIT;
-	if (buffers & GFX_BUFFER_DEPTH) targets |= GU_DEPTH_BUFFER_BIT;
-	
-	sceGuClear(targets);
-	// Clear involves draw commands
-	GE_set_vertex_format(gfx_fields | GU_INDEX_16BIT);
-	last_base = -1;
-}
-
 void Gfx_EndFrame(void) {
 	sceGuFinish();
 	sceGeDrawSync(GU_SYNC_WAIT); // waits until FINISH command is reached
@@ -620,12 +613,78 @@ void Gfx_OnWindowResize(void) {
 void Gfx_SetViewport(int x, int y, int w, int h) {
 	// PSP X/Y guard band ranges from 0..GB_RANGE
 	// To minimise need to clip, centre the viewport around (GB_RANGE/2, GB_RANGE/2)
+	GE_set_viewport_x(GB_HALF + x,  w / 2);
+	GE_set_viewport_y(GB_HALF + y, -h / 2);
+
+	// Afterwards, subtract the viewport centre so coordinates end up in 0..SCR_WIDTH/HEIGHT
 	GE_set_screen_offset(GB_HALF - (w / 2), GB_HALF - (h / 2));
-	GE_set_viewport_xy(GB_HALF + x, GB_HALF + y, w, h);
+	// So e.g. for X coordinates:
+	// - [-1, 1] (visible coordinate range)
+	// - [-1, 1] * w/2 + (GB_HALF + x) (viewport transform)
+	// - [-1, 1] * w/2 + (GB_HALF + x) - (GB_HALF - w/2) (viewport transform then screen offset)
+	// - [-1, 1] * w/2 + GB_HALF + x - GB_HALF + w/2 (simplification #1)
+	// - [-1, 1] * w/2 + x + w/2 (simplification #2)
+	// - [-w/2, w/2] + x + w/2 (simplification #3)
+	// - [-w/2+x+w/2, w/2+x+w/2] (simplification #4)
+	// - [x, x+w] (simplification #5)
 }
 
 void Gfx_SetScissor(int x, int y, int w, int h) {
 	GE_set_scissor_region(x, y, x+w-1, y+h-1);
+}
+
+
+/*########################################################################################################################*
+*---------------------------------------------------------Clearing--------------------------------------------------------*
+*#########################################################################################################################*/
+// See https://www.ppsspp.org/docs/psp-hardware/gpu/ge-overview/
+// "Memory performance has a few quirks. For example, it's profitable to draw 2D images in 64- or 32- pixel wide vertical strips, 
+//  depending on color depth and texture format. This is why screen clears are usually performed as a series of vertical strips."
+#define CLEAR_DEPTH 65535
+#define STRIP_WIDTH    32
+
+typedef struct ClearVertex
+{
+	cc_uint32 color;
+	cc_uint16 x, y, z;
+	cc_uint16 pad;
+} ClearVertex;
+
+void Gfx_ClearBuffers(GfxBuffers buffers) {
+	int targets = 0;
+	if (buffers & GFX_BUFFER_COLOR) targets |= GU_COLOR_BUFFER_BIT;
+	if (buffers & GFX_BUFFER_DEPTH) targets |= GU_DEPTH_BUFFER_BIT;
+	
+	PackedCol color = gfx_clearColor & 0xFFFFFF;
+	const int strips = (SCREEN_WIDTH + STRIP_WIDTH - 1) / STRIP_WIDTH;
+	const int count  = strips * 2;
+
+	ClearVertex* vertices = (ClearVertex*)GE_ReserveListSpace(count * sizeof(ClearVertex));
+	ClearVertex* v = vertices;
+
+	for (int i = 0; i < strips; i++)
+	{
+		v->color = color;
+		v->x = i * STRIP_WIDTH;
+		v->y = 0;
+		v->z = CLEAR_DEPTH;
+		v++;
+
+		v->color = color;
+		v->x = (i + 1) * STRIP_WIDTH;
+		v->y = SCREEN_HEIGHT;
+		v->z = CLEAR_DEPTH;
+		v++;
+	}
+
+	GE_set_clearing_state(true, targets);
+	{
+    	GE_set_vertex_format(GU_COLOR_8888 | GU_VERTEX_16BIT | GU_TRANSFORM_2D);
+    	GE_set_vertices(vertices);
+		GE_draw_array(GU_SPRITES, count);
+	}
+	GE_set_clearing_state(false, 0);
+	GE_set_vertex_format(gfx_fields | GU_INDEX_16BIT);
 }
 
 
@@ -790,11 +849,11 @@ void Gfx_LoadMVP(const struct Matrix* view, const struct Matrix* proj, struct Ma
 }
 
 void Gfx_EnableTextureOffset(float x, float y) {
-	sceGuTexOffset(x, y);
+	GE_set_texture_offset(x, y);
 }
 
 void Gfx_DisableTextureOffset(void) { 
-	sceGuTexOffset(0.0f, 0.0f);
+	GE_set_texture_offset(0.0f, 0.0f);
 }
 
 
