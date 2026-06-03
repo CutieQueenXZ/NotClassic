@@ -1,0 +1,45 @@
+name: NotClassic Android (Modern)
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.ref }}-android
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Android build (debug)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install required NDK
+        run: |
+          sdkmanager "ndk;26.1.10909125"
+          echo "ANDROID_NDK_HOME=$ANDROID_SDK_ROOT/ndk/26.1.10909125" >> $GITHUB_ENV
+
+      - name: Install SDK platforms
+        run: |
+          sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0"
+
+      - name: Build APK (Debug)
+        run: |
+          cd misc/android
+          chmod +x gradlew
+          ./gradlew assembleDebug -Pandroid.ndkPath=$ANDROID_NDK_HOME
+
+      - name: Rename APK
+        run: |
+          cp misc/android/app/build/outputs/apk/debug/app-debug.apk NotClassic-android.apk
+          
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: NotClassic-android
+          path: NotClassic-android.apk
