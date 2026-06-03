@@ -1,4 +1,4 @@
-name: NotClassic Android
+name: NotClassic Android (Legacy)
 on:
   push:
     branches:
@@ -29,6 +29,7 @@ jobs:
         run: |
           sdkmanager "ndk;20.0.5594570"
           echo "ANDROID_NDK_HOME=$ANDROID_SDK_ROOT/ndk/20.0.5594570" >> $GITHUB_ENV
+          
       - name: Set up JDK 8 (for the legacy Gradle build)
         uses: actions/setup-java@v4
         with:
@@ -41,9 +42,11 @@ jobs:
           chmod +x gradlew
           # Force it to use the NDK we just downloaded
           ./gradlew assembleDebug -Pandroid.ndkPath=$ANDROID_SDK_ROOT/ndk/20.0.5594570
+
       - name: Rename APK
         run: |
           cp misc/android/app/build/outputs/apk/debug/app-debug.apk NotClassic-android.apk
+
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
