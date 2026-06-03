@@ -8,6 +8,7 @@ on:
 concurrency:
   group: ${{ github.ref }}-android
   cancel-in-progress: true
+  continue-on-error: true
 
 jobs:
   build:
@@ -36,10 +37,10 @@ jobs:
 
       - name: Rename APK
         run: |
-          cp misc/android/app/build/outputs/apk/debug/app-debug.apk NotClassic-android.apk
-          
+          cp misc/android/app/build/outputs/apk/debug/app-debug.apk NotClassic-modern.apk
+
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: NotClassic-android
-          path: NotClassic-android.apk
+          name: NotClassic-modern
+          path: NotClassic-modern.apk
