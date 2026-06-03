@@ -2,7 +2,7 @@ name: NotClassic Android
 on:
   push:
     branches:
-      - main
+      - master
   workflow_dispatch:
 
 concurrency:
