@@ -1306,6 +1306,11 @@ static void CPE_HackControl(cc_uint8* data) {
 	p->Hacks.CanSpeed          = data[2] != 0;
 	p->Hacks.CanRespawn        = data[3] != 0;
 	p->Hacks.CanUseThirdPerson = data[4] != 0;
+	p->Hacks.ServerCanFly    = data[0] != 0;
+	p->Hacks.ServerCanNoclip = data[1] != 0;
+	p->Hacks.ServerCanSpeed  = data[2] != 0;
+	p->Hacks.ServerCanRespawn = data[3] != 0;
+	p->Hacks.ServerCanUse3rdPerson = data[4] != 0;
 	HacksComp_Update(&p->Hacks);
 	jumpHeight = Mem_ReadU16_BE(data + 5);
 

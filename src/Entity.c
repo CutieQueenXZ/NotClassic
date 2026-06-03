@@ -735,6 +735,9 @@ static void LocalPlayer_Tick(struct Entity* e, float delta) {
 
 	LocalInterpComp_AdvanceState(&p->Interp, e);
 	LocalPlayer_HandleInput(p, &xMoving, &zMoving);
+	if (hacks->Mode != HAX_SERVER) {
+		HacksComp_ApplyMode(hacks);
+	}
 	hacks->Floating = hacks->Noclip || hacks->Flying;
 	if (!hacks->Floating && hacks->CanBePushed) PhysicsComp_DoEntityPush(e);
 
