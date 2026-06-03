@@ -34,6 +34,12 @@ struct TiltComp {
 void TiltComp_Init(struct TiltComp* anim);
 void TiltComp_Update(struct LocalPlayer* p, struct TiltComp* anim, float delta);
 
+typedef enum {
+    HAX_SERVER,
+    HAX_OFF,
+    HAX_ON
+} HaxMode;
+
 /* Entity component that performs management of hack states */
 struct HacksComp {
 	cc_bool IsOp;
@@ -79,6 +85,12 @@ struct HacksComp {
 	Vec3 FakeyPos;
 	float FakeyPitch;
 	float FakeyYaw;
+	HaxMode Mode;
+	cc_bool ServerCanFly;
+	cc_bool ServerCanNoclip;
+	cc_bool ServerCanSpeed;
+	cc_bool ServerCanRespawn;
+	cc_bool ServerCanUse3rdPerson;
 };
 
 void HacksComp_Init(struct HacksComp* hacks);

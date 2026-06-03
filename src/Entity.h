@@ -30,6 +30,8 @@ extern struct IGameComponent Entities_Component;
 #define ENTITIES_MAX_COUNT (MAX_NET_PLAYERS + MAX_LOCAL_PLAYERS)
 #define ENTITIES_SELF_ID 255
 
+void HacksComp_ApplyMode(struct HacksComp* h);
+
 enum NameMode {
 	NAME_MODE_NONE, NAME_MODE_HOVERED, NAME_MODE_ALL, NAME_MODE_ALL_HOVERED, NAME_MODE_ALL_UNSCALED, NAME_MODE_COUNT
 };

@@ -2707,6 +2707,108 @@ static struct ChatCommand CFPSCommand = {
 };
 
 /*########################################################################################################################*
+*-----------------------------------------------------------Hacks--------------------------------------------------------*
+*#########################################################################################################################*/
+
+void HacksComp_ApplyMode(struct HacksComp* h) {
+    if (h->Mode == HAX_ON) {
+        h->CanFly            = true;
+        h->CanNoclip         = true;
+        h->CanSpeed          = true;
+        h->CanRespawn        = true;
+        h->CanUseThirdPerson = true;
+    }
+    else if (h->Mode == HAX_OFF) {
+        h->CanFly            = false;
+        h->CanNoclip         = false;
+        h->CanSpeed          = false;
+        h->CanRespawn        = false;
+        h->CanUseThirdPerson = false;
+    }
+    else if (h->Mode == HAX_SERVER) {
+        cc_bool hasServerData =
+            h->ServerCanFly ||
+            h->ServerCanNoclip ||
+            h->ServerCanSpeed ||
+            h->ServerCanRespawn ||
+            h->ServerCanUse3rdPerson;
+
+        if (!hasServerData) {
+            /* fallback for singleplayer */
+            h->CanFly            = true;
+            h->CanNoclip         = true;
+            h->CanSpeed          = true;
+            h->CanRespawn        = true;
+            h->CanUseThirdPerson = true;
+            return;
+        }
+
+        h->CanFly            = h->ServerCanFly;
+        h->CanNoclip         = h->ServerCanNoclip;
+        h->CanSpeed          = h->ServerCanSpeed;
+        h->CanRespawn        = h->ServerCanRespawn;
+        h->CanUseThirdPerson = h->ServerCanUse3rdPerson;
+    }
+}
+
+static void Command_Hax(const cc_string* args, int argsCount) {
+    struct LocalPlayer* p = &LocalPlayer_Instances[0];
+    struct HacksComp* h = &p->Hacks;
+
+    if (argsCount < 1) {
+        Chat_AddRaw("&eUsage: /hax <on|off|server>");
+        return;
+    }
+
+    const cc_string* arg = &args[0];
+
+    if (String_CaselessEqualsConst(arg, "on")) {
+        h->Mode = HAX_ON;
+        HacksComp_ApplyMode(h);
+        Chat_AddRaw("&aClient hacks enabled");
+        Event_RaiseVoid(&UserEvents.HackPermsChanged);
+    }
+    else if (String_CaselessEqualsConst(arg, "off")) {
+        h->Mode = HAX_OFF;
+        HacksComp_ApplyMode(h);
+        Chat_AddRaw("&cClient hacks disabled");
+        Event_RaiseVoid(&UserEvents.HackPermsChanged);
+    }
+    else if (String_CaselessEqualsConst(arg, "server")) {
+        h->Mode = HAX_SERVER;
+        HacksComp_ApplyMode(h);
+        Chat_AddRaw("&eUsing server hack permissions");
+        Event_RaiseVoid(&UserEvents.HackPermsChanged);
+    }
+    else if (String_CaselessEqualsConst(arg, "status")) {
+        Chat_AddRaw("&e--- Hax Status ---");
+
+        Chat_Add1("&7Mode: %i", &h->Mode);
+
+        #define SHOW(name, val) \
+            Chat_AddRaw((val) ? "&a" name ": ON" : "&c" name ": OFF");
+
+        SHOW("Fly", h->CanFly);
+        SHOW("Noclip", h->CanNoclip);
+        SHOW("Speed", h->CanSpeed);
+        SHOW("Respawn", h->CanRespawn);
+        SHOW("3rd Person", h->CanUseThirdPerson);
+
+        #undef SHOW
+
+        return;
+    }
+}
+
+static struct ChatCommand HaxCommand = {
+    "Hax", Command_Hax,
+    0,
+    {
+        "&a/client Hax on/off/server/status"
+    }
+};
+
+/*########################################################################################################################*
 *------------------------------------------------------Commands component-------------------------------------------------*
 *#########################################################################################################################*/
 static void OnInit(void) {
@@ -2754,6 +2856,7 @@ static void OnInit(void) {
     Commands_Register(&GeminiCommand);
     Commands_Register(&FPSCommand);
     Commands_Register(&CFPSCommand);
+    Commands_Register(&HaxCommand);
 }
 
 static void OnFree(void) {
