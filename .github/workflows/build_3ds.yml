@@ -26,17 +26,17 @@ jobs:
           
       - uses: ./.github/actions/upload_build
         with:
-          SOURCE_FILE: 'NotClassic-3ds.cia'
+          SOURCE_FILE: 'ClassiCube-3ds.cia'
           DEST_NAME: 'NotClassic-3ds.cia'
                     
       - uses: ./.github/actions/upload_build
         with:
-          SOURCE_FILE: 'NotClassic-3ds.3dsx'
+          SOURCE_FILE: 'ClassiCube-3ds.3dsx'
           DEST_NAME: 'NotClassic-3ds.3dsx'
           
       - uses: ./.github/actions/upload_build
         with:
-          SOURCE_FILE: 'NotClassic-3ds.elf'
+          SOURCE_FILE: 'ClassiCube-3ds.elf'
           DEST_NAME: 'NotClassic-3ds.elf'
           
           
