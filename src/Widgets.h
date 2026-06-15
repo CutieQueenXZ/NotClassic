@@ -121,8 +121,8 @@ CC_NOINLINE void TableWidget_RecreateTitle(struct TableWidget* w, cc_bool force)
 CC_NOINLINE void TableWidget_RecreateTitleForBlock(struct TableWidget* w, cc_bool force, int blockForTitle);
 
 
-#define INPUTWIDGET_MAX_LINES 3
-#define INPUTWIDGET_LEN STRING_SIZE
+#define INPUTWIDGET_MAX_LINES 14
+#define INPUTWIDGET_LEN 35
 struct InputWidget {
 	Widget_Body
 	struct FontDesc* font;

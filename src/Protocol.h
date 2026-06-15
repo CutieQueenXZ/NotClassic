@@ -72,8 +72,12 @@ extern struct IGameComponent Protocol_Component;
 
 void Protocol_Tick(void);
 
-extern cc_bool Env_IgnoreServer;
+void CPE_SendExtInfo(int extsCount);
 
+extern char displayMotdBuffer[STRING_SIZE];
+extern cc_string DisplayMOTD;
+
+extern cc_bool Env_IgnoreServer;
 
 extern cc_bool cpe_needD3Fix;
 struct LoginPacket {

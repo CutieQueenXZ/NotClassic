@@ -762,6 +762,7 @@ void Game_RenderFrame(void) {
 	BadApple_Tick();
 	BStream_Tick();
 	Menu_TickPostRender();
+	Motd_Tick();
 
 	Gfx_BeginFrame();
 	Gfx_BindIb(Gfx.DefaultIb);

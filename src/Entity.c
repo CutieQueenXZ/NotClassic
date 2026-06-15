@@ -741,9 +741,21 @@ static void LocalPlayer_Tick(struct Entity* e, float delta) {
 	hacks->Floating = hacks->Noclip || hacks->Flying;
 	if (!hacks->Floating && hacks->CanBePushed) PhysicsComp_DoEntityPush(e);
 
-	/* Immediate stop in noclip mode */
-	if (!hacks->NoclipSlide && (hacks->Noclip && xMoving == 0 && zMoving == 0)) {
-		Vec3_Set(e->Velocity, 0,0,0);
+	/* Immediate stop in floating modes */
+	if (
+		hacks->Floating &&
+		xMoving == 0 &&
+		zMoving == 0 &&
+		(
+			(hacks->Noclip && !hacks->NoclipSlide) ||
+			(hacks->Flying && !hacks->FlySlide)
+		)
+	) {
+		e->Velocity.x = 0;
+		e->Velocity.z = 0;
+
+		if (hacks->Flying)
+			e->Velocity.y = 0;
 	}
 
 	PhysicsComp_UpdateVelocityState(&p->Physics);
@@ -810,6 +822,7 @@ static void LocalPlayer_Init(struct LocalPlayer* p, int index) {
 	hacks->SpeedMultiplier = Options_GetFloat(OPT_SPEED_FACTOR,  0.1f, 50.0f, 10.0f);
 	hacks->PushbackPlacing = Options_GetBool(OPT_PUSHBACK_PLACING, false);
 	hacks->NoclipSlide     = Options_GetBool(OPT_NOCLIP_SLIDE,     false);
+	hacks->FlySlide 	   = Options_GetBool(OPT_FLY_SLIDE, 	   false);
 	hacks->WOMStyleHacks   = Options_GetBool(OPT_WOM_STYLE_HACKS,  false);
 	hacks->FullBlockStep   = Options_GetBool(OPT_FULL_BLOCK_STEP,  false);
 	p->Physics.UserJumpVel = Options_GetFloat(OPT_JUMP_VELOCITY, 0.0f, 52.0f, 0.42f);

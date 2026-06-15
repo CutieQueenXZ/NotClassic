@@ -49,6 +49,15 @@ static struct Stream map_part;
 static int map_volume;
 
 cc_bool Env_IgnoreServer = false;
+int Server_MaxViewDistance = DEFAULT_MAX_VIEWDIST;
+
+static cc_uint64 motd_last;
+static int motd_index;
+static void LocalMotd_Update(void);
+
+char displayMotdBuffer[STRING_SIZE];
+cc_string DisplayMOTD;
+cc_bool LocalMotd = false;
 
 /*########################################################################################################################*
 *-----------------------------------------------------CPE extensions------------------------------------------------------*
@@ -524,11 +533,48 @@ static void Classic_Handshake(cc_uint8* data) {
 	HacksComp_RecheckFlags(hacks);
 }
 
+static const char* motd_lines[] = {
+    "You are now connected.",
+    "Stress is optional.",
+    "I just read lines of code and you play with a display.",
+    "Nothing here was fully reset.",
+    "Time continues without confirmation.",
+    "Memory already remembers you.",
+    "The map exists even when unloaded.",
+    "You are not the only active client.",
+    "Everything appears normal. For now.",
+	"Why are you like this?",
+	"I Have No Mouth, and I Must Scream."
+};
+
+#define MOTD_COUNT (sizeof(motd_lines) / sizeof(motd_lines[0]))
+
+void Motd_Tick(void) {
+    cc_uint64 now = Stopwatch_Measure();
+
+    if (Stopwatch_ElapsedMicroseconds(motd_last, now) < 2000000)
+        return;
+
+    motd_last = now;
+    motd_index = (motd_index + 1) % MOTD_COUNT;
+
+    DisplayMOTD.length = 0;
+    String_AppendConst(&DisplayMOTD, motd_lines[motd_index]);
+}
+
 static void Classic_Ping(cc_uint8* data) { }
 
 static void Classic_StartLoading(void) {
 	World_NewMap();
-	LoadingScreen_Show(&Server.Name, &Server.MOTD);
+
+	if (LocalMotd) {
+		Motd_Tick();
+	}
+
+	LoadingScreen_Show(
+		&Server.Name,
+		LocalMotd ? &DisplayMOTD : &Server.MOTD
+	);
 	WoM_CheckMotd();
 	classic_receivedFirstPos = false;
 
@@ -968,7 +1014,7 @@ void CPE_SendNotifyPositionAction(int action, int x, int y, int z) {
 	Server.SendData(data, 9);
 }
 
-static void CPE_SendExtInfo(int extsCount) {
+void CPE_SendExtInfo(int extsCount) {
 	cc_uint8 data[67];
 	data[0] = OPCODE_EXT_INFO;
 	{
@@ -1285,9 +1331,12 @@ static void CPE_EnvSetMapAppearance(cc_uint8* data) {
 
 	/* Version 2 */
 	Env_SetCloudsHeight((cc_int16)Mem_ReadU16_BE(data + 68));
+
+	if (Env_IgnoreServer) return;
 	maxViewDist       = (cc_int16)Mem_ReadU16_BE(data + 70);
-	Game_MaxViewDistance = maxViewDist <= 0 ? DEFAULT_MAX_VIEWDIST : maxViewDist;
+	Server_MaxViewDistance = maxViewDist <= 0 ? DEFAULT_MAX_VIEWDIST : maxViewDist;
 	Game_SetViewDistance(Game_UserViewDistance);
+	Game_MaxViewDistance = Server_MaxViewDistance;
 }
 
 static void CPE_EnvWeatherType(cc_uint8* data) {
@@ -1299,7 +1348,6 @@ static void CPE_HackControl(cc_uint8* data) {
 	struct LocalPlayer* p = Entities.CurPlayer;
 	int jumpHeight;
 
-	if (Env_IgnoreServer) return;
 
 	p->Hacks.CanFly            = data[0] != 0;
 	p->Hacks.CanNoclip         = data[1] != 0;
@@ -1311,6 +1359,8 @@ static void CPE_HackControl(cc_uint8* data) {
 	p->Hacks.ServerCanSpeed  = data[2] != 0;
 	p->Hacks.ServerCanRespawn = data[3] != 0;
 	p->Hacks.ServerCanUse3rdPerson = data[4] != 0;
+
+	p->Hacks.HasServerPerms = true;
 	HacksComp_Update(&p->Hacks);
 	jumpHeight = Mem_ReadU16_BE(data + 5);
 

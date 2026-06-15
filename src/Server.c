@@ -25,12 +25,18 @@
 #include "Input.h"
 #include "Errors.h"
 #include "Options.h"
+#include "Commands.h"
 
 static char nameBuffer[STRING_SIZE];
 static char motdBuffer[STRING_SIZE];
 static char appBuffer[STRING_SIZE];
 static int ticks;
 struct _ServerConnectionData Server;
+
+static char customAppNameBuffer[128];
+
+cc_string Server_CustomAppName;
+cc_bool Server_UseCustomAppName;
 
 /*########################################################################################################################*
 *-----------------------------------------------------Common handlers-----------------------------------------------------*
@@ -537,7 +543,13 @@ static void OnNewMap(void) {
 static void OnInit(void) {
 	String_InitArray(Server.Name,    nameBuffer);
 	String_InitArray(Server.MOTD,    motdBuffer);
+	String_InitArray(DisplayMOTD, displayMotdBuffer);
 	String_InitArray(Server.AppName, appBuffer);
+	String_InitArray(Server_CustomAppName, customAppNameBuffer);
+	ApplyClientName();
+	Options_Get(OPT_CLIENT_NAME, &Server_CustomAppName, "");
+
+	Server_UseCustomAppName = Server_CustomAppName.length > 0;
 
 	if (!Server.Address.length) {
 		SPConnection_Init();
@@ -549,8 +561,13 @@ static void OnInit(void) {
 	Game_Tasks.network.callback = Server.Tick;
 	ScheduledTask2_Add(&Game_Tasks.network);
 
-	String_AppendConst(&Server.AppName, GAME_APP_NAME);
-	String_AppendConst(&Server.AppName, Platform_AppNameSuffix);
+	if (Server_UseCustomAppName) {
+		Server.AppName.length = 0;
+		String_AppendString(&Server.AppName, &Server_CustomAppName);
+	} else {
+		String_AppendConst(&Server.AppName, GAME_APP_NAME);
+		String_AppendConst(&Server.AppName, Platform_AppNameSuffix);
+	}
 
 #ifdef CC_BUILD_WEB
 	if (!Input_TouchMode) return;
