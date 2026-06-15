@@ -1460,6 +1460,7 @@ static struct SettingsScreen {
 	struct LLabel  lblMode, lblColours;
 	struct LCheckbox cbExtra, cbEmpty, cbScale, cbCamouflage, cbHax;
 	struct LLine sep;
+	struct LInput iptClientName;
 } SettingsScreen CC_BIG_VAR;
 
 #define SETTINGS_SCREEN_MAX_WIDGETS 12
@@ -1477,6 +1478,7 @@ LAYOUTS set_cbScale[] = { { ANCHOR_CENTRE_MIN, -190 }, { ANCHOR_CENTRE, 124 } };
 LAYOUTS set_btnBack[] = { { ANCHOR_CENTRE,      200 }, { ANCHOR_CENTRE, 190 } };
 LAYOUTS set_cbCamouflage[] = { { ANCHOR_CENTRE_MIN, -190 }, { ANCHOR_CENTRE, 164 } };
 LAYOUTS set_cbHax[] = { { ANCHOR_CENTRE_MIN, -190 }, { ANCHOR_CENTRE, 204 } };
+LAYOUTS set_iptClientName[] = { { ANCHOR_CENTRE_MIN, 50 }, { ANCHOR_CENTRE, 120 } };
 
 
 #if defined CC_BUILD_MOBILE
@@ -1502,6 +1504,10 @@ static void SettingsScreen_CamouflageClient(struct LCheckbox* w) {
 
 static void SettingsScreen_AddHax(struct LCheckbox* w) {
     Options_SetBool(OPT_HAX_ADDUP, w->value);
+}
+
+static void SettingsScreen_ClientNameChanged(struct LInput* w) {
+    Options_Set(OPT_CLIENT_NAME, &w->text);
 }
 
 static void SettingsScreen_DPIScaling(struct LCheckbox* w) {
@@ -1542,6 +1548,7 @@ static void SettingsScreen_AddWidgets(struct SettingsScreen* s) {
               SettingsScreen_CamouflageClient, set_cbCamouflage);
 	LCheckbox_Add(s, &s->cbHax, "Add +hax to client name",
               SettingsScreen_AddHax, set_cbHax);
+	LInput_Add(s, &s->iptClientName, 180, "Custom client name...", set_iptClientName);
 	LButton_Add(s,   &s->btnBack, 80, 45, "Back", 
 				SwitchToMain, set_btnBack);
 }
@@ -1549,6 +1556,8 @@ static void SettingsScreen_AddWidgets(struct SettingsScreen* s) {
 static void SettingsScreen_Activated(struct LScreen* s_) {
 	struct SettingsScreen* s = (struct SettingsScreen*)s_;
 	SettingsScreen_AddWidgets(s);
+	cc_string name;
+	Options_UNSAFE_Get(OPT_CLIENT_NAME, &name);
 
 #if defined CC_BUILD_MOBILE
 	LCheckbox_Set(&s->cbExtra, Options_GetBool(OPT_LANDSCAPE_MODE, false));
@@ -1560,6 +1569,7 @@ static void SettingsScreen_Activated(struct LScreen* s_) {
 
 	LCheckbox_Set(&s->cbEmpty, Launcher_ShowEmptyServers);
 	LCheckbox_Set(&s->cbScale, DisplayInfo.DPIScaling);
+	LInput_SetText(&s->iptClientName, &name);
 }
 
 void SettingsScreen_SetActive(void) {
@@ -1572,6 +1582,7 @@ void SettingsScreen_SetActive(void) {
 	s->Activated      = SettingsScreen_Activated;
 	s->title          = "Options";
 	s->onEscapeWidget = (struct LWidget*)&s->btnBack;
+	s->iptClientName.TextChanged = SettingsScreen_ClientNameChanged;
 
 	Launcher_SetScreen((struct LScreen*)s);
 }

@@ -28,8 +28,8 @@ struct ChatCommand {
 };
 
 extern cc_bool NoSetBack_enabled;
-
 extern cc_bool NoPush_enabled;
+extern int Server_MaxViewDistance;
 
 extern cc_bool ChatGPT_Send(const cc_string* msg);
 
@@ -45,6 +45,8 @@ extern void SCuboidCommand_Tick(void);
 void CuboidCommand_Tick(void);
 void Stream_Tick(void);
 void BStream_Tick(void);
+void ApplyClientName(void);
+void Motd_Tick(void);
 
 /* Registers a client-side command, allowing it to be used with /client [cmd name] */
 CC_API  void Commands_Register(      struct ChatCommand* cmd);

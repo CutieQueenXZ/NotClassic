@@ -91,6 +91,9 @@ struct HacksComp {
 	cc_bool ServerCanSpeed;
 	cc_bool ServerCanRespawn;
 	cc_bool ServerCanUse3rdPerson;
+	cc_bool HasServerPerms;
+	cc_bool ServerCanSeeAllNames;
+	cc_bool FlySlide;
 };
 
 void HacksComp_Init(struct HacksComp* hacks);

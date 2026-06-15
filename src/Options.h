@@ -95,6 +95,8 @@ Copyright 2014-2025 ClassiCube | Licensed under BSD-3
 #define OPT_SELECTED_BLOCK_OUTLINE_SCALE "selected-block-outline-scale"
 #define OPT_CAMOUFLAGE_CLIENT "camouflage-client"
 #define OPT_HAX_ADDUP "hax-addup"
+#define OPT_CLIENT_NAME "client-name"
+#define OPT_FLY_SLIDE "hacks-flyslide"
 
 #define LOPT_SESSION  "launcher-session"
 #define LOPT_USERNAME "launcher-cc-username"

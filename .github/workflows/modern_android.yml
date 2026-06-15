@@ -6,9 +6,9 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: ${{ github.ref }}-android
+  group: ${{ github.ref }}-android-modern
   cancel-in-progress: true
-  continue-on-error: true
+  
 
 jobs:
   build:

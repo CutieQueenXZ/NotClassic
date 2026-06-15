@@ -1036,6 +1036,12 @@ static void    HS_SetSlide(cc_bool v) {
 	Options_SetBool(OPT_NOCLIP_SLIDE, v);
 }
 
+static cc_bool HS_GetFlySlide(void) { return Entities.CurPlayer->Hacks.FlySlide; }
+static void HS_SetFlySlide(cc_bool v) {
+    Entities.CurPlayer->Hacks.FlySlide = v;
+    Options_SetBool(OPT_FLY_SLIDE, v);
+}
+
 static int  HS_GetFOV(void)    { return Camera.Fov; }
 static void HS_SetFOV(int fov) {
 	if (Camera.ZoomFov > fov) Camera.ZoomFov = fov;

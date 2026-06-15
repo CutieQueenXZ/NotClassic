@@ -12,6 +12,7 @@
 #include "Drawer2D.h"
 #include "Lolcat.h"
 #include "UwU.h"
+#include "CensorWords.h"
  
 static char status[5][STRING_SIZE];
 static char bottom[3][STRING_SIZE];
@@ -287,6 +288,15 @@ void Chat_Send(const cc_string* text, cc_bool logUsage) {
         UwU_Transform(text, &tmp);
         send = tmp;
     }
+
+	if (Censor_Auto) {
+		cc_string tmp;
+		char bufB[STRING_SIZE];
+		String_InitArray(tmp, bufB);
+
+		Censor_Transform(&send, &tmp);
+		String_Copy(&send, &tmp);
+	}
 
     Event_RaiseChat(&ChatEvents.ChatSending, &send, 0);
     if (logUsage) LogInputUsage(&send);

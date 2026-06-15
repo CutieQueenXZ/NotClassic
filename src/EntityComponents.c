@@ -154,6 +154,7 @@ void HacksComp_Init(struct HacksComp* hacks) {
 	hacks->MaxJumps       = 1;
 	hacks->NoclipSlide    = true;
 	hacks->CanBePushed    = true;
+	hacks->FlySlide    = true;
 
 	String_InitArray(hacks->HacksFlags, hacks->__HacksFlagsBuffer);
 }
@@ -983,8 +984,8 @@ void PhysicsComp_PhysicsTick(struct PhysicsComp* comp, Vec3 vel) {
 				entity->Velocity.x *= scale;
 				entity->Velocity.z *= scale;
 			}
-		} else if (entity->OnGround || hacks->Flying) {
-			Vec3_Mul3By(&entity->Velocity, &comp->groundFriction); /* air drag or ground friction */
+		} else if ((entity->OnGround || hacks->Flying) && !hacks->FlySlide) {
+			Vec3_Mul3By(&entity->Velocity, &comp->groundFriction);
 		}
 	}
 

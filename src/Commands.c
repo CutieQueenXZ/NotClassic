@@ -20,6 +20,7 @@
 #include "Audio.h"
 #include <string.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include "ExtMath.h"
 #include "PackedCol.h"
 #include "Core.h"
@@ -31,6 +32,7 @@
 #include "Protocol.h"
 #include "BStream.h"
 #include "ChatGPT.h"
+#include "CensorWords.h"
 
 #define COMMANDS_PREFIX "/client"
 #define COMMANDS_PREFIX_SPACE "/client "
@@ -38,6 +40,11 @@ static struct ChatCommand* cmds_head;
 static struct ChatCommand* cmds_tail;
 
 cc_bool NoPush_enabled = false;
+
+cc_bool Censor_Auto = false;
+
+extern cc_string Server_CustomAppName;
+extern cc_bool Server_UseCustomAppName;
 
 void Commands_Register(struct ChatCommand* cmd) {
 	LinkedList_Append(cmd, cmds_head, cmds_tail);
@@ -877,11 +884,11 @@ static struct ChatCommand NtpCommand = {
 /*########################################################################################################################*
 *------------------------------------------------------BadAppleCommand--------------------------------------------------*
 *#########################################################################################################################*/
-
 #include "BadAppleFrames.h"
 
 static int badapple_index;
 static cc_bool badapple_active;
+static cc_bool badapple_confirm;
 
 static void BadApple_SendFrame(void) {
     if (!badapple_active) return;
@@ -902,22 +909,66 @@ static void BadApple_SendFrame(void) {
     badapple_index++;
 }
 
+static const char* badapple_warn_common[] = {
+    "This command floods chat with Bad Apple frames.",
+    "This may temporarily destroy readable chat.",
+    "Large amounts of monochrome incoming.",
+    "This action cannot be visually refunded.",
+    "Your chat experience may become cinematic.",
+};
+
+static const char* badapple_warn_rare[] = {
+    "Frame 638 remembers.",
+    "Developer note: this was a mistake.",
+    "Your CPU politely declined.",
+    "Chat readability has left the server.",
+    "Bad Apple requested permission first.",
+    "Achievement unlocked: Terrible decisions.",
+    "This looked harmless in testing.",
+    "Your future self warned against this.",
+    "One frame at a time. Thousands remain.",
+    "You are becoming the loading screen."
+};
+
+#define COMMON_COUNT (sizeof(badapple_warn_common)/sizeof(*badapple_warn_common))
+#define RARE_COUNT   (sizeof(badapple_warn_rare)/sizeof(*badapple_warn_rare))
+
 static void BadAppleCommand_Execute(const cc_string* args, int argsCount) {
+
     if (argsCount >= 1 && String_CaselessEqualsConst(&args[0], "stop")) {
-        if (badapple_active) {
-            badapple_active = false;
-            Chat_AddRaw("&cBad Apple stopped.");
-        } else {
-            Chat_AddRaw("&eBad Apple is not running.");
-        }
+        badapple_active = false;
+        badapple_confirm = false;
+        Chat_AddRaw("&cBad Apple stopped.");
         return;
     }
 
-    badapple_index  = 0;
-    badapple_active = true;
+    if (argsCount >= 1 && String_CaselessEqualsConst(&args[0], "confirm")) {
+        badapple_confirm = false;
 
-    Chat_AddRaw("&dBad Apple started...");
-    BadApple_SendFrame();
+        badapple_index  = 0;
+        badapple_active = true;
+
+        Chat_AddRaw("&dStarting Bad Apple...");
+        return;
+    }
+
+    if (!badapple_confirm) {
+        cc_uint64 roll = Stopwatch_Measure();
+
+        badapple_confirm = true;
+
+        Chat_AddRaw("&6WARNING:");
+
+        if ((roll % 100) == 0) {
+            Chat_AddRaw(badapple_warn_rare[roll % RARE_COUNT]);
+        } else {
+            Chat_AddRaw(badapple_warn_common[roll % COMMON_COUNT]);
+        }
+
+        Chat_AddRaw("&7Run &f/badapple confirm &7to continue.");
+        Chat_AddRaw("&8Use /badapple stop to cancel.");
+        return;
+    }
 }
 
 void BadApple_Tick(void) {
@@ -950,28 +1001,38 @@ static PackedCol fb_oldFog;
 static PackedCol fb_oldShadow;
 static PackedCol fb_oldSun;
 
+static int fb_oldViewDist;
+
 static void FullBright_Enable(void) {
     fb_oldSky    = Env.SkyCol;
     fb_oldFog    = Env.FogCol;
     fb_oldShadow = Env.ShadowCol;
     fb_oldSun    = Env.SunCol;
+    fb_oldViewDist = Server_MaxViewDistance;
+    Game_MaxViewDistance = 32000;
 
     Env_SetSkyCol(PACKEDCOL_WHITE);
     Env_SetFogCol(PACKEDCOL_WHITE);
     Env_SetShadowCol(PACKEDCOL_WHITE);
     Env_SetSunCol(PACKEDCOL_WHITE);
 
+    Game_SetViewDistance(Game_UserViewDistance);
+
     fullbright_active = true;
     Chat_AddRaw("&aFullbright enabled");
 }
 
 static void FullBright_Disable(void) {
+    Game_MaxViewDistance = fb_oldViewDist;
+    fullbright_active = false;
+
     Env_SetSkyCol(fb_oldSky);
     Env_SetFogCol(fb_oldFog);
     Env_SetShadowCol(fb_oldShadow);
     Env_SetSunCol(fb_oldSun);
 
-    fullbright_active = false;
+    Game_SetViewDistance(Game_UserViewDistance);
+
     Chat_AddRaw("&cFullbright disabled");
 }
 
@@ -2207,40 +2268,6 @@ static struct ChatCommand LCuboidCommand = {
 };
 
 /*########################################################################################################################*
-*---------------------------------------------------------Brand velocity-----------------------------------------------------------*
-*#########################################################################################################################*
-
-static void BrandCommand_Execute(const cc_string* args, int argsCount) {
-	char BrandNameBuffer[64];
-	cc_string BrandName;
-
-	if (!argsCount) {
-		Chat_AddRaw("&cUsage: /client brand <name>");
-		return;
-	}
-
-	String_InitArray(BrandName, BrandNameBuffer);
-	
-    for (int i = 0; i < argsCount; i++) {
-        if (i > 0) String_AppendConst(&BrandName, " ");
-        String_AppendString(&BrandName, &args[i]);
-    }
-
-    Server.AppName = BrandName;
-    CPE_SendExtInfo(64);
-
-	Chat_AddRaw("&aClient brand updated.");
-}
-
-static struct ChatCommand BrandCommand = {
-	"brand", BrandCommand_Execute, 0,
-	{
-		"&a/client brand <name> -- Velocity",
-		"&eSets the client brand name sent to servers.",
-	}
-};*/
-
-/*########################################################################################################################*
 *------------------------------------------------------AntiAFKCommand----------------------------------------------------*
 *#########################################################################################################################*/
 
@@ -2709,6 +2736,7 @@ static struct ChatCommand CFPSCommand = {
 /*########################################################################################################################*
 *-----------------------------------------------------------Hacks--------------------------------------------------------*
 *#########################################################################################################################*/
+extern cc_bool LocalMotd;
 
 void HacksComp_ApplyMode(struct HacksComp* h) {
     if (h->Mode == HAX_ON) {
@@ -2717,6 +2745,8 @@ void HacksComp_ApplyMode(struct HacksComp* h) {
         h->CanSpeed          = true;
         h->CanRespawn        = true;
         h->CanUseThirdPerson = true;
+        h->CanSeeAllNames    = true;
+        LocalMotd         = true;
     }
     else if (h->Mode == HAX_OFF) {
         h->CanFly            = false;
@@ -2724,22 +2754,18 @@ void HacksComp_ApplyMode(struct HacksComp* h) {
         h->CanSpeed          = false;
         h->CanRespawn        = false;
         h->CanUseThirdPerson = false;
+        h->CanSeeAllNames    = false;
+        LocalMotd            = true;
     }
     else if (h->Mode == HAX_SERVER) {
-        cc_bool hasServerData =
-            h->ServerCanFly ||
-            h->ServerCanNoclip ||
-            h->ServerCanSpeed ||
-            h->ServerCanRespawn ||
-            h->ServerCanUse3rdPerson;
-
-        if (!hasServerData) {
+        if (!h->HasServerPerms) {
             /* fallback for singleplayer */
             h->CanFly            = true;
             h->CanNoclip         = true;
             h->CanSpeed          = true;
             h->CanRespawn        = true;
             h->CanUseThirdPerson = true;
+            h->CanSeeAllNames    = true;
             return;
         }
 
@@ -2748,6 +2774,7 @@ void HacksComp_ApplyMode(struct HacksComp* h) {
         h->CanSpeed          = h->ServerCanSpeed;
         h->CanRespawn        = h->ServerCanRespawn;
         h->CanUseThirdPerson = h->ServerCanUse3rdPerson;
+        LocalMotd         = false;
     }
 }
 
@@ -2783,6 +2810,9 @@ static void Command_Hax(const cc_string* args, int argsCount) {
     else if (String_CaselessEqualsConst(arg, "status")) {
         Chat_AddRaw("&e--- Hax Status ---");
 
+        Chat_Add1("&7Server: &f%s", &Server.Name);
+        Chat_Add1("&7MOTD: &f%s", &Server.MOTD);
+
         Chat_Add1("&7Mode: %i", &h->Mode);
 
         #define SHOW(name, val) \
@@ -2793,6 +2823,9 @@ static void Command_Hax(const cc_string* args, int argsCount) {
         SHOW("Speed", h->CanSpeed);
         SHOW("Respawn", h->CanRespawn);
         SHOW("3rd Person", h->CanUseThirdPerson);
+
+        SHOW("See All Names", h->CanSeeAllNames);
+        SHOW("OP", h->IsOp);
 
         #undef SHOW
 
@@ -2805,6 +2838,256 @@ static struct ChatCommand HaxCommand = {
     0,
     {
         "&a/client Hax on/off/server/status"
+    }
+};
+
+/*########################################################################################################################*
+*-----------------------------------------------------------Name---------------------------------------------------------*
+*#########################################################################################################################*/
+
+void ApplyClientName(void)
+{
+    Server_UseCustomAppName = Server_CustomAppName.length > 0;
+
+    Server.AppName.length = 0;
+
+    if (Server_UseCustomAppName) {
+        String_AppendString(&Server.AppName, &Server_CustomAppName);
+    } else {
+        String_AppendConst(&Server.AppName, GAME_APP_NAME);
+        String_AppendConst(&Server.AppName, Platform_AppNameSuffix);
+    }
+}
+
+static void ClientName(const cc_string* args, int argsCount)
+{
+    if (argsCount == 0) {
+        Chat_AddRaw("&eUsage: /client name <name/reset>");
+        return;
+    }
+
+    cc_string name = args[0];
+
+    static const cc_string reset = String_FromConst("reset");
+    if (String_Equals(&name, &reset)) {
+        Options_Set(OPT_CLIENT_NAME, &String_Empty);
+
+        Server_CustomAppName.length = 0;
+        Server_UseCustomAppName = false;
+
+        Chat_AddRaw("&aClient name reset");
+        return;
+    }
+
+    Options_Set(OPT_CLIENT_NAME, &name);
+
+    Server_CustomAppName.length = 0;
+    String_AppendString(&Server_CustomAppName, &name);
+
+    Server_UseCustomAppName = true;
+
+    ApplyClientName();
+
+    CPE_SendExtInfo(67);
+
+    Chat_AddRaw("&aClient name updated");
+}
+
+static struct ChatCommand CommandClientName = {
+    "name", ClientName,
+    0,
+    {
+        "&a/client name <name/reset>"
+    }
+};
+
+/*########################################################################################################################*
+*-----------------------------------------------------------Censor-------------------------------------------------------*
+*#########################################################################################################################*/
+
+static const char* Censor_Whitelist[] = {
+    "assignment",
+    "assistant",
+    "assist",
+    "association",
+    "associate",
+    "assembly",
+    "assemble",
+    "assume",
+    "asset",
+    "assert",
+    "assure",
+    "pass",
+    "passage",
+    "passenger",
+    "passion",
+    "mass",
+    "massive",
+    "classic",
+    "class",
+    "glass",
+    "grass",
+    "brass",
+    "bass",
+    "compass",
+    "compassion",
+    "glasses",
+    "Scunthorpe",
+    "assassin",
+    "assumption",
+    "classicube",
+    "classical"
+};
+
+static cc_bool Censor_IsWhitelisted(const cc_string* str) {
+    int i;
+
+    for (i = 0; i < Array_Elems(Censor_Whitelist); i++) {
+        if (String_CaselessEqualsConst(str, Censor_Whitelist[i])) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+static char Censor_NormalizeChar(char c) {
+    if (c >= 'A' && c <= 'Z') c += ' ';
+
+    switch (c) {
+        case '1': return 'i';
+        case '!': return 'i';
+        case '3': return 'e';
+        case '0': return 'o';
+        case '@': return 'a';
+        case '$': return 's';
+        case '7': return 't';
+        default: return c;
+    }
+}
+
+static cc_bool Censor_IsNoise(char c) {
+    return (
+        c == '-' || c == '_' || c == '.' || c == ' ' || c == '|' ||
+        (c >= '0' && c <= '9') // numbers
+    );
+}
+
+static cc_bool Censor_IsLetter(char c) {
+    c = Censor_NormalizeChar(c);
+    return (c >= 'a' && c <= 'z');
+}
+
+static cc_bool Censor_IsWordBoundary(const cc_string* str, int pos) {
+    if (pos <= 0 || pos >= str->length) return true;
+
+    char prev = str->buffer[pos - 1];
+    char next = str->buffer[pos];
+
+    return Censor_IsNoise(prev) || Censor_IsNoise(next);
+}
+
+static void Censor_ReplaceWord(cc_string* str, const char* word, const char* repl) {
+    char buffer[STRING_SIZE];
+    cc_string out;
+    String_InitArray(out, buffer);
+
+    int wlen = String_Length(word);
+    if (wlen <= 0) return;
+
+    for (int i = 0; i < str->length; i++) {
+
+        int j = 0;
+        int k = i;
+
+        while (j < wlen && k < str->length) {
+            char c = str->buffer[k];
+
+            if (Censor_IsNoise(c)) {
+                k++;
+                continue;
+            }
+
+            char a = Censor_NormalizeChar(c);
+            char b = Censor_NormalizeChar(word[j]);
+
+            if (a == b) {
+                j++;
+                k++;
+            }
+            else {
+                // still allow stretch skipping
+                if (k > i && str->buffer[k] == str->buffer[k - 1]) {
+                    k++;
+                } else {
+                    break;
+                }
+            }
+        }
+
+        if (j == wlen) {
+            int start = i;
+            int end   = k;
+
+            while (start > 0 && Censor_IsLetter(str->buffer[start - 1])) {
+                start--;
+            }
+
+            while (end < str->length && Censor_IsLetter(str->buffer[end])) {
+                end++;
+            }
+
+            cc_string fullWord =
+                String_UNSAFE_Substring(str, start, end - start);
+
+            if (Censor_IsWhitelisted(&fullWord)) {
+                goto NO_MATCH;
+            }
+
+            for (int x = start; x < end; x++) {
+                String_Append(&out, '*');
+            }
+
+            i = end - 1;
+            continue;
+        }
+        NO_MATCH:
+            String_Append(&out, str->buffer[i]);
+    }
+
+    String_Copy(str, &out);
+}
+
+void Censor_Transform(const cc_string* in, cc_string* out) {
+    int i;
+
+    String_Copy(out, in);
+
+    for (i = 0; i < CENSOR_WORD_COUNT; i++) {
+        Censor_ReplaceWord(
+            out,
+            Censor_Blacklist[i],
+            "****"
+        );
+    }
+}
+
+static void CensorCommand_Execute(const cc_string* args, int argsCount) {
+    Censor_Auto = !Censor_Auto;
+
+    cc_string msg;
+    char buf[64];
+    String_InitArray(msg, buf);
+
+    String_AppendConst(&msg, Censor_Auto ? "&aCensor ON (reminder, that may make mistakes on positive ones.)" : "&cCensor OFF");
+    Chat_Send(&msg, false);
+}
+
+static struct ChatCommand CommandCensor  = {
+    "Censor", CensorCommand_Execute,
+    0,
+    {
+        "&a/client censor"
     }
 };
 
@@ -2857,6 +3140,8 @@ static void OnInit(void) {
     Commands_Register(&FPSCommand);
     Commands_Register(&CFPSCommand);
     Commands_Register(&HaxCommand);
+    Commands_Register(&CommandClientName);
+    Commands_Register(&CommandCensor);
 }
 
 static void OnFree(void) {
