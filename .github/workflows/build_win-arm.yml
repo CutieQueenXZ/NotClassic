@@ -28,12 +28,12 @@ jobs:
         id: compile
         env:
           COMMON_FLAGS: "-O1 -s -fno-stack-protector -fno-math-errno -Qn"
-          WIN32_FLAGS:  "-mwindows -Wl,-emain_real -DCC_NOMAIN"
+          WIN32_FLAGS:  "-mwindows"
         run: |
           LATEST_FLAG=-DCC_COMMIT_SHA=\"${GITHUB_SHA::9}\"
 
           cd src
-          armv7-w64-mingw32-gcc *.c ../third_party/bearssl/*.c ${{ env.COMMON_FLAGS }} ${{ env.WIN32_FLAGS }} -o cc-arm32-d3d11.exe $LATEST_FLAG -DCC_BUILD_MANUAL -DCC_BUILD_WIN -DCC_WIN_BACKEND=CC_WIN_BACKEND_WIN32 -DCC_GFX_BACKEND=CC_GFX_BACKEND_D3D11 -DCC_AUD_BACKEND=CC_AUD_BACKEND_WINMM -DCC_NET_BACKEND=CC_NET_BACKEND_BUILTIN -DCC_SSL_BACKEND=CC_SSL_BACKEND_BEARSSL -DCC_BUILD_HTTPCLIENT -DCC_BUILD_SCHANNEL -lwinmm -limagehlp
+          armv7-w64-mingw32-gcc *.c ../third_party/bearssl/*.c ${{ env.COMMON_FLAGS }} ${{ env.WIN32_FLAGS }} -o cc-arm32-d3d11.exe $LATEST_FLAG -DCC_BUILD_MANUAL -DCC_BUILD_WIN -DCC_WIN_BACKEND=CC_WIN_BACKEND_WIN32 -DCC_GFX_BACKEND=CC_GFX_BACKEND_D3D11 -DCC_AUD_BACKEND=CC_AUD_BACKEND_WINMM -DCC_NET_BACKEND=CC_NET_BACKEND_BUILTIN -DCC_SSL_BACKEND=CC_SSL_BACKEND_BEARSSL -DCC_BUILD_HTTPCLIENT -lwinmm -limagehlp
 
       - uses: ./.github/actions/notify_failure
         if: ${{ always() && steps.compile.outcome == 'failure' }}
@@ -62,12 +62,12 @@ jobs:
         id: compile
         env:
           COMMON_FLAGS: "-O1 -s -fno-stack-protector -fno-math-errno -Qn"
-          WIN64_FLAGS:  "-mwindows -Wl,-emain_real -DCC_NOMAIN"
+          WIN64_FLAGS:  "-mwindows"
         run: |
           LATEST_FLAG=-DCC_COMMIT_SHA=\"${GITHUB_SHA::9}\"
 
           cd src
-          aarch64-w64-mingw32-gcc *.c ../third_party/bearssl/*.c ${{ env.COMMON_FLAGS }} ${{ env.WIN64_FLAGS }} -o cc-arm64-d3d11.exe $LATEST_FLAG -DCC_BUILD_MANUAL -DCC_BUILD_WIN -DCC_WIN_BACKEND=CC_WIN_BACKEND_WIN32 -DCC_GFX_BACKEND=CC_GFX_BACKEND_D3D11 -DCC_AUD_BACKEND=CC_AUD_BACKEND_WINMM -DCC_NET_BACKEND=CC_NET_BACKEND_BUILTIN -DCC_SSL_BACKEND=CC_SSL_BACKEND_BEARSSL -DCC_BUILD_HTTPCLIENT -DCC_BUILD_SCHANNEL -lwinmm -limagehlp
+          aarch64-w64-mingw32-gcc *.c ../third_party/bearssl/*.c ${{ env.COMMON_FLAGS }} ${{ env.WIN64_FLAGS }} -o cc-arm64-d3d11.exe $LATEST_FLAG -DCC_BUILD_MANUAL -DCC_BUILD_WIN -DCC_WIN_BACKEND=CC_WIN_BACKEND_WIN32 -DCC_GFX_BACKEND=CC_GFX_BACKEND_D3D11 -DCC_AUD_BACKEND=CC_AUD_BACKEND_WINMM -DCC_NET_BACKEND=CC_NET_BACKEND_BUILTIN -DCC_SSL_BACKEND=CC_SSL_BACKEND_BEARSSL -DCC_BUILD_HTTPCLIENT -lwinmm -limagehlp
 
       - uses: ./.github/actions/notify_failure
         if: ${{ always() && steps.compile.outcome == 'failure' }}
