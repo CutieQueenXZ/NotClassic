@@ -28,7 +28,7 @@ jobs:
         id: compile
         env:
           COMMON_FLAGS: "-O1 -s -fno-stack-protector -fno-math-errno -Qn"
-          WIN32_FLAGS:  "-mwindows -nostartfiles -Wl,-emain_real -DCC_NOMAIN"
+          WIN32_FLAGS:  "-mwindows -Wl,-emain_real -DCC_NOMAIN"
         run: |
           LATEST_FLAG=-DCC_COMMIT_SHA=\"${GITHUB_SHA::9}\"
 
@@ -62,7 +62,7 @@ jobs:
         id: compile
         env:
           COMMON_FLAGS: "-O1 -s -fno-stack-protector -fno-math-errno -Qn"
-          WIN64_FLAGS:  "-mwindows -nostartfiles -Wl,-emain_real -DCC_NOMAIN"
+          WIN64_FLAGS:  "-mwindows -Wl,-emain_real -DCC_NOMAIN"
         run: |
           LATEST_FLAG=-DCC_COMMIT_SHA=\"${GITHUB_SHA::9}\"
 
