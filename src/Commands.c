@@ -1145,7 +1145,7 @@ static void ClientEaster_Execute(const cc_string* args, int argsCount) {
 static struct ChatCommand ClientEasterCommand = {
     "easter",
     ClientEaster_Execute,
-    0,  // flags
+    0,
     {
         "&a/client easter",
         "&eSecret hidden modder easter egg"
@@ -1356,7 +1356,7 @@ static void CommandPCoord_Execute(const cc_string* args, int argsCount) {
     char msg[128];
     snprintf(
         msg, sizeof(msg),
-        "&a%s &7→ X=%.2f Y=%.2f Z=%.2f",
+        "&a%s &7 -> X=%.2f Y=%.2f Z=%.2f",
         target->NameRaw,
         target->Position.x,
         target->Position.y,
@@ -1367,8 +1367,7 @@ static void CommandPCoord_Execute(const cc_string* args, int argsCount) {
 }
 
 static struct ChatCommand ClientPCoordCommand = {
-    "pcoord",
-    CommandPCoord_Execute,
+    "pcoord", CommandPCoord_Execute,
     COMMAND_FLAG_UNSPLIT_ARGS,
     {
         "&a/client pcoord <player>",
@@ -1708,8 +1707,8 @@ static struct ChatCommand SilentRotCommand = {
     SilentRotcommand_Execute,
     0,
     {
-        "brrrrrrrrrr",
-        "idunno"
+        "/client silentrot",
+        "Stops giving packets of yaw and pitch to the server"
     }
 };
 
@@ -3079,8 +3078,7 @@ static void CensorCommand_Execute(const cc_string* args, int argsCount) {
     char buf[64];
     String_InitArray(msg, buf);
 
-    String_AppendConst(&msg, Censor_Auto ? "&aCensor ON (reminder, that may make mistakes on positive ones.)" : "&cCensor OFF");
-    Chat_Send(&msg, false);
+    Chat_AddRaw(Censor_Auto ? "&aCensor ON (reminder, that may make mistakes on positive ones.)" : "&cCensor OFF");
 }
 
 static struct ChatCommand CommandCensor  = {
@@ -3090,6 +3088,174 @@ static struct ChatCommand CommandCensor  = {
         "&a/client censor"
     }
 };
+
+/*########################################################################################################################*
+*--------------------------------------------------------Ping word-------------------------------------------------------*
+*#########################################################################################################################*/
+static void PingWord_Execute(const cc_string* args, int argsCount) {
+    int i;
+    char c;
+
+    if (argsCount == 0) {
+        Chat_AddRaw("&eUsage: /notifyword <word/reset>");
+        return;
+    }
+
+    static const cc_string reset = String_FromConst("reset");
+
+    if (String_Equals(&args[0], &reset)) {
+        ping_keyword.length = 0;
+        String_AppendConst(&ping_keyword, "ping");
+
+        Options_Set(OPT_PING_WORD, &ping_keyword);
+
+        Chat_AddRaw("&Notify word reset");
+        return;
+    }
+
+    /* letters only */
+    for (i = 0; i < args[0].length; i++) {
+        c = args[0].buffer[i];
+
+        if (!(
+            (c >= 'a' && c <= 'z') ||
+            (c >= 'A' && c <= 'Z')
+        )) {
+            Chat_AddRaw("&Notify word must contain letters only");
+            return;
+        }
+    }
+
+    /* minimum length */
+    if (args[0].length < 2) {
+        Chat_AddRaw("&Notify word must be at least 2 letters");
+        return;
+    }
+
+    ping_keyword.length = 0;
+
+    String_AppendString(&ping_keyword, &args[0]);
+
+    Options_Set(OPT_PING_WORD, &ping_keyword);
+
+    Chat_AddRaw("&Notify word updated!");
+}
+
+static struct ChatCommand CommandPingWord = {
+    "notifyword", PingWord_Execute,
+    1,
+    {
+        "&a/client notifyword <word/reset>"
+    }
+};
+
+/*########################################################################################################################*
+*--------------------------------------------------------Sudo Opsec------------------------------------------------------*
+*#########################################################################################################################*/
+
+static int opsec_stage = 0;
+static cc_bool opsec_active = false;
+static cc_uint64 opsec_nextTime = 0;
+
+static void Opsec_Execute(const cc_string* args, int argsCount)
+{
+    opsec_active = true;
+    opsec_stage = 0;
+    opsec_nextTime = Stopwatch_Measure();
+}
+
+static void Opsec_Schedule(cc_uint64 now, cc_uint64 delay) { opsec_nextTime = now + delay; }
+
+void Opsec_Helper(void) {
+    cc_uint64 now;
+
+    if (!opsec_active) return;
+
+    now = Stopwatch_Measure();
+
+    if (now < opsec_nextTime)
+        return;
+
+    if (opsec_stage == 0) {
+        opsec_stage++;
+        Opsec_Schedule(now, 2630000000);
+        return;
+    }
+
+    if (opsec_stage == 1) {
+        Chat_AddRaw("&7sometimes i dream about saving the world...");
+        opsec_stage++;
+        Opsec_Schedule(now, 6400000000);
+        return;
+    }
+
+    if (opsec_stage == 2) {
+        Chat_AddRaw("&8saving everyone from invisible hand...");
+        opsec_stage++;
+        Opsec_Schedule(now, 15000000000);
+        return;
+    }
+
+    if (opsec_stage == 3) {
+        cc_string msg;
+        char buf[128];
+
+        String_InitArray(msg, buf);
+        String_AppendConst(&msg, "/client crash");
+
+        Chat_Send(&msg, false);
+        opsec_active = false;
+    }
+}
+
+static struct ChatCommand CommandOpsec = {
+    "sudo opsec", Opsec_Execute,
+    0,
+    {
+        "&a/client sudo opsec"
+    }
+};
+
+/*########################################################################################################################*
+*------------------------------------------------------------Haste-------------------------------------------------------*
+*#########################################################################################################################*/
+
+static void Haste_Execute(const cc_string* args, int argc) {
+    extern cc_bool haste_enabled;
+    extern float haste_multiplier;
+    if (argc < 1) {
+        Chat_AddRaw("&e/client haste <number|off> 10 = slower 0 = faster");
+        return;
+    }
+
+    if (String_CaselessEqualsConst(&args[0], "off")) {
+        haste_enabled = false;
+        Chat_AddRaw("&cHaste disabled");
+        return;
+    }
+
+    float v;
+    if (!Convert_ParseFloat(&args[0], &v)) {
+        Chat_AddRaw("&cInvalid number");
+        return;
+    }
+
+    if (v <= 0) v = 0.000000000001f;
+
+    haste_enabled = true;
+    haste_multiplier = v;
+
+    Chat_AddRaw("&aHaste enabled");
+}
+
+static struct ChatCommand CommandHaste = {
+    "haste", Haste_Execute,
+    1,
+    {
+        "&e/client haste <number|off> . 10 = slower . 0 = faster"
+    }
+};
+
 
 /*########################################################################################################################*
 *------------------------------------------------------Commands component-------------------------------------------------*
@@ -3142,6 +3308,9 @@ static void OnInit(void) {
     Commands_Register(&HaxCommand);
     Commands_Register(&CommandClientName);
     Commands_Register(&CommandCensor);
+    Commands_Register(&CommandPingWord);
+    Commands_Register(&CommandOpsec);
+    Commands_Register(&CommandHaste);
 }
 
 static void OnFree(void) {

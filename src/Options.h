@@ -98,6 +98,9 @@ Copyright 2014-2025 ClassiCube | Licensed under BSD-3
 #define OPT_CLIENT_NAME "client-name"
 #define OPT_FLY_SLIDE "hacks-flyslide"
 
+#define OPT_PING_WORD "ping-word"
+#define OPT_PING_NOTIFY "ping-notify-enabled"
+
 #define LOPT_SESSION  "launcher-session"
 #define LOPT_USERNAME "launcher-cc-username"
 #define LOPT_PASSWORD "launcher-cc-password"

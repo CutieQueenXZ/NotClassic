@@ -13,6 +13,8 @@
 #include "Lolcat.h"
 #include "UwU.h"
 #include "CensorWords.h"
+#include "Audio.h"
+#include "Menus.h"
  
 static char status[5][STRING_SIZE];
 static char bottom[3][STRING_SIZE];
@@ -36,6 +38,9 @@ float Chat_SmallAnnouncementLeft;
 
 CC_BIG_VAR struct StringsBuffer Chat_Log, Chat_InputLog;
 cc_bool Chat_Logging;
+
+char ping_keyword_buf[STRING_SIZE];
+cc_string ping_keyword = String_FromArray(ping_keyword_buf);
 
 /*########################################################################################################################*
 *-------------------------------------------------------Chat logging------------------------------------------------------*
@@ -226,6 +231,12 @@ void Chat_AddOf(const cc_string* text, int msgType) {
 
 		Chat_GetLogTime(Chat_Log.count) = Game.Time;
 		AppendChatLog(&str);
+
+		if (ping_notify_enabled && ping_keyword.length && !String_ContainsConst(&str, "Notification!") && String_ContainsConst(&str, ping_keyword.buffer)) {
+			Chat_AddRaw("&bNotification!");
+			Audio_PlayPingSound();
+		}
+
 		StringsBuffer_Add(&Chat_Log, &str);
 	} else if (msgType >= MSG_TYPE_STATUS_1 && msgType <= MSG_TYPE_STATUS_3) {
 		/* Status[0] is for texture pack downloading message */
@@ -308,12 +319,20 @@ void Chat_Send(const cc_string* text, cc_bool logUsage) {
 
 static void OnInit(void) {
 #if defined CC_BUILD_MOBILE || defined CC_BUILD_WEB
-	/* Better to not log chat by default on mobile/web, */
-	/* since it's not easily visible to end users */
-	Chat_Logging = Options_GetBool(OPT_CHAT_LOGGING, false);
+    Chat_Logging = Options_GetBool(OPT_CHAT_LOGGING, false);
 #else
-	Chat_Logging = Options_GetBool(OPT_CHAT_LOGGING, true);
+    Chat_Logging = Options_GetBool(OPT_CHAT_LOGGING, true);
 #endif
+
+    ping_keyword.length = 0;
+
+    /* load saved value */
+    Options_Get(OPT_PING_WORD, &ping_keyword, "ping");
+
+    /* fallback */
+    if (!ping_keyword.length) {
+        String_AppendConst(&ping_keyword, "ping");
+    }
 }
 
 static void ClearCPEMessages(void) {

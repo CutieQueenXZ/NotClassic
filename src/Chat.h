@@ -74,5 +74,7 @@ CC_API void Chat_Add2(const char* format, const void* a1, const void* a2);
 CC_API void Chat_Add3(const char* format, const void* a1, const void* a2, const void* a3);
 CC_API void Chat_Add4(const char* format, const void* a1, const void* a2, const void* a3, const void* a4);
 
+extern cc_string ping_keyword;
+
 CC_END_HEADER
 #endif

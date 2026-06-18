@@ -67,6 +67,10 @@ CC_NOINLINE static cc_bool IsOnlyChatActive(void) {
 /*########################################################################################################################*
 *--------------------------------------------------------HUDScreen--------------------------------------------------------*
 *#########################################################################################################################*/
+int cps_counter = 0;
+int cps_display = 0;
+float cps_timer = 0.0f;
+
 static struct HUDScreen {
 	Screen_Body
 	struct FontDesc font;
@@ -103,9 +107,9 @@ static void HUDScreen_RemakeLine1(struct HUDScreen* s) {
 	} else if (fps == 0) {
 		/* Running at less than 1 FPS.. */
 		real_fps = s->frames / s->accumulator;
-		String_Format1(&status, "%f1 fps, ", &real_fps);
+		String_Format2(&status, "%f1 fps, %i cps, ", &real_fps, &cps_display);
 	} else {
-		String_Format1(&status, "%i fps, ", &fps);
+		String_Format2(&status, "%i fps, %i cps, ", &fps, &cps_display);
 	}
 
 	if (Game_ClassicMode) {
@@ -324,14 +328,24 @@ static void HUDScreen_Free(void* screen) {
 }
 
 static void HUDScreen_UpdateFPS(struct HUDScreen* s, float delta) {
-	s->frames++;
-	s->accumulator += delta;
-	if (s->accumulator < 1.0f) return;
+    s->frames++;
+    s->accumulator += delta;
 
-	HUDScreen_RemakeLine1(s);
-	s->accumulator    = 0.0f;
-	s->frames         = 0;
-	Game.ChunkUpdates = 0;
+    cps_timer += delta;
+
+    if (cps_timer >= 1.0f) {
+        cps_display = cps_counter;
+        cps_counter = 0;
+        cps_timer = 0.0f;
+    }
+
+    if (s->accumulator < 1.0f) return;
+
+    HUDScreen_RemakeLine1(s);
+
+    s->accumulator = 0.0f;
+    s->frames = 0;
+    Game.ChunkUpdates = 0;
 }
 
 static void HUDScreen_Update(void* screen, float delta) {

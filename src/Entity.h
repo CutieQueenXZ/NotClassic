@@ -32,6 +32,8 @@ extern struct IGameComponent Entities_Component;
 
 void HacksComp_ApplyMode(struct HacksComp* h);
 
+extern struct Entity* FakeEntity;
+
 enum NameMode {
 	NAME_MODE_NONE, NAME_MODE_HOVERED, NAME_MODE_ALL, NAME_MODE_ALL_HOVERED, NAME_MODE_ALL_UNSCALED, NAME_MODE_COUNT
 };

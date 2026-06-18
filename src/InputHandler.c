@@ -34,6 +34,8 @@ cc_bool autoclick_left  = false;
 cc_bool autoclick_right = false;
 float autoclick_timer = 0.0f;
 float autoclick_delay = 0.0f;
+cc_bool haste_enabled = false;
+float haste_multiplier = 1.0f;
 #ifdef CC_BUILD_WEB
 static cc_bool suppressEscape;
 #endif
@@ -407,6 +409,9 @@ static cc_bool CheckIsFree(BlockID block) {
 }
 
 static void InputHandler_DeleteBlock(void) {
+    extern int cps_counter;
+    cps_counter++;
+	
 	IVec3 pos;
 	BlockID old;
 	/* always play delete animations, even if we aren't deleting a block */
@@ -423,6 +428,9 @@ static void InputHandler_DeleteBlock(void) {
 }
 
 static void InputHandler_PlaceBlock(void) {
+    extern int cps_counter;
+    cps_counter++;
+	
 	IVec3 pos;
 	BlockID old, block;
 	pos = Game_SelectedPos.translatedPos;
@@ -466,8 +474,12 @@ void InputHandler_Tick(float delta) {
 	input_deltaAcc += delta;
 	if (Gui.InputGrab) return;
 
+	if (haste_enabled) { left = true; right = true; }
+
 	/* Only tick 4 times per second when held down */
-	if (input_deltaAcc < 0.2495f && !autoclick_left && !autoclick_right) return;
+	float threshold = 0.2495f;
+	if (haste_enabled) { threshold *= haste_multiplier; }
+	if (input_deltaAcc < threshold && !autoclick_left && !autoclick_right) return;
 	/* NOTE: 0.2495 is used instead of 0.25 to produce delta time */
 	/*  values slightly closer to the old code which measured */
 	/*  elapsed time using DateTime_CurrentUTC_MS() instead */

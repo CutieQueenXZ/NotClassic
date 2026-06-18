@@ -1389,6 +1389,8 @@ static void NC_SetAutoclickDelay(int v);
 static int NC_GetCFPS(void);
 static void NC_SetCFPS(int v);
 
+cc_bool ping_notify_enabled = true;
+
 static void NotClassicOptionsScreen_ContextRecreated(void* screen);	
 
 static cc_bool NC_GetAutoclickEnabled(void) {
@@ -1472,6 +1474,15 @@ void NC_SetLolcat(cc_bool v) {
     Chat_AddRaw(v ? "&aLolcat ON" : "&cLolcat OFF");
 }
 
+cc_bool NC_GetPingNotify(void) {
+    return ping_notify_enabled;
+}
+
+void NC_SetPingNotify(cc_bool v) {
+    ping_notify_enabled = v;
+    Chat_AddRaw(v ? "&aPing notifications ON" : "&cPing notifications OFF");
+}
+
 void NotClassicOptions_Init(struct MenuOptionsScreen* s) {
     MenuOptionsScreen_BeginButtons(s);
     {
@@ -1490,6 +1501,7 @@ void NotClassicOptions_Init(struct MenuOptionsScreen* s) {
 			NC_GetCFPSEnabled,
 			NC_SetCFPSEnabled,
 			NULL);
+
 		MenuOptionsScreen_AddInt(s, "CFPS Value",
 			1, 240, 60,
 			NC_GetCFPSValue,
@@ -1505,6 +1517,11 @@ void NotClassicOptions_Init(struct MenuOptionsScreen* s) {
 			NC_GetLolcat,
 			NC_SetLolcat,
 			"&dRainbow chaos chat");
+
+		MenuOptionsScreen_AddBool(s, "Ping Notify",
+			NC_GetPingNotify,
+			NC_SetPingNotify,
+			"&dPlays sound when 'ping' appears in chat");
 			}
     MenuOptionsScreen_EndButtons(s, -1, Menu_SwitchPause);
 }

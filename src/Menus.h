@@ -88,6 +88,8 @@ extern cc_bool autoclick_left;
 extern cc_bool autoclick_right;
 extern int autoclick_cps;
 
+extern cc_bool ping_notify_enabled;
+
 typedef cc_bool (*Button_GetBool)(void);
 typedef void    (*Button_SetBool)(cc_bool value);
 void MenuOptionsScreen_AddBool(struct MenuOptionsScreen* s, const char* name, 
