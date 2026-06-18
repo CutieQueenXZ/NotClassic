@@ -53,6 +53,7 @@ static void Sounds_Start(void) {
 
 void Audio_PlayDigSound(cc_uint8 type)  { }
 void Audio_PlayStepSound(cc_uint8 type) { }
+void Audio_PlayPingSound(void) { }
 
 void Sounds_LoadDefault(void) { }
 #else

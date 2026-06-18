@@ -32,22 +32,22 @@ jobs:
 
       - uses: ./.github/actions/upload_build
         with:
-          SOURCE_FILE: 'build/ps1/NotClassic-ps1.elf'
+          SOURCE_FILE: 'build/ps1/ClassiCube-ps1.elf'
           DEST_NAME: 'NotClassic-PS1.elf'
 
       - uses: ./.github/actions/upload_build
         with:
-          SOURCE_FILE: 'NotClassic-ps1.exe'
+          SOURCE_FILE: 'ClassiCube-ps1.exe'
           DEST_NAME: 'NotClassic-PS1.exe'
           
       - uses: ./.github/actions/upload_build
         with:
-          SOURCE_FILE: 'NotClassic-ps1.bin'
+          SOURCE_FILE: 'ClassiCube-ps1.bin'
           DEST_NAME: 'NotClassic-PS1.bin'
           
       - uses: ./.github/actions/upload_build
         with:
-          SOURCE_FILE: 'NotClassic-ps1.cue'
+          SOURCE_FILE: 'ClassiCube-ps1.cue'
           DEST_NAME: 'NotClassic-PS1.cue'
           
           

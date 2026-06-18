@@ -31,22 +31,22 @@ jobs:
           
       - uses: ./.github/actions/upload_build
         with:
-          SOURCE_FILE: 'build/saturn/NotClassic-saturn.elf'
+          SOURCE_FILE: 'build/saturn/ClassiCube-saturn.elf'
           DEST_NAME: 'NotClassic-saturn.elf'
           
       - uses: ./.github/actions/upload_build
         with:
-          SOURCE_FILE: 'NotClassic-saturn.iso'
+          SOURCE_FILE: 'ClassiCube-saturn.iso'
           DEST_NAME: 'NotClassic-saturn.iso'
           
       - uses: ./.github/actions/upload_build
         with:
-          SOURCE_FILE: 'NotClassic-saturn.bin'
+          SOURCE_FILE: 'ClassiCube-saturn.bin'
           DEST_NAME: 'NotClassic-saturn.bin'
           
       - uses: ./.github/actions/upload_build
         with:
-          SOURCE_FILE: 'NotClassic-saturn.cue'
+          SOURCE_FILE: 'ClassiCube-saturn.cue'
           DEST_NAME: 'NotClassic-saturn.cue'
           
           
