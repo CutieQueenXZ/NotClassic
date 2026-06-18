@@ -3252,7 +3252,7 @@ static struct ChatCommand CommandHaste = {
     "haste", Haste_Execute,
     1,
     {
-        "&e/client haste <number|off> . 10 = slower . 0 = faster"
+        "&e/client haste <number/off> . 10 = slower . 0 = faster"
     }
 };
 
