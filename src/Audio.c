@@ -22,7 +22,8 @@ int Audio_SoundsVolume, Audio_MusicVolume;
 
 const char* const Sound_Names[SOUND_COUNT] = {
 	"none", "wood", "gravel", "grass", "stone",
-	"metal", "glass", "cloth", "sand", "snow",
+	"metal", "glass", "cloth", "sand", "snow", 
+	"ping",
 };
 
 #ifdef CC_BIG_ENDIAN
@@ -55,7 +56,7 @@ void Audio_PlayStepSound(cc_uint8 type) { }
 
 void Sounds_LoadDefault(void) { }
 #else
-struct Soundboard digBoard, stepBoard;
+struct Soundboard uiBoard, digBoard, stepBoard;
 static RNGState sounds_rnd;
 
 #define WAV_FourCC(a, b, c, d) (((cc_uint32)a << 24) | ((cc_uint32)b << 16) | ((cc_uint32)c << 8) | (cc_uint32)d)
@@ -219,9 +220,11 @@ static cc_bool SelectZipEntry(const cc_string* path) { return true; }
 static cc_result ProcessZipEntry(const cc_string* path, struct Stream* stream, struct ZipEntry* source) {
 	static const cc_string dig  = String_FromConst("dig_");
 	static const cc_string step = String_FromConst("step_");
+	static const cc_string ui   = String_FromConst("ui_");
 	
 	Soundboard_Load(&digBoard,  &dig,  path, stream);
 	Soundboard_Load(&stepBoard, &step, path, stream);
+	Soundboard_Load(&uiBoard,   &ui,   path, stream);
 	return 0;
 }
 
@@ -274,6 +277,7 @@ static void Sounds_Free(void) { Sounds_Stop(); }
 
 void Audio_PlayDigSound(cc_uint8 type)  { Sounds_Play(type, &digBoard); }
 void Audio_PlayStepSound(cc_uint8 type) { Sounds_Play(type, &stepBoard); }
+void Audio_PlayPingSound(void) { Sounds_Play(SOUND_PING, &uiBoard); }
 #endif
 
 

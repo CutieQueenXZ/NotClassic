@@ -119,7 +119,7 @@ cc_result SoundContext_PollBusy(struct AudioContext* ctx, cc_bool* isBusy);
 enum SoundType {
 	SOUND_NONE,  SOUND_WOOD,  SOUND_GRAVEL, SOUND_GRASS, 
 	SOUND_STONE, SOUND_METAL, SOUND_GLASS,  SOUND_CLOTH, 
-	SOUND_SAND,  SOUND_SNOW,  SOUND_COUNT
+	SOUND_SAND,  SOUND_SNOW,  SOUND_PING,	SOUND_COUNT
 };
 extern const char* const Sound_Names[SOUND_COUNT];
 
@@ -134,8 +134,10 @@ struct SoundGroup {
 };
 struct Soundboard { struct SoundGroup groups[SOUND_COUNT]; };
 
-extern struct Soundboard digBoard, stepBoard;
+extern struct Soundboard uiBoard, digBoard, stepBoard;
 void Sounds_LoadDefault(void);
+
+void Audio_PlayPingSound(void);
 
 CC_END_HEADER
 #endif
