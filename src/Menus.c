@@ -37,7 +37,6 @@
 #include "Lighting.h"
 #include "InputHandler.h"
 #include "Protocol.h"
-#include <math.h>
 #include <stdio.h>
 
 /*########################################################################################################################*
