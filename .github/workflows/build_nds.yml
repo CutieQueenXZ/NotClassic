@@ -43,7 +43,7 @@ jobs:
 
       - uses: ./.github/actions/upload_build
         with:
-          SOURCE_FILE: 'NotClassic-nonet.nds'
+          SOURCE_FILE: 'ClassiCube-nonet.nds'
           DEST_NAME: 'NotClassic-nonet.nds'
           
       - uses: ./.github/actions/upload_build

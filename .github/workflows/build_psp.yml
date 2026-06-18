@@ -35,7 +35,7 @@ jobs:
           
       - uses: ./.github/actions/upload_build
         with:
-          SOURCE_FILE: 'NotClassic-psp.elf'
+          SOURCE_FILE: 'ClassiCube-psp.elf'
           DEST_NAME: 'NotClassic-psp.elf'
           
           

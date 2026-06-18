@@ -30,17 +30,17 @@ jobs:
           
       - uses: ./.github/actions/upload_build
         with:
-          SOURCE_FILE: 'NotClassic-dc.cdi'
+          SOURCE_FILE: 'ClassiCube-dc.cdi'
           DEST_NAME: 'NotClassic-dc.cdi'
           
       - uses: ./.github/actions/upload_build
         with:
-          SOURCE_FILE: 'NotClassic-dc.iso'
+          SOURCE_FILE: 'ClassiCube-dc.iso'
           DEST_NAME: 'NotClassic-dc.iso'
           
       - uses: ./.github/actions/upload_build
         with:
-          SOURCE_FILE: 'NotClassic-dc.elf'
+          SOURCE_FILE: 'ClassiCube-dc.elf'
           DEST_NAME: 'NotClassic-dc.elf'
           
           

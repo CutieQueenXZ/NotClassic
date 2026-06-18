@@ -26,12 +26,12 @@ jobs:
           
       - uses: ./.github/actions/upload_build
         with:
-          SOURCE_FILE: 'NotClassic-vita.vpk'
+          SOURCE_FILE: 'ClassiCube-vita.vpk'
           DEST_NAME: 'NotClassic-vita.vpk'
           
       - uses: ./.github/actions/upload_build
         with:
-          SOURCE_FILE: 'NotClassic-vita.elf'
+          SOURCE_FILE: 'ClassiCube-vita.elf'
           DEST_NAME: 'NotClassic-vita.elf'
           
           

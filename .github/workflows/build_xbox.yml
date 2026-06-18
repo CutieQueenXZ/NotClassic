@@ -31,12 +31,12 @@ jobs:
           
       - uses: ./.github/actions/upload_build
         with:
-          SOURCE_FILE: 'NotClassic-xbox.xbe'
+          SOURCE_FILE: 'ClassiCube-xbox.xbe'
           DEST_NAME: 'NotClassic-xbox.xbe'
           
       - uses: ./.github/actions/upload_build
         with:
-          SOURCE_FILE: 'NotClassic-xbox.iso'
+          SOURCE_FILE: 'ClassiCube-xbox.iso'
           DEST_NAME: 'NotClassic-xbox.iso'
           
           

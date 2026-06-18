@@ -35,17 +35,17 @@ jobs:
 
       - uses: ./.github/actions/upload_build
         with:
-          SOURCE_FILE: 'NotClassic-PS3.elf'
+          SOURCE_FILE: 'ClassiCube-PS3.elf'
           DEST_NAME: 'NotClassic-PS3.elf'
 
       - uses: ./.github/actions/upload_build
         with:
-          SOURCE_FILE: 'NotClassic-PS3.self'
+          SOURCE_FILE: 'ClassiCube-PS3.self'
           DEST_NAME: 'NotClassic-PS3.self'
           
       - uses: ./.github/actions/upload_build
         with:
-          SOURCE_FILE: 'NotClassic-PS3.pkg'
+          SOURCE_FILE: 'ClassiCube-PS3.pkg'
           DEST_NAME: 'NotClassic-PS3.pkg'
           
           
