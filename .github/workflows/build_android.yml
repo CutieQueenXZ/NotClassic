@@ -1,4 +1,4 @@
-name: NotClassic Android (Legacy)
+name: NotClassic Android
 on:
   push:
     branches:
