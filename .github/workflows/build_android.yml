@@ -1,4 +1,4 @@
-name: NotClassic Android
+name: Build latest (Android)
 on:
   push:
     branches:
