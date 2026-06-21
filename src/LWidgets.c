@@ -494,13 +494,52 @@ void LSlider_SetProgress(struct LSlider* w, int progress) {
 }
 
 
+//either what should i type here...
+
+static void PingColumn_Draw(struct ServerInfo* row, struct DrawTextArgs* args, struct LTableCell* cell, struct Context2D* ctx) {
+    if (row->ping < 0) {
+        String_Format1(&args->text, "%s", "&f--");
+        return;
+    }
+
+    if (row->ping < 80) {
+        String_Format1(&args->text, "&2%i ms", &row->ping);
+    } else if (row->ping < 160) {
+        String_Format1(&args->text, "&e%i ms", &row->ping);
+    } else {
+        String_Format1(&args->text, "&c%i ms", &row->ping);
+    }
+}
+
+static int PingColumn_Sort(
+	const struct ServerInfo* a,
+	const struct ServerInfo* b)
+{
+	return b->ping - a->ping;
+}
+
 /*########################################################################################################################*
 *------------------------------------------------------TableWidget--------------------------------------------------------*
 *#########################################################################################################################*/
 static void FlagColumn_Draw(struct ServerInfo* row, struct DrawTextArgs* args, struct LTableCell* cell, struct Context2D* ctx) {
-	struct Flag* flag = Flags_Get(row);
-	if (!flag) return;
-	Context2D_DrawPixels(ctx, cell->x + flagXOffset, cell->y + flagYOffset, &flag->bmp);
+    struct Flag* flag = Flags_Get(row);
+
+    args->text.length = 0;
+
+    char c1 = row->country[0];
+    char c2 = row->country[1];
+
+    if (c1 >= 'a' && c1 <= 'z') c1 -= 32;
+    if (c2 >= 'a' && c2 <= 'z') c2 -= 32;
+
+    String_Append(&args->text, c1);
+    String_Append(&args->text, c2);
+
+	cell->x += 26;
+
+    if (flag && flag->bmp.scan0) {
+        Context2D_DrawPixels(ctx, cell->x + flagXOffset, cell->y + flagYOffset, &flag->bmp);
+    }
 }
 
 static void NameColumn_Draw(struct ServerInfo* row, struct DrawTextArgs* args, struct LTableCell* cell, struct Context2D* ctx) {
@@ -535,9 +574,10 @@ static int SoftwareColumn_Sort(const struct ServerInfo* a, const struct ServerIn
 }
 
 static struct LTableColumn tableColumns[] = {
-	{ "",          15, FlagColumn_Draw,     NULL,                false, false, false },
+	{ "Flag",      42, FlagColumn_Draw,     NULL,                false, false, false },
 	{ "Name",     328, NameColumn_Draw,     NameColumn_Sort,     true,  false, true  },
 	{ "Players",   73, PlayersColumn_Draw,  PlayersColumn_Sort,  true,  true,  true  },
+	{ "Ping", 	   70, PingColumn_Draw, 	PingColumn_Sort, 	 true,  true,  true  },
 	{ "Uptime",    73, UptimeColumn_Draw,   UptimeColumn_Sort,   true,  true,  true  },
 	{ "Software", 143, SoftwareColumn_Draw, SoftwareColumn_Sort, false, true,  true  }
 };

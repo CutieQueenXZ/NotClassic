@@ -607,7 +607,7 @@ cc_bool Input_HandleMouseWheel(float delta) {
 	if (!h->Enabled || !h->CanUseThirdPerson) return false;
 
 	if (input_fovIndex == -1.0f) input_fovIndex = (float)Camera.ZoomFov;
-	input_fovIndex -= delta * 5.0f;
+	input_fovIndex -= delta * 3.0f;
 
 	Math_Clamp(input_fovIndex, 1.0f, Camera.DefaultFov);
 	return InputHandler_SetFOV((int)input_fovIndex);

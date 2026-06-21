@@ -232,3 +232,5 @@ UpgradeLog*.htm
 NotClassic
 
 client.log
+
+plugins/
