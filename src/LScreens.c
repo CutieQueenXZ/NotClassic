@@ -20,6 +20,10 @@
 #include "Game.h"
 #include "main.h"
 
+static cc_bool servers_autoRefresh;
+static float servers_refreshTimer;
+static TimeMS servers_lastRefresh = 0;
+
 #define LAYOUTS static const struct LLayout
 #define IsBackButton(btn) (btn == CCKEY_ESCAPE || btn == CCPAD_SELECT || btn == CCPAD_2)
 
@@ -1252,12 +1256,13 @@ static struct ServersScreen {
 	LScreen_Layout
 	struct LInput iptSearch, iptHash;
 	struct LButton btnBack, btnConnect, btnRefresh;
+	struct LCheckbox cbAutoRefresh;
 	struct LTable table;
 	struct FontDesc rowFont;
 	float tableAcc;
 } ServersScreen CC_BIG_VAR;
 
-static struct LWidget* servers_widgets[6];
+static struct LWidget* servers_widgets[7];
 
 LAYOUTS srv_iptSearch[] = { { ANCHOR_MIN, 10 }, { ANCHOR_MIN, 10 } };
 LAYOUTS srv_iptHash[]   = { { ANCHOR_MIN, 10 }, { ANCHOR_MAX, 10 } };
@@ -1266,7 +1271,7 @@ LAYOUTS srv_table[5]    = { { ANCHOR_MIN, 10 }, { ANCHOR_MIN | LLAYOUT_EXTRA, 50
 LAYOUTS srv_btnBack[]    = { { ANCHOR_MAX,  10 }, { ANCHOR_MIN, 10 } };
 LAYOUTS srv_btnConnect[] = { { ANCHOR_MAX,  10 }, { ANCHOR_MAX, 10 } };
 LAYOUTS srv_btnRefresh[] = { { ANCHOR_MAX, 135 }, { ANCHOR_MIN, 10 } };
-
+LAYOUTS srv_cbAutoRefresh[] = { { ANCHOR_MAX, 260 }, { ANCHOR_MIN, 12 } };
 
 static void ServersScreen_FetchError(struct HttpRequest* req) {
 	cc_string log; char logBuffer[256];
@@ -1344,6 +1349,8 @@ static void ServersScreen_ReloadServers(struct ServersScreen* s) {
 	}
 }
 
+static void ServersScreen_AutoRefresh(struct LCheckbox* w) { servers_autoRefresh = w->value; }
+
 static void ServersScreen_AddWidgets(struct ServersScreen* s) {
 	LInput_Add(s,  &s->iptSearch, 370, "Search servers..",               srv_iptSearch);
 	LInput_Add(s,  &s->iptHash,   475, "classicube.net/server/play/...", srv_iptHash);
@@ -1354,6 +1361,8 @@ static void ServersScreen_AddWidgets(struct ServersScreen* s) {
 				ServersScreen_Connect, srv_btnConnect);
 	LButton_Add(s, &s->btnRefresh, 110, 30, "Refresh", 
 				ServersScreen_Refresh, srv_btnRefresh);
+	LCheckbox_Add(s, &s->cbAutoRefresh, "Auto Refresh",
+    			ServersScreen_AutoRefresh, srv_cbAutoRefresh);
 
 	s->iptSearch.skipsEnter    = true;
 	s->iptSearch.TextChanged   = ServersScreen_SearchChanged;
@@ -1382,6 +1391,9 @@ static void ServersScreen_Activated(struct LScreen* s_) {
 	LInput_ClearText(&s->iptSearch);
 
 	ServersScreen_ReloadServers(s);
+
+	LCheckbox_Set(&s->cbAutoRefresh, servers_autoRefresh);
+	servers_refreshTimer = 0;
 	/* This is so typing on keyboard by default searchs server list */
 	/* But don't do that when it would cause on-screen keyboard to show */
 	if (Window_Main.SoftKeyboard) return;
@@ -1397,6 +1409,21 @@ static void ServersScreen_Tick(struct LScreen* s_) {
 	LWebTask_Tick(&FetchFlagsTask.Base, NULL);
 	if (flagsCount != FetchFlagsTask.count) {
 		LBackend_TableFlagAdded(&s->table);
+	}
+
+	if (servers_autoRefresh && !FetchServersTask.Base.working) {
+		TimeMS now = Stopwatch_Measure();
+
+		if (!servers_lastRefresh)
+			servers_lastRefresh = now;
+
+		if ((now - servers_lastRefresh) >= 1400000000) {
+			servers_lastRefresh = now;
+
+			FetchServersTask_Run();
+
+			LButton_SetConst(&s->btnRefresh, "&eWorking..");
+		}
 	}
 
 	if (!FetchServersTask.Base.working) return;

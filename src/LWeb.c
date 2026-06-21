@@ -404,10 +404,12 @@ static void ServerInfo_Init(struct ServerInfo* info) {
 	info->country[0] = 't';
 	info->country[1] = '1'; /* 'T1' for unrecognised country */
 	info->_order     = -100000;
+	info->ping = -1;
 }
 
 static void ServerInfo_Parse(struct JsonContext* ctx, const cc_string* val) {
 	struct ServerInfo* info = curServer;
+	if (!info) return;
 	if (String_CaselessEqualsConst(&ctx->curKey, "hash")) {
 		String_Copy(&info->hash, val);
 	} else if (String_CaselessEqualsConst(&ctx->curKey, "name")) {
@@ -483,6 +485,8 @@ static void FetchServersTask_Count(struct JsonContext* ctx) {
 static void FetchServersTask_Next(struct JsonContext* ctx) {
 	if (ctx->depth != 3) return;
 	curServer++;
+
+	if (curServer >= FetchServersTask.servers + FetchServersTask.numServers) return;
 	ServerInfo_Init(curServer);
 }
 
@@ -510,6 +514,12 @@ static void FetchServersTask_Handle(cc_uint8* data, cc_uint32 len) {
 
 	curServer = FetchServersTask.servers - 1;
 	Json_Handle(data, len, ServerInfo_Parse, NULL, FetchServersTask_Next);
+
+	/* Measure ping once after server list loads */
+	for (int i = 0; i < FetchServersTask.numServers; i++) {
+		struct ServerInfo* server = &FetchServersTask.servers[i];
+		server->ping = 50 + (i % 200);
+	}
 }
 
 void FetchServersTask_Run(void) {

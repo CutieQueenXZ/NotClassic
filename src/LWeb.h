@@ -36,7 +36,7 @@ cc_bool Json_Parse(struct JsonContext* ctx);
 /* Represents all known details about a server. */
 struct ServerInfo {
 	cc_string hash, name, ip, mppass, software;
-	int players, maxPlayers, port, uptime;
+	int players, maxPlayers, port, uptime, ping;
 	cc_bool featured;
 	char country[2];
 	int _order; /* (internal) order in servers table after filtering */
