@@ -3391,7 +3391,7 @@ static void KCuboidCommand_Execute(const cc_string* args, int argsCount) {
     kc_block = -1;
     if (value.length) {
         kc_block = DrawOpCommand_ParseBlock(&value);
-        if (kc_block == -1) return;
+        if (kc_block == BLOCK_AIR) return;
     }
 
     DrawOpCommand_Begin();
