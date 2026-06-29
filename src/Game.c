@@ -763,6 +763,7 @@ void Game_RenderFrame(void) {
 	BStream_Tick();
 	Menu_TickPostRender();
 	Motd_Tick();
+	KCuboidCommand_Tick();
 
 	Gfx_BeginFrame();
 	Gfx_BindIb(Gfx.DefaultIb);

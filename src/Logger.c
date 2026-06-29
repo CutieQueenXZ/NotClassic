@@ -751,7 +751,7 @@ void Logger_DoAbort(cc_result result, const char* raw_msg, void* ctx) {
 	cc_string msg; char msgBuffer[3070 + 1];
 	String_InitArray_NT(msg, msgBuffer);
 
-	String_AppendConst(&msg, "ClassiCube crashed." _NL);
+	String_AppendConst(&msg, "NotClassic crashed." _NL);
 	if (raw_msg) String_Format1(&msg, "Reason: %c" _NL, raw_msg);
 	#ifdef CC_COMMIT_SHA
 	String_AppendConst(&msg, "Commit SHA: " CC_COMMIT_SHA GFX_BACKEND _NL);
@@ -791,7 +791,7 @@ void Logger_DoAbort(cc_result result, const char* raw_msg, void* ctx) {
 void Logger_FailToStart(const char* raw_msg) {
 	cc_string msg = String_FromReadonly(raw_msg);
 
-	Window_ShowDialog("Failed to start ClassiCube", raw_msg);
+	Window_ShowDialog("Failed to start NotClassic Client", raw_msg);
 	LogCrashHeader();
 	Logger_Log(&msg);
 	Process_Exit(1);

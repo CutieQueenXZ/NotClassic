@@ -96,6 +96,7 @@ extern struct FetchServersData {
 	struct ServerInfo* servers; /* List of all public servers on server list. */
 	cc_uint16* orders;          /* Order of each server (after sorting) */
 	int numServers;             /* Number of public servers. */
+	void (*OnComplete)(void);
 } FetchServersTask;
 void FetchServersTask_Run(void);
 void FetchServersTask_ResetOrder(void);

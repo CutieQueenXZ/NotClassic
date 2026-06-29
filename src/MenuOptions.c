@@ -1211,10 +1211,6 @@ static void MiscSettingsScreen_InitWidgets(struct MenuOptionsScreen* s) {
 			MiO_GetSensitivity, MiO_SetSensitivity, NULL);
 	}
 	MenuOptionsScreen_EndButtons(s, -1, Menu_SwitchOptions);
-
-	/* Disable certain options */
-	if (!Server.IsSinglePlayer) Menu_Remove(s, 0);
-	if (!Server.IsSinglePlayer) Menu_Remove(s, 4);
 }
 
 void MiscOptionsScreen_Show(void) {
@@ -1371,6 +1367,10 @@ static void NostalgiaFunctionalityScreen_InitWidgets(struct MenuOptionsScreen* s
 void NostalgiaFunctionalityScreen_Show(void) {
 	MenuOptionsScreen_Show(NostalgiaFunctionalityScreen_InitWidgets);
 }
+
+/*########################################################################################################################*
+*--------------------------------------------------------NotClassic------------------------------------------------------*
+*#########################################################################################################################*/
 
 int autoclick_cps = 10;
 cc_bool cfps_enabled = false;

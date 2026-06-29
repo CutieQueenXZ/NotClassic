@@ -2588,8 +2588,6 @@ static void AutoClickCommand_Execute(const cc_string* args, int argsCount) {
 
     if (argsCount >= 2) {
         Convert_ParseFloat(&args[1], &autoclick_delay);
-        if (autoclick_delay < 0.01f) autoclick_delay = 0.01f;
-        if (autoclick_delay > 5.0f)  autoclick_delay = 5.0f;
     }
 
     if (String_CaselessEqualsConst(&args[0], "left")) {
@@ -3257,6 +3255,159 @@ static struct ChatCommand CommandHaste = {
 };
 
 /*########################################################################################################################*
+*------------------------------------------------------KCuboidCommand----------------------------------------------------*
+*#########################################################################################################################*/
+#define KC_CHUNK_SIZE 5
+
+static cc_bool kc_active;
+
+static IVec3 kc_min, kc_max;
+static IVec3 kc_chunkOrigin;
+static IVec3 kc_chunkIndex;
+static IVec3 kc_cur;
+
+static BlockID kc_block;
+
+static cc_uint64 kc_lastTime;
+static cc_uint64 kc_delay_us = 40000;
+
+static void KCuboid_TeleportLayerCenter(void) {
+    struct Entity* e = &Entities.CurPlayer->Base;
+    struct LocationUpdate u;
+    Vec3 p;
+
+    int sizeX = KC_CHUNK_SIZE;
+    int sizeZ = KC_CHUNK_SIZE;
+
+    if (kc_chunkOrigin.x + sizeX > kc_max.x)
+        sizeX = kc_max.x - kc_chunkOrigin.x + 1;
+
+    if (kc_chunkOrigin.z + sizeZ > kc_max.z)
+        sizeZ = kc_max.z - kc_chunkOrigin.z + 1;
+
+    p.x = kc_chunkOrigin.x + sizeX * 0.5f;
+    p.y = kc_cur.y + 1.6f;
+    p.z = kc_chunkOrigin.z + sizeZ * 0.5f;
+
+    u.flags = LU_HAS_POS;
+    u.pos = p;
+
+    e->VTABLE->SetLocation(e, &u);
+}
+
+static void KCuboid_MoveToNextChunk(void) {
+    kc_chunkIndex.x++;
+    if (kc_min.x + kc_chunkIndex.x * KC_CHUNK_SIZE > kc_max.x) {
+        kc_chunkIndex.x = 0;
+
+        kc_chunkIndex.z++;
+
+        if (kc_min.z + kc_chunkIndex.z * KC_CHUNK_SIZE > kc_max.z) {
+            kc_chunkIndex.z = 0;
+
+            kc_chunkIndex.y++;
+        }
+    }
+
+    kc_chunkOrigin.x = kc_min.x + kc_chunkIndex.x * KC_CHUNK_SIZE;
+    kc_chunkOrigin.z = kc_min.z + kc_chunkIndex.z * KC_CHUNK_SIZE;
+    kc_chunkOrigin.y = kc_min.y + kc_chunkIndex.y * KC_CHUNK_SIZE;
+    kc_cur = kc_chunkOrigin;
+    KCuboid_TeleportLayerCenter();
+}
+
+void KCuboidCommand_Tick(void) {
+    if (!kc_active) return;
+
+    cc_uint64 now = Stopwatch_Measure();
+
+    if (Stopwatch_ElapsedMicroseconds(kc_lastTime, now) < kc_delay_us)
+        return;
+
+    kc_lastTime = now;
+
+    if (kc_cur.x < kc_min.x || kc_cur.x > kc_max.x || kc_cur.y < kc_min.y || kc_cur.y > kc_max.y || kc_cur.z < kc_min.z || kc_cur.z > kc_max.z) {
+        kc_active = false;
+        Chat_AddRaw("&cKCuboid aborted (out of bounds)");
+        return;
+    }
+
+    Game_ChangeBlock(kc_cur.x, kc_cur.y, kc_cur.z, kc_block);
+
+    kc_cur.x++;
+
+    if (kc_cur.x >= kc_chunkOrigin.x + KC_CHUNK_SIZE || kc_cur.x > kc_max.x) {
+        kc_cur.x = kc_chunkOrigin.x;
+        kc_cur.z++;
+    }
+
+    if (kc_cur.z >= kc_chunkOrigin.z + KC_CHUNK_SIZE || kc_cur.z > kc_max.z) {
+        kc_cur.z = kc_chunkOrigin.z;
+
+        kc_cur.y++;
+        kc_cur.x = kc_chunkOrigin.x;
+
+        KCuboid_TeleportLayerCenter();
+    }
+
+    if (kc_cur.y >= kc_chunkOrigin.y + KC_CHUNK_SIZE || kc_cur.y > kc_max.y) {
+
+        KCuboid_MoveToNextChunk();
+
+        if (kc_chunkOrigin.y > kc_max.y) {
+            kc_active = false;
+            Chat_AddRaw("&aKCuboid complete.");
+        }
+        return;
+    }
+}
+
+static void KCuboidCommand_Draw(IVec3 min, IVec3 max) {
+    kc_min = min;
+    kc_max = max;
+
+    kc_chunkIndex = (IVec3){0,0,0};
+
+    kc_chunkOrigin = min;
+    kc_cur = min;
+
+    kc_block = Inventory_SelectedBlock;
+    
+    KCuboid_TeleportLayerCenter();
+
+    kc_active = true;
+    kc_lastTime = Stopwatch_Measure();
+}
+
+static void KCuboidCommand_Execute(const cc_string* args, int argsCount) {
+    cc_string value = *args;
+
+    DrawOpCommand_ResetState();
+    drawOp_name = "KCuboid";
+    drawOp_Func = KCuboidCommand_Draw;
+
+    DrawOpCommand_ExtractPersistArg(&value);
+
+    kc_block = -1;
+    if (value.length) {
+        kc_block = DrawOpCommand_ParseBlock(&value);
+        if (kc_block == -1) return;
+    }
+
+    DrawOpCommand_Begin();
+}
+
+static struct ChatCommand KCuboidCommand = {
+    "KCuboid", KCuboidCommand_Execute,
+    0,
+    {
+        "&a/client kcuboid",
+        "&eChunk-based safe cuboid (5x5x5 stepping)",
+        "&ePrevents lag spikes + reduces server stress"
+    }
+};
+
+/*########################################################################################################################*
 *------------------------------------------------------Commands component-------------------------------------------------*
 *#########################################################################################################################*/
 static void OnInit(void) {
@@ -3310,6 +3461,7 @@ static void OnInit(void) {
     Commands_Register(&CommandPingWord);
     Commands_Register(&CommandOpsec);
     Commands_Register(&CommandHaste);
+    Commands_Register(&KCuboidCommand);
 }
 
 static void OnFree(void) {

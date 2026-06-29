@@ -388,7 +388,7 @@ static void MPConnection_SendChat(const cc_string* text) {
 }
 
 static void MPConnection_Disconnect(void) {
-	static const cc_string title  = String_FromConst("DISSS-Disconnected!");
+	static const cc_string title  = String_FromConst("DISSS-Disconnected! :V");
 	static const cc_string reason = String_FromConst("You've lost connection to the server btw");
 	Game_Disconnect(&title, &reason);
 }
@@ -403,7 +403,7 @@ static void DisconnectReadFailed(cc_result res) {
 }
 
 static void DisconnectInvalidOpcode(cc_uint8 opcode) {
-	static const cc_string title = String_FromConst("DISSS-Disconnected");
+	static const cc_string title = String_FromConst("DISSS-Disconnected :(");
 	cc_string tmp; char tmpBuffer[STRING_SIZE];
 	String_InitArray(tmp, tmpBuffer);
 
@@ -565,6 +565,7 @@ static void OnInit(void) {
 		Server.AppName.length = 0;
 		String_AppendString(&Server.AppName, &Server_CustomAppName);
 	} else {
+		Server.AppName.length = 0;	
 		String_AppendConst(&Server.AppName, GAME_APP_NAME);
 		String_AppendConst(&Server.AppName, Platform_AppNameSuffix);
 	}
