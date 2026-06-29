@@ -1260,9 +1260,11 @@ static struct ServersScreen {
 	struct LTable table;
 	struct FontDesc rowFont;
 	float tableAcc;
+    cc_uint64 lastRefresh;
+	struct LLabel lblUpdated;
 } ServersScreen CC_BIG_VAR;
 
-static struct LWidget* servers_widgets[7];
+static struct LWidget* servers_widgets[8];
 
 LAYOUTS srv_iptSearch[] = { { ANCHOR_MIN, 10 }, { ANCHOR_MIN, 10 } };
 LAYOUTS srv_iptHash[]   = { { ANCHOR_MIN, 10 }, { ANCHOR_MAX, 10 } };
@@ -1272,6 +1274,7 @@ LAYOUTS srv_btnBack[]    = { { ANCHOR_MAX,  10 }, { ANCHOR_MIN, 10 } };
 LAYOUTS srv_btnConnect[] = { { ANCHOR_MAX,  10 }, { ANCHOR_MAX, 10 } };
 LAYOUTS srv_btnRefresh[] = { { ANCHOR_MAX, 135 }, { ANCHOR_MIN, 10 } };
 LAYOUTS srv_cbAutoRefresh[] = { { ANCHOR_MAX, 260 }, { ANCHOR_MIN, 12 } };
+LAYOUTS srv_lblUpdated[] = { { ANCHOR_MAX, 425 }, { ANCHOR_MIN, 12 } };
 
 static void ServersScreen_FetchError(struct HttpRequest* req) {
 	cc_string log; char logBuffer[256];
@@ -1363,6 +1366,8 @@ static void ServersScreen_AddWidgets(struct ServersScreen* s) {
 				ServersScreen_Refresh, srv_btnRefresh);
 	LCheckbox_Add(s, &s->cbAutoRefresh, "Auto Refresh",
     			ServersScreen_AutoRefresh, srv_cbAutoRefresh);
+	LLabel_Add(s, &s->lblUpdated,  "-- ago", 
+				srv_lblUpdated);
 
 	s->iptSearch.skipsEnter    = true;
 	s->iptSearch.TextChanged   = ServersScreen_SearchChanged;
@@ -1381,6 +1386,8 @@ static void ServersScreen_AddWidgets(struct ServersScreen* s) {
 	}
 	LTable_Reset(&s->table);
 }
+
+static void ServersScreen_OnServersLoaded(void) { ServersScreen.lastRefresh = Stopwatch_Measure(); }
 
 static void ServersScreen_Activated(struct LScreen* s_) {
 	struct ServersScreen* s = (struct ServersScreen*)s_;
@@ -1424,6 +1431,18 @@ static void ServersScreen_Tick(struct LScreen* s_) {
 
 			LButton_SetConst(&s->btnRefresh, "&eWorking..");
 		}
+	}
+
+	if (s->lastRefresh) {
+		cc_uint64 now = Stopwatch_Measure();
+		int secs = Stopwatch_ElapsedMS(s->lastRefresh, now) / 1000;
+		char buf[64];
+		cc_string str;
+
+		String_InitArray_NT(str, buf);
+		String_Format1(&str, "%i s ago", &secs);
+		buf[str.length] = '\0';
+		LLabel_SetConst(&s->lblUpdated, buf);
 	}
 
 	if (!FetchServersTask.Base.working) return;
@@ -1473,6 +1492,8 @@ void ServersScreen_SetActive(void) {
 
 	s->onEnterWidget  = (struct LWidget*)&s->btnConnect;
 	s->onEscapeWidget = (struct LWidget*)&s->btnBack;
+
+	FetchServersTask.OnComplete = ServersScreen_OnServersLoaded;
 
 	Launcher_SetScreen((struct LScreen*)s);
 }

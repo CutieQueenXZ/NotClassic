@@ -535,11 +535,18 @@ static void FlagColumn_Draw(struct ServerInfo* row, struct DrawTextArgs* args, s
     String_Append(&args->text, c1);
     String_Append(&args->text, c2);
 
-	cell->x += 26;
+	cell->x += 30;
 
     if (flag && flag->bmp.scan0) {
         Context2D_DrawPixels(ctx, cell->x + flagXOffset, cell->y + flagYOffset, &flag->bmp);
     }
+}
+
+static int FlagColumn_Sort(const struct ServerInfo* a, const struct ServerInfo* b) {
+    int cmp;
+    cmp = a->country[0] - b->country[0];
+    if (cmp) return cmp;
+    return a->country[1] - b->country[1];
 }
 
 static void NameColumn_Draw(struct ServerInfo* row, struct DrawTextArgs* args, struct LTableCell* cell, struct Context2D* ctx) {
@@ -574,7 +581,7 @@ static int SoftwareColumn_Sort(const struct ServerInfo* a, const struct ServerIn
 }
 
 static struct LTableColumn tableColumns[] = {
-	{ "Flag",      42, FlagColumn_Draw,     NULL,                false, false, false },
+	{ "Flag",      46, FlagColumn_Draw,     FlagColumn_Sort,     false, true,  true  },
 	{ "Name",     328, NameColumn_Draw,     NameColumn_Sort,     true,  false, true  },
 	{ "Players",   73, PlayersColumn_Draw,  PlayersColumn_Sort,  true,  true,  true  },
 	{ "Ping", 	   70, PingColumn_Draw, 	PingColumn_Sort, 	 true,  true,  true  },
@@ -726,8 +733,14 @@ void LTable_Reset(struct LTable* w) {
 }
 
 static int ShouldShowServer(struct LTable* w, struct ServerInfo* server) {
-	return String_CaselessContains(&server->name, w->filter) 
-		&& (Launcher_ShowEmptyServers || server->players > 0);
+    cc_bool match = false;
+
+    match |= String_CaselessContains(&server->name, w->filter);
+    match |= String_CaselessContains(&server->software, w->filter);
+
+    if (!match) return 0;
+    if (!Launcher_ShowEmptyServers && server->players <= 0) return 0;
+    return 1;
 }
 
 void LTable_ApplyFilter(struct LTable* w) {

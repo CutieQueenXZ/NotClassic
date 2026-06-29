@@ -520,6 +520,7 @@ static void FetchServersTask_Handle(cc_uint8* data, cc_uint32 len) {
 		struct ServerInfo* server = &FetchServersTask.servers[i];
 		server->ping = 50 + (i % 200);
 	}
+	if (FetchServersTask.OnComplete) FetchServersTask.OnComplete();
 }
 
 void FetchServersTask_Run(void) {

@@ -47,6 +47,7 @@ void Stream_Tick(void);
 void BStream_Tick(void);
 void ApplyClientName(void);
 void Motd_Tick(void);
+void KCuboidCommand_Tick(void);
 
 /* Registers a client-side command, allowing it to be used with /client [cmd name] */
 CC_API  void Commands_Register(      struct ChatCommand* cmd);
